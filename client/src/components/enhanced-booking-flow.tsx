@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MapPin, Car, Calendar, CreditCard, ChevronRight, Check } from "lucide-react";
+import { MapPin, Car, Calendar, CreditCard, ChevronRight, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -46,29 +46,31 @@ interface AddOn {
   price: number;
   icon: string;
   availableFor: string[]; // package IDs where this add-on is available
+  description?: string;
 }
 
 const addOns: AddOn[] = [
+  {
+    id: "felgenreinigung",
+    name: "Felgenreinigung & Detailpflege",
+    price: 3.99,
+    icon: "🛞",
+    availableFor: ["aussen", "beide", "premium"],
+    description: "Gründliche Handreinigung der Felgen-Innenseiten, Rillen & Speichen mit speziellen Bürsten. Keine Maschinen – 100% manuell & umweltschonend."
+  },
   {
     id: "duftbaum",
     name: "Duftbaum",
     price: 3,
     icon: "🌿",
-    availableFor: ["aussen", "innen", "beide", "premium"]
+    availableFor: ["innen", "beide", "premium"]
   },
   {
     id: "kofferraum-intensiv",
     name: "Kofferraum intensiv",
     price: 5,
     icon: "📦",
-    availableFor: ["aussen", "innen", "beide", "premium"]
-  },
-  {
-    id: "spiegel-innen",
-    name: "Spiegel innen",
-    price: 4,
-    icon: "🪞",
-    availableFor: ["aussen", "beide", "premium"]
+    availableFor: ["innen", "beide", "premium"]
   },
   {
     id: "desinfektion",
@@ -89,6 +91,7 @@ const addOns: AddOn[] = [
 export function EnhancedBookingFlow({ selectedPackage, onComplete, onCancel }: EnhancedBookingFlowProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedAddOns, setSelectedAddOns] = useState<string[]>([]);
+  const [skipLicensePlate, setSkipLicensePlate] = useState(false);
   const [formData, setFormData] = useState({
     location: "",
     vehicleType: "",
@@ -122,6 +125,38 @@ export function EnhancedBookingFlow({ selectedPackage, onComplete, onCancel }: E
 
   const vehicleSurcharge = vehicleTypes.find(v => v.id === formData.vehicleType)?.surcharge || 0;
   const totalPrice = selectedPackage.price + addOnTotal + vehicleSurcharge;
+
+  // Auto-advance on vehicle selection (Uber-style)
+  const handleVehicleSelect = (vehicleId: string) => {
+    setFormData(prev => ({ ...prev, vehicleType: vehicleId }));
+    // Auto-advance to next step after brief delay
+    setTimeout(() => setCurrentStep(2), 500);
+  };
+
+  // Auto-advance on license plate input (4-5 characters)
+  useEffect(() => {
+    if (formData.licensePlate.length >= 4 && currentStep === 2 && !skipLicensePlate) {
+      const timer = setTimeout(() => setCurrentStep(3), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [formData.licensePlate, currentStep, skipLicensePlate]);
+
+  // Handle "skip license plate" option
+  const handleSkipLicensePlate = () => {
+    setSkipLicensePlate(true);
+    setFormData(prev => ({ ...prev, licensePlate: "" }));
+    setCurrentStep(3);
+  };
+
+  // Initialize date to 2025 if not set
+  useEffect(() => {
+    if (!formData.date) {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const dateString = tomorrow.toISOString().split('T')[0];
+      setFormData(prev => ({ ...prev, date: dateString }));
+    }
+  }, [formData.date]);
 
   const toggleAddOn = (addOnId: string) => {
     setSelectedAddOns(prev => 
@@ -215,7 +250,7 @@ export function EnhancedBookingFlow({ selectedPackage, onComplete, onCancel }: E
                   transition={{ delay: index * 0.1 }}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  onClick={() => setFormData({...formData, vehicleType: vehicle.id})}
+                  onClick={() => handleVehicleSelect(vehicle.id)}
                   className={`p-6 rounded-2xl border cursor-pointer transition-all ${
                     formData.vehicleType === vehicle.id
                       ? "border-primary bg-primary/10 shadow-lg"
@@ -269,28 +304,39 @@ export function EnhancedBookingFlow({ selectedPackage, onComplete, onCancel }: E
             className="space-y-6"
           >
             <div className="text-center mb-8">
-              <h3 className="text-2xl font-bold mb-2">Nummernschild</h3>
-              <p className="text-muted-foreground">Optional - für eine persönlichere Erfahrung</p>
+              <h3 className="text-2xl font-bold mb-2">Kennzeichen</h3>
+              <p className="text-muted-foreground">Auto-Weiterleitung nach 4-5 Zeichen</p>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-6">
               <div>
+                <Label htmlFor="licensePlate" className="text-lg font-medium">Kennzeichen eingeben</Label>
                 <Input
-                  value={formData.licensePlate}
-                  onChange={(e) => setFormData({...formData, licensePlate: e.target.value})}
+                  id="licensePlate"
                   placeholder="z.B. MZ-AB 123"
-                  className="text-center text-lg p-6 rounded-2xl border-2"
+                  value={formData.licensePlate}
+                  onChange={(e) => setFormData(prev => ({ ...prev, licensePlate: e.target.value.toUpperCase() }))}
+                  className="mt-3 text-lg py-4 text-center font-mono tracking-wider touch-target mobile-optimized"
+                  maxLength={12}
+                  autoFocus
                 />
+                <p className="text-sm text-muted-foreground mt-2 text-center">
+                  {formData.licensePlate.length >= 4 
+                    ? "✅ Automatische Weiterleitung..." 
+                    : `${4 - formData.licensePlate.length} Zeichen bis zur Weiterleitung`
+                  }
+                </p>
               </div>
 
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => setCurrentStep(3)}
-                className="w-full p-4 text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Weiter ohne Kennzeichen
-              </motion.button>
+              <div className="flex justify-center">
+                <Button
+                  onClick={handleSkipLicensePlate}
+                  variant="outline"
+                  className="rounded-2xl px-8 py-3 text-muted-foreground border-dashed hover:bg-muted/50 touch-target mobile-optimized"
+                >
+                  🆔 Ohne Kennzeichen fortfahren
+                </Button>
+              </div>
             </div>
           </motion.div>
         );
@@ -332,6 +378,9 @@ export function EnhancedBookingFlow({ selectedPackage, onComplete, onCancel }: E
                       <div>
                         <div className="font-semibold">{addOn.name}</div>
                         <div className="text-sm text-primary">+{addOn.price}€</div>
+                        {addOn.description && (
+                          <div className="text-xs text-muted-foreground mt-1">{addOn.description}</div>
+                        )}
                       </div>
                     </div>
                     <motion.div
@@ -415,7 +464,8 @@ export function EnhancedBookingFlow({ selectedPackage, onComplete, onCancel }: E
                     value={formData.date}
                     onChange={(e) => setFormData({...formData, date: e.target.value})}
                     min={new Date().toISOString().split('T')[0]}
-                    className="text-base p-4 rounded-2xl border-2"
+                    max={new Date(2025, 11, 31).toISOString().split('T')[0]}
+                    className="text-base p-4 rounded-2xl border-2 touch-target mobile-optimized"
                   />
                   
                   <div className="grid grid-cols-2 gap-3">
