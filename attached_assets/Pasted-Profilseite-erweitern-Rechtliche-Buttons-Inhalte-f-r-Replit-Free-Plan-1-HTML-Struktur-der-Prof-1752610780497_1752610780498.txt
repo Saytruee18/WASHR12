@@ -1,0 +1,158 @@
+Profilseite erweitern: Rechtliche Buttons & Inhalte (für Replit Free Plan)
+1. HTML-Struktur der Profilseite anpassen
+Finde in deinem Replit-Projekt die Datei, die für die Profilseite zuständig ist (oft profile.html, App.js wenn es ein React/Vue-Projekt ist, oder ein Teil deines Haupt-HTMLs).
+
+Suche den Bereich, wo "Support kontaktieren" steht. Füge darunter (oder in einem passenden Bereich am Ende der Liste) die neuen Links hinzu.
+
+Beispiel (wenn du reines HTML/CSS/JS verwendest):
+
+HTML
+
+<div class="profile-option" onclick="showLegalContent('impressum')">
+    <span class="icon">📄</span> <span>Impressum</span>
+    <span class="arrow">›</span>
+</div>
+
+<div class="profile-option" onclick="showLegalContent('datenschutz')">
+    <span class="icon">🔒</span> <span>Datenschutzerklärung</span>
+    <span class="arrow">›</span>
+</div>
+
+<div class="profile-option" onclick="showLegalContent('agb')">
+    <span class="icon">📜</span> <span>AGB</span>
+    <span class="arrow">›</span>
+</div>
+
+<div class="profile-option" onclick="showLegalContent('widerrufsrecht')">
+    <span class="icon">↩️</span>
+    <span>Widerrufsrecht</span>
+    <span class="arrow">›</span>
+</div>
+
+<div id="legalModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center;">
+    <div style="background-color: #333; padding: 20px; border-radius: 8px; max-width: 80%; max-height: 80%; overflow-y: auto; color: white;">
+        <h2 id="legalModalTitle"></h2>
+        <p id="legalModalContent"></p>
+        <button onclick="closeLegalModal()" style="margin-top: 20px; padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">Schließen</button>
+    </div>
+</div>
+profile-option: Dies ist eine Beispielklasse für dein Styling, damit die neuen Buttons wie die anderen Optionen aussehen.
+
+onclick="showLegalContent('...')": Dies ist wichtig! Es ruft eine JavaScript-Funktion auf, die den Inhalt basierend auf dem übergebenen Namen ('impressum', 'datenschutz', 'agb') anzeigt.
+
+legalModal: Dies ist ein einfaches Pop-up (Modal-Fenster), das den Text anzeigt. Es ist standardmäßig ausgeblendet (display: none;).
+
+2. JavaScript-Logik für die Inhalte und das Modal hinzufügen
+Füge diesen JavaScript-Code in deine Haupt-JavaScript-Datei ein (z.B. script.js oder direkt in einem <script>-Tag am Ende deines HTML-<body>).
+
+JavaScript
+
+// 1. Die Inhalte für Impressum, Datenschutz, AGB usw.
+//    Speichere diese Texte direkt in deinem JavaScript.
+//    Das spart das Laden externer Dateien und ist effizient für Replit Free Plan.
+const legalTexts = {
+    impressum: {
+        title: "Impressum",
+        content: `
+            WASHR
+            Inhaber: [Dein Name/Firmenname]
+            Adresse: [Deine Straße und Hausnummer]
+            [Deine Postleitzahl und Stadt]
+            E-Mail: washr.mainz@gmail.com
+            Telefon: [Deine Telefonnummer, optional]
+
+            Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV:
+            [Dein Name]
+        `
+    },
+    datenschutz: {
+        title: "Datenschutzerklärung",
+        content: `
+            **1. Erhebung und Verarbeitung personenbezogener Daten**
+            Wir erheben und verarbeiten personenbezogene Daten nur, soweit dies für die Begründung, inhaltliche Ausgestaltung oder Änderung des Rechtsverhältnisses erforderlich ist (Bestandsdaten). Personenbezogene Daten über die Inanspruchnahme unserer Internetseiten (Nutzungsdaten) erheben und verarbeiten wir nur, soweit dies erforderlich ist, um die Inanspruchnahme des Dienstes zu ermöglichen oder abzurechnen.
+
+            **2. Datensicherheit**
+            Wir sichern unsere Website und sonstigen Systeme durch technische und organisatorische Maßnahmen gegen Verlust, Zerstörung, Zugriff, Veränderung oder Verbreitung Ihrer Daten durch unbefugte Personen.
+
+            **3. Auskunftsrecht**
+            Sie haben jederzeit das Recht auf Auskunft über die bezüglich Ihrer Person gespeicherten Daten, deren Herkunft und Empfänger sowie den Zweck der Datenverarbeitung. Auskunft über die gespeicherten Daten erhalten Sie unter washr.mainz@gmail.com.
+
+            **4. Cookies**
+            Unsere App verwendet keine Cookies, die personenbezogene Daten speichern.
+
+            **5. Änderungen dieser Datenschutzerklärung**
+            Wir behalten uns vor, diese Datenschutzerklärung anzupassen, damit sie stets den aktuellen rechtlichen Anforderungen entspricht oder um Änderungen unserer Leistungen in der Datenschutzerklärung umzusetzen, z. B. bei der Einführung neuer Services.
+        `
+    },
+    agb: {
+        title: "Allgemeine Geschäftsbedingungen (AGB)",
+        content: `
+            **1. Geltungsbereich**
+            Diese Allgemeinen Geschäftsbedingungen (AGB) regeln die Nutzung der WASHR-App und die Inanspruchnahme unserer Reinigungsdienstleistungen.
+
+            **2. Vertragsschluss**
+            Die Darstellung der Dienstleistungen in der App stellt kein rechtlich bindendes Angebot dar, sondern eine Aufforderung zur Bestellung. Durch das Absenden einer Buchungsanfrage über die App gibt der Kunde ein verbindliches Angebot ab. Der Vertrag kommt zustande, wenn WASHR die Buchung per E-Mail oder in der App bestätigt.
+
+            **3. Dienstleistungen und Preise**
+            Die angebotenen Dienstleistungen und die jeweiligen Preise sind in der App detailliert beschrieben. Alle Preise verstehen sich inklusive der gesetzlichen Mehrwertsteuer.
+
+            **4. Zahlungsbedingungen**
+            Die Zahlung erfolgt über die in der App angebotenen Zahlungsmethoden. Der Rechnungsbetrag ist sofort nach Abschluss der Reinigung fällig.
+
+            **5. Haftung**
+            WASHR haftet für Schäden, die durch grobe Fahrlässigkeit oder Vorsatz unserer Mitarbeiter entstehen. Eine Haftung für leichte Fahrlässigkeit ist ausgeschlossen, sofern keine wesentlichen Vertragspflichten verletzt werden.
+
+            **6. Stornierung**
+            Buchungen können bis zu [z.B. 24 Stunden] vor dem vereinbarten Termin kostenfrei storniert werden. Spätere Stornierungen können Stornogebühren nach sich ziehen.
+
+            **7. Gerichtsstand**
+            Es gilt deutsches Recht. Gerichtsstand ist [Dein Gerichtsstand, z.B. Mainz], sofern der Kunde Kaufmann ist oder keinen allgemeinen Gerichtsstand in Deutschland hat.
+        `
+    },
+    widerrufsrecht: {
+        title: "Widerrufsrecht",
+        content: `
+            **Widerrufsbelehrung**
+
+            **Widerrufsrecht**
+            Sie haben das Recht, binnen vierzehn Tagen ohne Angabe von Gründen diesen Vertrag zu widerrufen.
+            Die Widerrufsfrist beträgt vierzehn Tage ab dem Tag des Vertragsabschlusses.
+
+            Um Ihr Widerrufsrecht auszuüben, müssen Sie uns (WASHR, [Deine Adresse], E-Mail: washr.mainz@gmail.com) mittels einer eindeutigen Erklärung (z. B. ein mit der Post versandter Brief oder E-Mail) über Ihren Entschluss, diesen Vertrag zu widerrufen, informieren. Sie können dafür das beigefügte Muster-Widerrufsformular verwenden, das jedoch nicht vorgeschrieben ist.
+
+            Zur Wahrung der Widerrufsfrist reicht es aus, dass Sie die Mitteilung über die Ausübung des Widerrufsrechts vor Ablauf der Widerrufsfrist absenden.
+
+            **Folgen des Widerrufs**
+            Wenn Sie diesen Vertrag widerrufen, haben wir Ihnen alle Zahlungen, die wir von Ihnen erhalten haben, unverzüglich und spätestens binnen vierzehn Tagen ab dem Tag zurückzuzahlen, an dem die Mitteilung über Ihren Widerruf dieses Vertrags bei uns eingegangen ist. Für diese Rückzahlung verwenden wir dasselbe Zahlungsmittel, das Sie bei der ursprünglichen Transaktion eingesetzt haben, es sei denn, mit Ihnen wurde ausdrücklich etwas anderes vereinbart; in keinem Fall werden Ihnen wegen dieser Rückzahlung Entgelte berechnet.
+
+            Haben Sie verlangt, dass die Dienstleistungen während der Widerrufsfrist beginnen sollen, so haben Sie uns einen angemessenen Betrag zu zahlen, der dem Anteil der bis zu dem Zeitpunkt, zu dem Sie uns von der Ausübung des Widerrufsrechts hinsichtlich dieses Vertrags unterrichten, bereits erbrachten Dienstleistungen im Vergleich zum Gesamtumfang der im Vertrag vorgesehenen Dienstleistungen entspricht.
+
+            ---
+
+            **Muster-Widerrufsformular**
+
+            (Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular aus und senden Sie es zurück.)
+
+            An:
+            WASHR
+            [Deine Adresse]
+            E-Mail: washr.mainz@gmail.com
+
+            Hiermit widerrufe(n) ich/wir (*) den von mir/uns (*) abgeschlossenen Vertrag über die Erbringung der folgenden Dienstleistung (*):
+
+            Bestellt am (*)/erhalten am (*):
+            Name des/der Verbraucher(s):
+            Anschrift des/der Verbraucher(s):
+            Unterschrift des/der Verbraucher(s) (nur bei Mitteilung auf Papier):
+            Datum:
+
+            (*) Unzutreffendes streichen.
+        `
+    }
+    // Füge hier weitere rechtliche Texte hinzu, falls du sie brauchst
+};
+
+// 2. Funktionen zum Anzeigen und Schließen des Modals
+function showLegalContent(type) {
+    const modal = document.getElementById('legalModal');
+    const modalTitle = document.getElementById('legal
