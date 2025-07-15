@@ -47,12 +47,6 @@ const vehicleTypes = [
     models: ["Mercedes GLC", "VW Tiguan", "BMW X3", "Audi Q5"],
     icon: Car,
   },
-  {
-    id: "transporter",
-    name: "Transporter",
-    models: ["Ford Transit", "VW Crafter", "Mercedes Sprinter", "Iveco Daily"],
-    icon: Truck,
-  },
 ];
 
 const timeSlots = [

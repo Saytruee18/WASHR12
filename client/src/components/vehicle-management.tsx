@@ -32,13 +32,6 @@ const vehicleTypes = [
     icon: Car,
     color: "bg-purple-100 text-purple-600",
   },
-  {
-    id: "transporter",
-    name: "Transporter",
-    models: ["Ford Transit", "VW Crafter", "Mercedes Sprinter", "Iveco Daily"],
-    icon: Truck,
-    color: "bg-orange-100 text-orange-600",
-  },
 ];
 
 const colors = [

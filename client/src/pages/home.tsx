@@ -104,9 +104,9 @@ export default function Home() {
               >
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <h2 className="text-2xl font-bold mb-2 tracking-tight">Willkommen bei WASHR</h2>
+                    <h2 className="text-2xl font-bold mb-2 tracking-tight">WASHR</h2>
                     <p className="text-primary-foreground/80 font-light text-lg">
-                      Mainz' Nr. 1 für mobile Autopflege
+                      Die Waschanlage, die zu dir kommt.
                     </p>
                   </div>
                   <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center">
@@ -168,9 +168,10 @@ export default function Home() {
                   whileHover={{ scale: 1.01 }}
                   className="bg-card rounded-2xl p-6 border border-border/50 hover:border-primary/50 transition-all shadow-lg hover:shadow-xl"
                 >
-                  <h4 className="font-bold mb-3 text-lg">Was ist WASHR?</h4>
+                  <h4 className="font-bold mb-3 text-lg">WASHR – Deine Autopflege.</h4>
                   <p className="text-muted-foreground font-light">
-                    Mobile Autopflege direkt zu Ihnen - professionell, schnell und umweltfreundlich.
+                    Wo du bist. Wann du willst.<br/>
+                    💧 Mobil. Flexibel. Stressfrei.
                   </p>
                 </motion.div>
                 <motion.div
@@ -182,7 +183,7 @@ export default function Home() {
                 >
                   <h4 className="font-bold mb-3 text-lg">Wie funktioniert's?</h4>
                   <p className="text-muted-foreground font-light">
-                    Paket wählen → Termin buchen → Cleaner kommt zu Ihnen → Bezahlen per App.
+                    🧼 Wählen → 📅 Buchen → 🚗 Reinigen lassen → ✅ Fertig
                   </p>
                 </motion.div>
               </div>
@@ -250,7 +251,7 @@ export default function Home() {
                             {booking.status === "pending" ? "Cleaner wird gesucht..." : booking.packageType}
                           </h3>
                           <p className="text-sm text-muted-foreground">
-                            {booking.location}
+                            Buchung aktiv seit: Jetzt
                           </p>
                         </div>
                       </div>

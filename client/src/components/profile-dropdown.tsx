@@ -9,6 +9,7 @@ import { ProfilePage } from "@/components/profile-page";
 export function ProfileDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isLegalModalOpen, setIsLegalModalOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -36,9 +37,7 @@ export function ProfileDropdown() {
   const menuItems = [
     { icon: User, label: "Buchungshistorie", action: () => {} },
     { icon: Mail, label: "Support kontaktieren", action: () => window.open('mailto:washr.mainz@gmail.com') },
-    { icon: FileText, label: "Impressum", action: () => {} },
-    { icon: Shield, label: "Datenschutzerklärung", action: () => {} },
-    { icon: Book, label: "AGB", action: () => {} },
+    { icon: FileText, label: "Impressum & Rechtliches", action: () => { setIsLegalModalOpen(true); setIsOpen(false); } },
   ];
 
   return (
@@ -117,6 +116,50 @@ export function ProfileDropdown() {
             <DialogTitle>Profil</DialogTitle>
           </DialogHeader>
           <ProfilePage />
+        </DialogContent>
+      </Dialog>
+
+      {/* Legal Modal */}
+      <Dialog open={isLegalModalOpen} onOpenChange={setIsLegalModalOpen}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Impressum & Rechtliches</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-lg font-semibold mb-3">Impressum</h3>
+              <div className="space-y-2 text-sm text-muted-foreground">
+                <p><strong>WASHR GmbH</strong></p>
+                <p>Musterstraße 123</p>
+                <p>55116 Mainz</p>
+                <p>Deutschland</p>
+                <p>E-Mail: washr.mainz@gmail.com</p>
+                <p>Telefon: +49 6131 123456</p>
+              </div>
+            </div>
+            
+            <div>
+              <h3 className="text-lg font-semibold mb-3">Datenschutzerklärung</h3>
+              <div className="space-y-2 text-sm text-muted-foreground">
+                <p>Wir nehmen den Schutz Ihrer persönlichen Daten sehr ernst. Diese Datenschutzerklärung informiert Sie über die Art, den Umfang und Zweck der Verarbeitung personenbezogener Daten.</p>
+                <p><strong>Verantwortlicher:</strong> WASHR GmbH</p>
+                <p><strong>Kontakt:</strong> washr.mainz@gmail.com</p>
+                <p><strong>Erhobene Daten:</strong> Kontaktdaten, Standortdaten, Buchungshistorie</p>
+                <p><strong>Zweck:</strong> Durchführung des Services, Kommunikation, Verbesserung der Dienstleistung</p>
+              </div>
+            </div>
+            
+            <div>
+              <h3 className="text-lg font-semibold mb-3">Allgemeine Geschäftsbedingungen</h3>
+              <div className="space-y-2 text-sm text-muted-foreground">
+                <p><strong>1. Geltungsbereich:</strong> Diese AGB gelten für alle Verträge zwischen WASHR GmbH und dem Kunden.</p>
+                <p><strong>2. Leistungen:</strong> WASHR bietet mobile Autoreinigungsdienstleistungen in Mainz und Umgebung an.</p>
+                <p><strong>3. Preise:</strong> Die Preise verstehen sich inklusive der gesetzlichen Mehrwertsteuer.</p>
+                <p><strong>4. Zahlung:</strong> Die Bezahlung erfolgt über die angegebenen Zahlungsmethoden in der App.</p>
+                <p><strong>5. Stornierung:</strong> Stornierungen sind bis 24 Stunden vor dem Termin kostenfrei möglich.</p>
+              </div>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </>

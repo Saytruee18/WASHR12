@@ -29,6 +29,12 @@ const carManufacturers = [
   "Audi", "BMW", "Mercedes-Benz", "Volkswagen", "Opel", "Ford", "Renault", "Peugeot", "Skoda", "Seat"
 ];
 
+const vehicleTypes = [
+  { id: "kleinwagen", name: "Kleinwagen", icon: "🚗", surcharge: 0 },
+  { id: "mittelklasse", name: "Mittelklasse", icon: "🚙", surcharge: 0 },
+  { id: "suv", name: "SUV", icon: "🚐", surcharge: 5 },
+];
+
 const timeSlots = [
   "09:00 - 10:00", "10:00 - 11:00", "11:00 - 12:00", "12:00 - 13:00",
   "13:00 - 14:00", "14:00 - 15:00", "15:00 - 16:00", "16:00 - 17:00"
@@ -87,6 +93,7 @@ export function EnhancedBookingFlow({ selectedPackage, onComplete, onCancel }: E
     location: "Mainz, Deutschland",
     manufacturer: "",
     model: "",
+    vehicleType: "",
     color: "",
     licensePlate: "",
     date: "",
@@ -108,7 +115,8 @@ export function EnhancedBookingFlow({ selectedPackage, onComplete, onCancel }: E
     return total + (addOn?.price || 0);
   }, 0);
 
-  const totalPrice = selectedPackage.price + addOnTotal;
+  const vehicleSurcharge = vehicleTypes.find(v => v.id === formData.vehicleType)?.surcharge || 0;
+  const totalPrice = selectedPackage.price + addOnTotal + vehicleSurcharge;
 
   const toggleAddOn = (addOnId: string) => {
     setSelectedAddOns(prev => 
@@ -138,15 +146,16 @@ export function EnhancedBookingFlow({ selectedPackage, onComplete, onCancel }: E
 
     const bookingData = {
       packageType: selectedPackage.id,
-      vehicleType: `${formData.manufacturer} ${formData.model}`,
+      vehicleType: formData.vehicleType || `${formData.manufacturer} ${formData.model}`,
       vehicleModel: formData.model,
       color: formData.color,
       licensePlate: formData.licensePlate,
       location: formData.location,
       bookingDate: new Date(`${formData.date}T${formData.timeSlot.split(" - ")[0]}:00`),
       timeSlot: formData.timeSlot,
-      price: totalPrice * 100, // Include add-ons in total price
+      price: totalPrice * 100, // Include add-ons and vehicle surcharge in total price
       addOns: selectedAddOns,
+      vehicleSurcharge: vehicleSurcharge,
       paymentMethod: formData.paymentMethod,
     };
 
@@ -185,9 +194,41 @@ export function EnhancedBookingFlow({ selectedPackage, onComplete, onCancel }: E
                 <Car className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <h3 className="text-xl font-bold">Fahrzeug auswählen</h3>
-                <p className="text-muted-foreground font-light">Wählen Sie Ihr Fahrzeug aus</p>
+                <h3 className="text-xl font-bold">Dein Fahrzeug</h3>
+                <p className="text-muted-foreground font-light">Fahrzeugdaten eingeben</p>
               </div>
+            </div>
+
+            <div className="mb-4">
+              <Label className="font-medium">Fahrzeugtyp</Label>
+              <div className="grid grid-cols-3 gap-3 mt-2">
+                {vehicleTypes.map((vehicle) => (
+                  <motion.div
+                    key={vehicle.id}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setFormData({...formData, vehicleType: vehicle.id})}
+                    className={`p-3 rounded-xl border cursor-pointer transition-all text-center ${
+                      formData.vehicleType === vehicle.id
+                        ? "border-primary bg-primary/10"
+                        : "border-border hover:border-primary/50"
+                    }`}
+                  >
+                    <div className="text-2xl mb-1">{vehicle.icon}</div>
+                    <div className="text-sm font-medium">{vehicle.name}</div>
+                    {vehicle.surcharge > 0 && (
+                      <div className="text-xs text-primary mt-1">+{vehicle.surcharge}€</div>
+                    )}
+                  </motion.div>
+                ))}
+              </div>
+              {formData.vehicleType === "suv" && (
+                <div className="mt-2 p-3 bg-primary/10 rounded-xl border border-primary/20">
+                  <div className="text-sm text-primary font-medium">
+                    🚐 SUV erkannt – Aufpreis +5€
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -258,8 +299,8 @@ export function EnhancedBookingFlow({ selectedPackage, onComplete, onCancel }: E
                 <span className="text-lg">➕</span>
               </div>
               <div>
-                <h3 className="text-xl font-bold">Add-ons wählen</h3>
-                <p className="text-muted-foreground font-light">Zusatzleistungen hinzufügen (optional)</p>
+                <h3 className="text-xl font-bold">Extras dazu?</h3>
+                <p className="text-muted-foreground font-light">Zusatzleistungen wählen</p>
               </div>
             </div>
 
@@ -268,6 +309,12 @@ export function EnhancedBookingFlow({ selectedPackage, onComplete, onCancel }: E
                 <span className="font-medium">{selectedPackage.name}</span>
                 <span className="text-lg font-bold text-primary">{selectedPackage.price}€</span>
               </div>
+              {vehicleSurcharge > 0 && (
+                <div className="flex justify-between text-sm text-muted-foreground mt-1">
+                  <span>+ SUV-Aufpreis</span>
+                  <span>{vehicleSurcharge}€</span>
+                </div>
+              )}
               {selectedAddOns.length > 0 && (
                 <div className="mt-2 space-y-1">
                   {selectedAddOns.map(addOnId => {
@@ -279,10 +326,12 @@ export function EnhancedBookingFlow({ selectedPackage, onComplete, onCancel }: E
                       </div>
                     ) : null;
                   })}
-                  <div className="border-t pt-2 flex justify-between font-bold text-primary">
-                    <span>Gesamt:</span>
-                    <span>{totalPrice}€</span>
-                  </div>
+                </div>
+              )}
+              {(selectedAddOns.length > 0 || vehicleSurcharge > 0) && (
+                <div className="border-t pt-2 mt-2 flex justify-between font-bold text-primary">
+                  <span>Gesamt:</span>
+                  <span>{totalPrice}€</span>
                 </div>
               )}
             </div>
@@ -337,8 +386,8 @@ export function EnhancedBookingFlow({ selectedPackage, onComplete, onCancel }: E
                 <Calendar className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <h3 className="text-xl font-bold">Termin wählen</h3>
-                <p className="text-muted-foreground font-light">Wann soll gereinigt werden?</p>
+                <h3 className="text-xl font-bold">Wann soll's losgehen?</h3>
+                <p className="text-muted-foreground font-light">Termin auswählen</p>
               </div>
             </div>
 
@@ -391,7 +440,7 @@ export function EnhancedBookingFlow({ selectedPackage, onComplete, onCancel }: E
               </div>
               <div>
                 <h3 className="text-xl font-bold">Bezahlung</h3>
-                <p className="text-muted-foreground font-light">Wählen Sie Ihre Zahlungsart</p>
+                <p className="text-muted-foreground font-light">Wie möchtest du bezahlen?</p>
               </div>
             </div>
 

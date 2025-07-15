@@ -135,6 +135,13 @@ export function MapComponent({ onLocationOutsideMainz }: MapComponentProps) {
               <Navigation className="h-4 w-4" />
             </Button>
           </div>
+          <button
+            onClick={handleGetCurrentLocation}
+            disabled={isLoading}
+            className="mt-3 text-sm text-primary hover:text-primary/80 transition-colors flex items-center gap-1"
+          >
+            📍 Standort automatisch erkennen
+          </button>
         </div>
       </div>
     </motion.div>
