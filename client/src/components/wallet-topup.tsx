@@ -146,14 +146,14 @@ export function WalletTopup({ balance, transactions }: WalletTopupProps) {
   return (
     <div className="space-y-6">
       {/* Balance Card */}
-      <div className="bg-gradient-to-r from-primary to-blue-600 rounded-2xl p-6 text-white">
+      <div className="bg-gradient-to-r from-primary to-primary/80 rounded-2xl p-6 text-primary-foreground">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-blue-100 mb-2">Aktuelles Guthaben</p>
+            <p className="text-primary-foreground/80 mb-2">Aktuelles Guthaben</p>
             <p className="text-3xl font-bold">{(balance / 100).toFixed(2)}€</p>
           </div>
           <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-            <Wallet className="text-white h-6 w-6" />
+            <Wallet className="text-primary-foreground h-6 w-6" />
           </div>
         </div>
       </div>
@@ -169,17 +169,17 @@ export function WalletTopup({ balance, transactions }: WalletTopupProps) {
               whileTap={{ scale: 0.95 }}
               onClick={() => handleTopupSelect(option.amount)}
               disabled={createTopupMutation.isPending}
-              className={`bg-white rounded-2xl p-4 shadow-lg border transition-all hover:shadow-xl ${
-                index === 1 ? "border-2 border-primary" : "border-slate-200"
+              className={`bg-card rounded-2xl p-4 border transition-all hover:shadow-xl ${
+                index === 1 ? "border-2 border-primary" : "border-border"
               }`}
             >
               <div className="text-center">
                 <div className={`text-2xl font-bold ${
-                  index === 1 ? "text-primary" : "text-slate-800"
+                  index === 1 ? "text-primary" : "text-foreground"
                 }`}>
                   {option.amount}€
                 </div>
-                <div className="text-sm text-green-600 font-medium">
+                <div className="text-sm text-primary font-medium">
                   +{option.bonus}€ Bonus
                 </div>
               </div>
@@ -193,32 +193,32 @@ export function WalletTopup({ balance, transactions }: WalletTopupProps) {
         <h3 className="text-lg font-semibold mb-4">Transaktionen</h3>
         <div className="space-y-4">
           {transactions.length === 0 ? (
-            <p className="text-center text-slate-500 py-4">
+            <p className="text-center text-muted-foreground py-4">
               Noch keine Transaktionen vorhanden
             </p>
           ) : (
             transactions.map((transaction) => (
-              <div key={transaction.id} className="bg-white rounded-2xl shadow-lg p-4">
+              <div key={transaction.id} className="bg-card rounded-2xl border border-border p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                      transaction.amount > 0 ? "bg-green-100" : "bg-red-100"
+                      transaction.amount > 0 ? "bg-primary/10" : "bg-destructive/10"
                     }`}>
                       {transaction.amount > 0 ? (
-                        <Plus className="text-green-600 h-5 w-5" />
+                        <Plus className="text-primary h-5 w-5" />
                       ) : (
-                        <Minus className="text-red-600 h-5 w-5" />
+                        <Minus className="text-destructive h-5 w-5" />
                       )}
                     </div>
                     <div>
-                      <h4 className="font-semibold text-slate-800">{transaction.description}</h4>
-                      <p className="text-sm text-slate-500">
+                      <h4 className="font-semibold">{transaction.description}</h4>
+                      <p className="text-sm text-muted-foreground">
                         {new Date(transaction.createdAt).toLocaleDateString("de-DE")}
                       </p>
                     </div>
                   </div>
                   <span className={`font-bold ${
-                    transaction.amount > 0 ? "text-green-600" : "text-red-600"
+                    transaction.amount > 0 ? "text-primary" : "text-destructive"
                   }`}>
                     {transaction.amount > 0 ? "+" : ""}{(transaction.amount / 100).toFixed(2)}€
                   </span>

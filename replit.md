@@ -2,11 +2,24 @@
 
 ## Overview
 
-WASHR is a full-stack Uber-like car cleaning service web application designed specifically for Mainz, Germany. The app provides a modern, mobile-first interface for users to book car cleaning services with real-time location selection, package options, and integrated payment processing.
+WASHR is a full-stack Uber-like car cleaning service web application designed specifically for Mainz, Germany. The app features a modern dark mode interface with professional styling, providing users with a mobile-first experience for booking car cleaning services with real-time location selection, compliant service packages, and integrated payment processing.
 
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+
+## Recent Changes (December 2024)
+
+✓ Implemented modern dark mode interface with professional styling
+✓ Updated color scheme to elegant dark theme with cyan/turquoise accents
+✓ Restructured navigation to 4 tabs: Home, Booking, Wallet, Profile
+✓ Added comprehensive Profile page with booking history and cleaner application
+✓ Integrated voucher management system within wallet
+✓ Updated service packages to comply with German regulations:
+  - Basic Reinigung (trocken): Interior cleaning without water, allowed anywhere
+  - Privatgrundstück Reinigung: Full service only on private property
+✓ Enhanced trust indicators and marketing elements on home page
+✓ All components updated to dark theme with proper contrast and accessibility
 
 ## System Architecture
 

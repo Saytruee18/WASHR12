@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -72,6 +73,7 @@ export function BookingModal({ isOpen, onClose, selectedPackage }: BookingModalP
   const [paymentMethod, setPaymentMethod] = useState("wallet");
   const [discountCode, setDiscountCode] = useState("");
   const [finalPrice, setFinalPrice] = useState(selectedPackage.price);
+  const [isPrivateProperty, setIsPrivateProperty] = useState(false);
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -131,6 +133,16 @@ export function BookingModal({ isOpen, onClose, selectedPackage }: BookingModalP
       toast({
         title: "Fehler",
         description: "Bitte füllen Sie alle Pflichtfelder aus.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check if private property confirmation is required
+    if (selectedPackage.id === "privatgrundstück" && !isPrivateProperty) {
+      toast({
+        title: "Bestätigung erforderlich",
+        description: "Bitte bestätigen Sie, dass die Reinigung auf privatem Grundstück erfolgt.",
         variant: "destructive",
       });
       return;
@@ -285,9 +297,34 @@ export function BookingModal({ isOpen, onClose, selectedPackage }: BookingModalP
             </RadioGroup>
           </div>
 
+          {/* Legal Compliance for Private Property */}
+          {selectedPackage.id === "privatgrundstück" && (
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Gesetzliche Bestimmungen</h3>
+              <div className="bg-muted/30 rounded-xl p-4 mb-4">
+                <p className="text-sm text-muted-foreground mb-3">
+                  ⚠️ Bitte beachten Sie: Die Außenreinigung mit Wasser ist nur auf privatem Grundstück erlaubt. 
+                  Öffentliche Plätze sind ausgeschlossen.
+                </p>
+                <div className="flex items-center space-x-3">
+                  <Checkbox
+                    id="privateProperty"
+                    checked={isPrivateProperty}
+                    onCheckedChange={(checked) => setIsPrivateProperty(checked as boolean)}
+                  />
+                  <Label htmlFor="privateProperty" className="text-sm">
+                    Ich bestätige, dass die Reinigung auf privatem Grundstück erfolgt
+                  </Label>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Step 5: Discount Code */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">5. Rabattcode (optional)</h3>
+            <h3 className="text-lg font-semibold mb-4">
+              {selectedPackage.id === "privatgrundstück" ? "6" : "5"}. Rabattcode (optional)
+            </h3>
             <div className="flex space-x-3">
               <Input
                 value={discountCode}

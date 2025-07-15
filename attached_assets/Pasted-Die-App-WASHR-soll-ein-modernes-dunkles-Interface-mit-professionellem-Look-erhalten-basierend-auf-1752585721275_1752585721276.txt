@@ -1,0 +1,166 @@
+Die App WASHR soll ein modernes, dunkles Interface mit professionellem Look erhalten – basierend auf einem eleganten Dark-Mode-Design. Verwendet werden stilvolle Schwarz- und Anthrazit-Töne mit Akzenten in Blau, Weiß und Türkis für Buttons und Highlights. Alle Elemente sind mobile-first und erinnern an hochwertige Plattformen wie Uber oder Wolt. Große Touchflächen, Icons, abgerundete Kacheln und klare Hierarchien.
+
+Struktur der App:
+1. Navigation (Bottom Tab Bar)
+🏠 Startseite
+
+📅 Buchen
+
+💳 Wallet
+
+👤 Profil
+
+2. Profil statt “Cleaner werden” oder „Mein Auto“
+In der oberen rechten Ecke (Topbar) befindet sich ein Profil-Icon, das auf die Profilseite führt.
+
+In der Profilansicht sieht man:
+
+Übersicht aller bisherigen Buchungen
+
+Aktueller Wallet-Stand
+
+Eingelöste oder gekaufte Gutscheine
+
+Persönliche Daten (frei editierbar)
+
+Button: "Cleaner werden" – führt zu Bewerbungsformular
+
+Button: "Support kontaktieren"
+
+Die vorherige Kategorie „Mein Auto“ wird entfernt. Fahrzeugdaten werden nur im Buchungsprozess erfasst, nicht dauerhaft gespeichert.
+
+3. Buchungslogik & gesetzliche Regelung (Deutschland)
+Da die mobile Autowäsche mit Spritzmitteln im öffentlichen Raum in Deutschland nicht erlaubt ist, wird das Angebot angepasst:
+
+Zwei Buchungsmodelle:
+
+“Basic Reinigung (trocken)”
+
+Innenreinigung & oberflächliches Auswischen
+
+Erlaubt auf jedem Parkplatz
+
+Keine Flüssigkeiten, keine Strom- oder Wasseranschlüsse notwendig
+
+“Privatgrundstück Reinigung (voll)”
+
+Außenreinigung (z.B. mit Wasser, Druckluft etc.)
+
+Nur buchbar, wenn Nutzer bestätigt: “Reinigung erfolgt auf privatem Grundstück”
+
+Checkbox + Hinweistext vor Buchungsabschluss
+
+Optional: Grundstücksadresse angeben
+
+Ein Warnhinweis klärt auf:
+„Bitte beachte: Die Außenreinigung ist nur auf privatem Grund gemäß § XYZ erlaubt. Öffentliche Plätze sind ausgeschlossen.“
+
+4. Wallet mit Gutscheinen und Guthaben
+Im Wallet-Bereich gibt es:
+
+Aktuelles Guthaben anzeigen
+
+Button: Guthaben aufladen (mit Bonusstaffelung)
+
+Button: Gutschein einlösen (Eingabefeld + Einlösefunktion)
+
+Button: Gutschein kaufen
+
+Auswahlbetrag (z. B. 25 €, 50 €, 100 €)
+
+Automatische Erstellung eines Gutscheincodes (digital)
+
+Gutschein per E-Mail teilbar
+
+Stripe-Integration für alle Transaktionen
+
+Guthaben kann beim Bezahlen verwendet werden
+
+5. Profil & Cleaner-Modell
+Im Profil gibt es einen Button: "Cleaner werden", der zu einem modernen Bewerbungsformular führt:
+
+Vorname, Nachname
+
+E-Mail, Telefonnummer
+
+Hast du ein Führungszeugnis? (Checkbox)
+
+Hast du ein Auto oder Transportmöglichkeit? (Dropdown)
+
+Warum willst du mitmachen? (Freitext)
+
+Nach dem Absenden wird eine automatische Bestätigung angezeigt:
+„Danke für deine Bewerbung! Wir melden uns innerhalb von 48 Stunden.“
+
+Optional: Bewerbung per E-Mail an das Admin-Team senden.
+
+6. Marketing & Designstruktur in der App (Trust & Branding)
+Die App soll durch gezieltes UI-Design Vertrauen und Klarheit vermitteln:
+
+Willkommensbanner mit persönlicher Ansprache: „Willkommen bei WASHR – Mainz' Nr. 1 für mobile Autopflege“
+
+Startseite mit erklärenden Cards:
+
+Was ist WASHR?
+
+Wie funktioniert’s?
+
+Preise & Modelle im Überblick
+
+Trust-Symbole:
+
+"100% lokal aus Mainz"
+
+"Sichere Zahlung mit Stripe"
+
+"Nur geprüfte Cleaner"
+
+Bottom Sheet statt Popups, smooth animiert (Framer Motion)
+
+Transparente Preisübersicht vor jeder Buchung
+
+Bewertungen und Erfahrungsberichte auf der Startseite eingebaut
+
+7. Design-Vorgaben (Dark Mode High Quality UI)
+Farben:
+
+Hintergrund: #121212 (tiefes Schwarz)
+
+Text: #FFFFFF (weiß), #A1A1A1 (Sekundärtext)
+
+Akzente: #00D1FF, #7CE7FF, #1C1C1E
+
+Komponenten:
+
+Abgerundete Ecken (radius-xl)
+
+Sanfte Schatten (shadow-lg)
+
+Großer Button-Space (min. h-14, w-full)
+
+Fonts: Sans-Serif, modern (z. B. Inter oder SF Pro)
+
+Icons: Lucide oder Heroicons
+
+Animationen:
+
+Bottom Modals mit Slide-Up
+
+Buttons mit Hover-Effekt und Click-Bounce
+
+Ladeanimation bei Buchung („Cleaner wird gesucht…“)
+
+8. Mini-Marketingstrategie in der App integriert
+„Empfehle einen Freund“-Button auf Profilseite
+
+Teilen per Link oder QR-Code
+
+Belohnung: Beide erhalten 5 € Wallet-Guthaben
+
+Countdown-Specials:
+
+Beispiel: „Heute 5 € Rabatt auf Komplettwäsche“
+
+Visuell hervorgehoben mit Countdown-Komponente
+
+Sticky-Footer mit wechselnden CTAs („Jetzt buchen & 10 % sparen“)

@@ -5,13 +5,13 @@ import { BottomNavigation } from "@/components/bottom-navigation";
 import { BookingModal } from "@/components/booking-modal";
 import { WashPackages } from "@/components/wash-packages";
 import { WalletTopup } from "@/components/wallet-topup";
-import { VehicleManagement } from "@/components/vehicle-management";
-import { CleanerForm } from "@/components/cleaner-form";
+import { VoucherManagement } from "@/components/voucher-management";
+import { ProfilePage } from "@/components/profile-page";
 import { ServiceAreaWarning } from "@/components/service-area-warning";
 import { useQuery } from "@tanstack/react-query";
-import { Droplets, Circle } from "lucide-react";
+import { Droplets, Circle, Shield, Users, Star } from "lucide-react";
 
-type Tab = "home" | "booking" | "wallet" | "cars" | "cleaner";
+type Tab = "home" | "booking" | "wallet" | "profile";
 
 interface WashPackage {
   id: string;
@@ -25,29 +25,21 @@ interface WashPackage {
 
 const washPackages: WashPackage[] = [
   {
-    id: "außenwäsche",
-    name: "Außenwäsche",
-    price: 35,
-    description: "Komplett außen gereinigt",
-    icon: "🚗",
-    features: ["Vorwäsche & Hauptwäsche", "Felgenreinigung", "Trocknung"]
+    id: "basic-trocken",
+    name: "Basic Reinigung (trocken)",
+    price: 25,
+    description: "Innenreinigung ohne Wasser",
+    icon: "🧽",
+    features: ["Innenraumreinigung", "Staubsaugen", "Oberflächenreinigung", "Überall buchbar"]
   },
   {
-    id: "innen-außen",
-    name: "Innen + Außen",
-    price: 39,
-    description: "Komplette Fahrzeugreinigung",
-    icon: "🚗",
+    id: "privatgrundstück",
+    name: "Privatgrundstück Reinigung",
+    price: 45,
+    description: "Vollreinigung mit Wasser",
+    icon: "🏠",
     popular: true,
-    features: ["Alles aus Außenwäsche", "Innenraumreinigung", "Staubsaugen"]
-  },
-  {
-    id: "komplett",
-    name: "Komplett",
-    price: 49,
-    description: "Premium-Reinigung",
-    icon: "⭐",
-    features: ["Alles aus Innen + Außen", "Wachs & Versiegelung", "Reifenglanz"]
+    features: ["Außen- & Innenreinigung", "Hochdruckreinigung", "Wachs & Versiegelung", "Nur auf Privatgrundstück"]
   }
 ];
 
@@ -91,24 +83,88 @@ export default function Home() {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl p-6 text-white mb-6"
+                className="bg-gradient-to-r from-primary to-primary/80 rounded-2xl p-6 text-primary-foreground mb-6"
               >
                 <h2 className="text-2xl font-bold mb-2">Willkommen bei WASHR</h2>
-                <p className="text-blue-100 mb-4">
-                  Professionelle Autowäsche direkt vor Ihrer Haustür in Mainz
+                <p className="text-primary-foreground/80 mb-4">
+                  Mainz' Nr. 1 für mobile Autopflege
                 </p>
                 <button
                   onClick={() => setActiveTab("booking")}
-                  className="bg-white text-blue-600 px-6 py-3 rounded-xl font-semibold hover:bg-blue-50 transition-colors"
+                  className="bg-background text-foreground px-6 py-3 rounded-xl font-semibold hover:bg-muted transition-colors"
                 >
                   Jetzt buchen
                 </button>
               </motion.div>
             </div>
 
+            {/* Trust Indicators */}
+            <div className="px-4 mb-6">
+              <div className="grid grid-cols-3 gap-3">
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.1 }}
+                  className="bg-card rounded-xl p-3 text-center"
+                >
+                  <Shield className="h-6 w-6 text-primary mx-auto mb-2" />
+                  <div className="text-xs font-medium">100% lokal</div>
+                  <div className="text-xs text-muted-foreground">aus Mainz</div>
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.2 }}
+                  className="bg-card rounded-xl p-3 text-center"
+                >
+                  <Users className="h-6 w-6 text-primary mx-auto mb-2" />
+                  <div className="text-xs font-medium">Geprüfte</div>
+                  <div className="text-xs text-muted-foreground">Cleaner</div>
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.3 }}
+                  className="bg-card rounded-xl p-3 text-center"
+                >
+                  <Star className="h-6 w-6 text-primary mx-auto mb-2" />
+                  <div className="text-xs font-medium">4.9/5</div>
+                  <div className="text-xs text-muted-foreground">Bewertung</div>
+                </motion.div>
+              </div>
+            </div>
+
+            {/* Info Cards */}
+            <div className="px-4 mb-6">
+              <div className="space-y-3">
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.4 }}
+                  className="bg-card rounded-xl p-4"
+                >
+                  <h4 className="font-semibold mb-2">Was ist WASHR?</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Mobile Autopflege direkt zu Ihnen - professionell, schnell und umweltfreundlich.
+                  </p>
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.5 }}
+                  className="bg-card rounded-xl p-4"
+                >
+                  <h4 className="font-semibold mb-2">Wie funktioniert's?</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Paket wählen → Termin buchen → Cleaner kommt zu Ihnen → Bezahlen per App.
+                  </p>
+                </motion.div>
+              </div>
+            </div>
+
             {/* Map Section */}
             <div className="px-4 mb-6">
-              <h3 className="text-lg font-semibold mb-3 text-slate-800">
+              <h3 className="text-lg font-semibold mb-3">
                 Wählen Sie Ihren Standort
               </h3>
               <MapComponent onLocationOutsideMainz={handleLocationOutsideMainz} />
@@ -116,7 +172,7 @@ export default function Home() {
 
             {/* Wash Packages */}
             <div className="px-4 mb-6">
-              <h3 className="text-lg font-semibold mb-4 text-slate-800">
+              <h3 className="text-lg font-semibold mb-4">
                 Wählen Sie Ihr Paket
               </h3>
               <WashPackages
@@ -130,19 +186,19 @@ export default function Home() {
       case "booking":
         return (
           <div className="p-4 pb-20">
-            <h2 className="text-xl font-bold mb-6 text-slate-800">
+            <h2 className="text-xl font-bold mb-6">
               Aktuelle Buchungen
             </h2>
 
             {bookings.length === 0 ? (
               <div className="text-center py-12">
-                <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Droplets className="h-8 w-8 text-slate-400" />
+                <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Droplets className="h-8 w-8 text-muted-foreground" />
                 </div>
-                <p className="text-slate-600">Noch keine Buchungen vorhanden</p>
+                <p className="text-muted-foreground">Noch keine Buchungen vorhanden</p>
                 <button
                   onClick={() => setActiveTab("home")}
-                  className="mt-4 bg-primary text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-600 transition-colors"
+                  className="mt-4 bg-primary text-primary-foreground px-6 py-3 rounded-xl font-semibold hover:bg-primary/90 transition-colors"
                 >
                   Erste Buchung erstellen
                 </button>
@@ -154,18 +210,18 @@ export default function Home() {
                     key={booking.id}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="bg-white rounded-2xl shadow-lg p-6"
+                    className="bg-card rounded-2xl p-6 border border-border"
                   >
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
-                          <Circle className="h-5 w-5 text-green-600" />
+                        <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
+                          <Circle className="h-5 w-5 text-primary" />
                         </div>
                         <div>
-                          <h3 className="font-semibold text-slate-800">
+                          <h3 className="font-semibold">
                             {booking.status === "pending" ? "Cleaner wird gesucht..." : booking.packageType}
                           </h3>
-                          <p className="text-sm text-slate-500">
+                          <p className="text-sm text-muted-foreground">
                             {booking.location}
                           </p>
                         </div>
@@ -184,25 +240,21 @@ export default function Home() {
       case "wallet":
         return (
           <div className="p-4 pb-20">
-            <h2 className="text-xl font-bold mb-6 text-slate-800">Wallet</h2>
-            <WalletTopup
-              balance={walletBalance.balance}
-              transactions={walletTransactions}
-            />
+            <h2 className="text-xl font-bold mb-6">Wallet</h2>
+            <div className="space-y-6">
+              <WalletTopup
+                balance={walletBalance.balance}
+                transactions={walletTransactions}
+              />
+              <VoucherManagement />
+            </div>
           </div>
         );
 
-      case "cars":
+      case "profile":
         return (
           <div className="p-4 pb-20">
-            <VehicleManagement />
-          </div>
-        );
-
-      case "cleaner":
-        return (
-          <div className="p-4 pb-20">
-            <CleanerForm />
+            <ProfilePage />
           </div>
         );
 
@@ -212,22 +264,22 @@ export default function Home() {
   };
 
   return (
-    <div className="max-w-md mx-auto bg-white min-h-screen relative">
+    <div className="max-w-md mx-auto bg-background min-h-screen relative">
       {/* Header */}
-      <header className="bg-white shadow-sm p-4 border-b border-slate-200">
+      <header className="bg-card shadow-sm p-4 border-b border-border">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
-              <Droplets className="text-white text-lg" />
+              <Droplets className="text-primary-foreground text-lg" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-slate-800">WASHR</h1>
-              <p className="text-xs text-slate-500">Autowäsche in Mainz</p>
+              <h1 className="text-xl font-bold">WASHR</h1>
+              <p className="text-xs text-muted-foreground">Autowäsche in Mainz</p>
             </div>
           </div>
           <div className="flex items-center space-x-2">
-            <div className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
-              <Circle className="inline h-2 w-2 text-green-500 mr-1" />
+            <div className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium">
+              <Circle className="inline h-2 w-2 text-primary mr-1" />
               Verfügbar
             </div>
           </div>

@@ -1,4 +1,4 @@
-import { Home, Calendar, Wallet, Car, Wrench } from "lucide-react";
+import { Home, Calendar, Wallet, User } from "lucide-react";
 import { motion } from "framer-motion";
 
 interface BottomNavigationProps {
@@ -10,13 +10,12 @@ const navItems = [
   { id: "home", label: "Startseite", icon: Home },
   { id: "booking", label: "Buchen", icon: Calendar },
   { id: "wallet", label: "Wallet", icon: Wallet },
-  { id: "cars", label: "Mein Auto", icon: Car },
-  { id: "cleaner", label: "Cleaner", icon: Wrench },
+  { id: "profile", label: "Profil", icon: User },
 ];
 
 export function BottomNavigation({ activeTab, onTabChange }: BottomNavigationProps) {
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 max-w-md mx-auto">
+    <nav className="fixed bottom-0 left-0 right-0 bg-card border-t border-border max-w-md mx-auto backdrop-blur-xl">
       <div className="flex">
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -26,16 +25,17 @@ export function BottomNavigation({ activeTab, onTabChange }: BottomNavigationPro
             <motion.button
               key={item.id}
               whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.05 }}
               onClick={() => onTabChange(item.id)}
-              className={`flex-1 py-3 px-4 text-center transition-colors ${
-                isActive ? "text-primary" : "text-slate-400 hover:text-slate-600"
+              className={`flex-1 py-4 px-4 text-center transition-all duration-200 ${
+                isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              <Icon className={`text-xl mb-1 block mx-auto h-5 w-5 ${
-                isActive ? "text-primary" : "text-slate-400"
+              <Icon className={`text-xl mb-1 block mx-auto h-6 w-6 ${
+                isActive ? "text-primary" : "text-muted-foreground"
               }`} />
               <span className={`text-xs font-medium ${
-                isActive ? "text-primary" : "text-slate-400"
+                isActive ? "text-primary" : "text-muted-foreground"
               }`}>
                 {item.label}
               </span>

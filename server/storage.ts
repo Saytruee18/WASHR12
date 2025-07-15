@@ -88,6 +88,7 @@ export class MemStorage implements IStorage {
       longitude: insertBooking.longitude || null,
       discountCode: insertBooking.discountCode || null,
       stripePaymentIntentId: insertBooking.stripePaymentIntentId || null,
+      discountAmount: insertBooking.discountAmount || null,
     };
     this.bookings.set(id, booking);
     return booking;

@@ -44,20 +44,20 @@ export function MapComponent({ onLocationOutsideMainz }: MapComponentProps) {
   }, [getCurrentLocation, toast]);
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+    <div className="bg-card rounded-2xl overflow-hidden border border-border">
       {/* Map placeholder */}
-      <div className="h-64 bg-gray-100 relative">
+      <div className="h-64 bg-muted/30 relative">
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="text-center">
             <MapPin className="text-primary text-4xl mb-2 mx-auto" />
-            <p className="text-slate-600 font-medium">Mainz, Deutschland</p>
-            <p className="text-sm text-slate-500">Lat: 50.0007, Lng: 8.2711</p>
+            <p className="font-medium">Mainz, Deutschland</p>
+            <p className="text-sm text-muted-foreground">Lat: 50.0007, Lng: 8.2711</p>
           </div>
         </div>
         
         {/* Location pin */}
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-          <div className="w-6 h-6 bg-red-500 rounded-full border-4 border-white shadow-lg animate-pulse-location"></div>
+          <div className="w-6 h-6 bg-primary rounded-full border-4 border-background shadow-lg animate-pulse-location"></div>
         </div>
       </div>
       
