@@ -50,32 +50,39 @@ interface AddOn {
 
 const addOns: AddOn[] = [
   {
-    id: "innenreinigung",
-    name: "Innenreinigung",
-    price: 35,
-    icon: "🧽",
+    id: "duftbaum",
+    name: "Duftbaum",
+    price: 3,
+    icon: "🌿",
     availableFor: ["aussen", "innen", "beide", "premium"]
   },
   {
-    id: "kofferraum",
-    name: "Kofferraum",
+    id: "kofferraum-intensiv",
+    name: "Kofferraum intensiv",
     price: 5,
     icon: "📦",
     availableFor: ["aussen", "innen", "beide", "premium"]
   },
   {
-    id: "spiegel",
-    name: "Spiegel (innen)",
-    price: 3,
+    id: "spiegel-innen",
+    name: "Spiegel innen",
+    price: 4,
     icon: "🪞",
-    availableFor: ["aussen", "innen", "beide", "premium"]
+    availableFor: ["aussen", "beide", "premium"]
   },
   {
-    id: "duftbaum",
-    name: "Duftbaum",
-    price: 2,
-    icon: "🌿",
-    availableFor: ["aussen", "innen", "beide", "premium"]
+    id: "desinfektion",
+    name: "Innenraum-Desinfektion",
+    price: 8,
+    icon: "🧽",
+    availableFor: ["innen", "beide", "premium"]
+  },
+  {
+    id: "tierhaare",
+    name: "Tierhaare entfernen",
+    price: 10,
+    icon: "🐕",
+    availableFor: ["innen", "beide", "premium"]
   }
 ];
 
@@ -97,9 +104,16 @@ export function EnhancedBookingFlow({ selectedPackage, onComplete, onCancel }: E
   const totalSteps = 5;
   const progress = (currentStep / totalSteps) * 100;
 
-  const availableAddOns = addOns.filter(addOn => 
-    addOn.availableFor.includes(selectedPackage.id)
-  );
+  // Smart filtering: Remove redundant add-ons based on selected package
+  const availableAddOns = addOns.filter(addOn => {
+    if (!addOn.availableFor.includes(selectedPackage.id)) return false;
+    
+    // Remove redundant add-ons based on package type
+    if (selectedPackage.id === "innen" && addOn.id.includes("aussen")) return false;
+    if (selectedPackage.id === "aussen" && addOn.id.includes("innen") && addOn.id !== "spiegel-innen") return false;
+    
+    return true;
+  });
 
   const addOnTotal = selectedAddOns.reduce((total, addOnId) => {
     const addOn = addOns.find(a => a.id === addOnId);

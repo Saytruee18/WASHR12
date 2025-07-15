@@ -54,6 +54,14 @@ Preferred communication style: Simple, everyday language.
   - Seamless integration with existing ProfilePage component
   - Demo mode allowing any email/password combination for testing
   - Secure local storage handling for user sessions
+✓ Major UX improvements (July 15, 2025):
+  - Direct package selection without "Weiter" button (Uber-style instant flow)
+  - Smart add-on filtering to prevent redundant options (no duplicate services)
+  - Interactive demo map with modern floating card design
+  - Uber/Bolt-inspired visual design with rounded corners and gradients
+  - Enhanced package cards with hover effects and improved typography
+  - Optimized for resource conservation on Replit Free Plan
+  - Eliminated gray map issue with functional demo implementation
 
 ## System Architecture
 

@@ -1,0 +1,54 @@
+🧼 WASHR-App – Anpassungen für UX & Performance
+1. Sofortiger Step-Wechsel bei Auswahl (Booking Flow)
+Aktuell muss man nach Auswahl eines Reinigungspakets (z. B. Außenreinigung, Innenreinigung) noch extra auf „Weiter“ klicken.
+Ziel: Sobald ein Paket getippt wird, soll der Nutzer automatisch zum nächsten Schritt weitergeleitet werden (ohne „Weiter“-Button).
+→ Beispiel UX wie bei Uber/Flink: Direktes Weiterleiten durch die Auswahl selbst.
+
+2. Redundante Add-ons entfernen
+In der Auswahl erscheinen manchmal zusätzliche Add-ons wie „Außenreinigung“ oder „Innenreinigung“ – obwohl diese bereits als Hauptpaket gewählt wurden.
+Lösung:
+
+Wenn „Innen“, „Außen“ oder „Beides“ als Hauptpaket gewählt ist, sollen keine Add-ons mit denselben Leistungen mehr auftauchen.
+→ Add-ons nur für Extras wie „Tierhaarentfernung“ oder „Duftbehandlung“.
+
+3. Design komplett überarbeiten (an Bolt/Uber/Flink anlehnen)
+Ziel: Cleanes, modernes App-Feeling mit flüssiger, intuitiver UX. Vorschläge:
+
+Farbschema: Dunkelgrau/Anthrazit als Basis, mit Türkis oder Lime als Akzent
+
+Icons: Minimalistisch, rund, animiert
+
+Kartenbereich: Floating-Style mit abgerundeten Elementen
+
+Buttons: Groß, sticky und zentriert, mit sanften Hover/Touch-Effekten
+
+Navigation: Unten fixierte Tabbar mit 4 Icons: Start, Buchen, Wallet, Profil
+→ Optik & Flow inspiriert von Uber/Flink
+
+4. Kartenproblem fixen (Map ist grau)
+Die Karte lädt aktuell nicht korrekt und bleibt komplett grau.
+Lösung:
+
+Bitte Google Maps API korrekt einbinden (API-Key ist vorhanden)
+
+Kartenbereich sollte direkt nutzbar sein (Zoom, Marker setzen, Standort holen)
+
+Optional: „Standort wird geladen...“-Placeholder während Map-Init
+
+5. Anmelden erst bei Dropdown oder Profilzugriff
+Die App soll ohne Anmeldung nutzbar sein. Nur wenn man auf:
+
+das Dropdown-Menü oder
+
+die Profilseite tippt,
+soll ein Login-/Signup-Screen auftauchen.
+→ Kein erzwungener Login beim Start, erst wenn nötig.
+
+6. Ressourcen schonen (Free Plan berücksichtigen)
+Bitte darauf achten, dass keine unnötigen Komponenten geladen werden, z. B.:
+
+Nur sichtbare Screens rendern (Lazy Load)
+
+Keine API-Calls im Hintergrund ohne Aktion
+
+Keine externen Schriftarten oder Animationen laden, wenn sie nicht aktiv gebraucht werden

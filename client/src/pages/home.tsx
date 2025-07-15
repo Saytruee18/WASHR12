@@ -83,7 +83,7 @@ export default function Home() {
 
   const handlePackageSelect = (pkg: WashPackage) => {
     setSelectedPackage(pkg);
-    setIsBookingModalOpen(true);
+    setIsBookingModalOpen(true); // Direkt zur Buchung weiterleiten - kein extra "Weiter"-Button nötig
   };
 
   const handleLocationOutsideMainz = () => {
