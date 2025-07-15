@@ -31,8 +31,8 @@ const carManufacturers = [
 
 const vehicleTypes = [
   { id: "kleinwagen", name: "Kleinwagen", icon: "🚗", surcharge: 0 },
-  { id: "mittelklasse", name: "Mittelklasse", icon: "🚙", surcharge: 0 },
-  { id: "suv", name: "SUV", icon: "🚐", surcharge: 5 },
+  { id: "limousine", name: "Limousine", icon: "🚘", surcharge: 0 },
+  { id: "suv", name: "SUV", icon: "🚙", surcharge: 5 },
 ];
 
 const timeSlots = [
@@ -50,39 +50,32 @@ interface AddOn {
 
 const addOns: AddOn[] = [
   {
-    id: "duftbaum",
-    name: "Duftbaum",
-    price: 3,
-    icon: "🌿",
+    id: "innenreinigung",
+    name: "Innenreinigung",
+    price: 35,
+    icon: "🧽",
     availableFor: ["aussen", "innen", "beide", "premium"]
   },
   {
     id: "kofferraum",
-    name: "Kofferraum intensiv reinigen",
+    name: "Kofferraum",
     price: 5,
     icon: "📦",
-    availableFor: ["innen", "beide", "premium"]
+    availableFor: ["aussen", "innen", "beide", "premium"]
   },
   {
     id: "spiegel",
-    name: "Spiegel innen reinigen",
-    price: 4,
+    name: "Spiegel (innen)",
+    price: 3,
     icon: "🪞",
     availableFor: ["aussen", "innen", "beide", "premium"]
   },
   {
-    id: "desinfektion",
-    name: "Innenraum-Desinfektion",
-    price: 8,
-    icon: "🧴",
-    availableFor: ["innen", "beide", "premium"]
-  },
-  {
-    id: "tierhaare",
-    name: "Tierhaare entfernen",
-    price: 10,
-    icon: "🐾",
-    availableFor: ["innen", "beide", "premium"]
+    id: "duftbaum",
+    name: "Duftbaum",
+    price: 2,
+    icon: "🌿",
+    availableFor: ["aussen", "innen", "beide", "premium"]
   }
 ];
 
@@ -90,20 +83,17 @@ export function EnhancedBookingFlow({ selectedPackage, onComplete, onCancel }: E
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedAddOns, setSelectedAddOns] = useState<string[]>([]);
   const [formData, setFormData] = useState({
-    location: "Mainz, Deutschland",
-    manufacturer: "",
-    model: "",
+    location: "",
     vehicleType: "",
-    color: "",
     licensePlate: "",
     date: "",
     timeSlot: "",
     paymentMethod: "wallet",
-    isPrivateProperty: false,
+    useCurrentLocation: false,
   });
   const { toast } = useToast();
 
-  const totalSteps = selectedPackage.id === "premium" ? 5 : 4;
+  const totalSteps = 5;
   const progress = (currentStep / totalSteps) * 100;
 
   const availableAddOns = addOns.filter(addOn => 
@@ -146,18 +136,22 @@ export function EnhancedBookingFlow({ selectedPackage, onComplete, onCancel }: E
 
     const bookingData = {
       packageType: selectedPackage.id,
-      vehicleType: formData.vehicleType || `${formData.manufacturer} ${formData.model}`,
-      vehicleModel: formData.model,
-      color: formData.color,
+      vehicleType: formData.vehicleType,
       licensePlate: formData.licensePlate,
-      location: formData.location,
+      location: formData.location || "Standort automatisch erkannt",
       bookingDate: new Date(`${formData.date}T${formData.timeSlot.split(" - ")[0]}:00`),
       timeSlot: formData.timeSlot,
       price: totalPrice * 100, // Include add-ons and vehicle surcharge in total price
       addOns: selectedAddOns,
       vehicleSurcharge: vehicleSurcharge,
-      paymentMethod: formData.paymentMethod,
+      paymentMethod: "wallet", // Default payment method
     };
+
+    // Success animation and message
+    toast({
+      title: "🎉 Buchung erfolgreich!",
+      description: `Deine ${selectedPackage.name} Buchung wurde erstellt. Wir sehen uns ${formData.date}!`,
+    });
 
     onComplete(bookingData);
   };
@@ -165,15 +159,15 @@ export function EnhancedBookingFlow({ selectedPackage, onComplete, onCancel }: E
   const canProceed = () => {
     switch (currentStep) {
       case 1:
-        return formData.manufacturer && formData.model;
+        return formData.vehicleType; // Must select vehicle type
       case 2:
-        return true; // Add-ons are optional
+        return true; // License plate is optional, can always proceed
       case 3:
-        return formData.date && formData.timeSlot;
+        return true; // Add-ons are optional
       case 4:
-        return formData.paymentMethod;
+        return formData.date && formData.timeSlot && (formData.location || formData.useCurrentLocation);
       case 5:
-        return selectedPackage.id === "premium" ? formData.isPrivateProperty : true;
+        return true; // Ready to book
       default:
         return false;
     }
@@ -184,191 +178,103 @@ export function EnhancedBookingFlow({ selectedPackage, onComplete, onCancel }: E
       case 1:
         return (
           <motion.div
-            initial={{ opacity: 0, x: 20 }}
+            key="step1"
+            initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
+            exit={{ opacity: 0, x: -50 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
             className="space-y-6"
           >
-            <div className="flex items-center space-x-3 mb-6">
-              <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                <Car className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <h3 className="text-xl font-bold">Dein Fahrzeug</h3>
-                <p className="text-muted-foreground font-light">Fahrzeugdaten eingeben</p>
-              </div>
+            <div className="text-center mb-8">
+              <h3 className="text-2xl font-bold mb-2">Fahrzeugklasse wählen</h3>
+              <p className="text-muted-foreground">Wähle dein Fahrzeug aus</p>
             </div>
 
-            <div className="mb-4">
-              <Label className="font-medium">Fahrzeugtyp</Label>
-              <div className="grid grid-cols-3 gap-3 mt-2">
-                {vehicleTypes.map((vehicle) => (
-                  <motion.div
-                    key={vehicle.id}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => setFormData({...formData, vehicleType: vehicle.id})}
-                    className={`p-3 rounded-xl border cursor-pointer transition-all text-center ${
-                      formData.vehicleType === vehicle.id
-                        ? "border-primary bg-primary/10"
-                        : "border-border hover:border-primary/50"
-                    }`}
-                  >
-                    <div className="text-2xl mb-1">{vehicle.icon}</div>
-                    <div className="text-sm font-medium">{vehicle.name}</div>
-                    {vehicle.surcharge > 0 && (
-                      <div className="text-xs text-primary mt-1">+{vehicle.surcharge}€</div>
+            <div className="space-y-4">
+              {vehicleTypes.map((vehicle, index) => (
+                <motion.div
+                  key={vehicle.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setFormData({...formData, vehicleType: vehicle.id})}
+                  className={`p-6 rounded-2xl border cursor-pointer transition-all ${
+                    formData.vehicleType === vehicle.id
+                      ? "border-primary bg-primary/10 shadow-lg"
+                      : "border-border hover:border-primary/50 hover:shadow-md"
+                  }`}
+                >
+                  <div className="flex items-center space-x-4">
+                    <div className="text-4xl">{vehicle.icon}</div>
+                    <div className="flex-1">
+                      <div className="text-lg font-semibold">{vehicle.name}</div>
+                      {vehicle.surcharge > 0 && (
+                        <div className="text-sm text-primary">Aufpreis +{vehicle.surcharge}€</div>
+                      )}
+                    </div>
+                    {formData.vehicleType === vehicle.id && (
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        className="w-6 h-6 bg-primary rounded-full flex items-center justify-center"
+                      >
+                        <Check className="h-4 w-4 text-white" />
+                      </motion.div>
                     )}
-                  </motion.div>
-                ))}
-              </div>
-              {formData.vehicleType === "suv" && (
-                <div className="mt-2 p-3 bg-primary/10 rounded-xl border border-primary/20">
-                  <div className="text-sm text-primary font-medium">
-                    🚐 SUV erkannt – Aufpreis +5€
                   </div>
+                </motion.div>
+              ))}
+            </div>
+
+            {formData.vehicleType === "suv" && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="p-4 bg-primary/10 rounded-xl border border-primary/20"
+              >
+                <div className="text-sm text-primary font-medium text-center">
+                  🚙 SUV erkannt – Aufpreis +5€
                 </div>
-              )}
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="manufacturer" className="font-medium">Hersteller</Label>
-                <Select value={formData.manufacturer} onValueChange={(value) => setFormData({...formData, manufacturer: value})}>
-                  <SelectTrigger className="mt-2">
-                    <SelectValue placeholder="Wählen..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {carManufacturers.map((manufacturer) => (
-                      <SelectItem key={manufacturer} value={manufacturer}>
-                        {manufacturer}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <Label htmlFor="model" className="font-medium">Modell</Label>
-                <Input
-                  id="model"
-                  value={formData.model}
-                  onChange={(e) => setFormData({...formData, model: e.target.value})}
-                  placeholder="z.B. A4"
-                  className="mt-2"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="color" className="font-medium">Farbe (optional)</Label>
-                <Input
-                  id="color"
-                  value={formData.color}
-                  onChange={(e) => setFormData({...formData, color: e.target.value})}
-                  placeholder="z.B. Schwarz"
-                  className="mt-2"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="licensePlate" className="font-medium">Kennzeichen (optional)</Label>
-                <Input
-                  id="licensePlate"
-                  value={formData.licensePlate}
-                  onChange={(e) => setFormData({...formData, licensePlate: e.target.value})}
-                  placeholder="z.B. MZ-AB 123"
-                  className="mt-2"
-                />
-              </div>
-            </div>
+              </motion.div>
+            )}
           </motion.div>
         );
 
       case 2:
         return (
           <motion.div
-            initial={{ opacity: 0, x: 20 }}
+            key="step2"
+            initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
+            exit={{ opacity: 0, x: -50 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
             className="space-y-6"
           >
-            <div className="flex items-center space-x-3 mb-6">
-              <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                <span className="text-lg">➕</span>
-              </div>
+            <div className="text-center mb-8">
+              <h3 className="text-2xl font-bold mb-2">Nummernschild</h3>
+              <p className="text-muted-foreground">Optional - für eine persönlichere Erfahrung</p>
+            </div>
+
+            <div className="space-y-4">
               <div>
-                <h3 className="text-xl font-bold">Extras dazu?</h3>
-                <p className="text-muted-foreground font-light">Zusatzleistungen wählen</p>
+                <Input
+                  value={formData.licensePlate}
+                  onChange={(e) => setFormData({...formData, licensePlate: e.target.value})}
+                  placeholder="z.B. MZ-AB 123"
+                  className="text-center text-lg p-6 rounded-2xl border-2"
+                />
               </div>
-            </div>
 
-            <div className="bg-card/50 rounded-xl p-4 mb-4">
-              <div className="flex justify-between items-center">
-                <span className="font-medium">{selectedPackage.name}</span>
-                <span className="text-lg font-bold text-primary">{selectedPackage.price}€</span>
-              </div>
-              {vehicleSurcharge > 0 && (
-                <div className="flex justify-between text-sm text-muted-foreground mt-1">
-                  <span>+ SUV-Aufpreis</span>
-                  <span>{vehicleSurcharge}€</span>
-                </div>
-              )}
-              {selectedAddOns.length > 0 && (
-                <div className="mt-2 space-y-1">
-                  {selectedAddOns.map(addOnId => {
-                    const addOn = addOns.find(a => a.id === addOnId);
-                    return addOn ? (
-                      <div key={addOnId} className="flex justify-between text-sm text-muted-foreground">
-                        <span>+ {addOn.name}</span>
-                        <span>{addOn.price}€</span>
-                      </div>
-                    ) : null;
-                  })}
-                </div>
-              )}
-              {(selectedAddOns.length > 0 || vehicleSurcharge > 0) && (
-                <div className="border-t pt-2 mt-2 flex justify-between font-bold text-primary">
-                  <span>Gesamt:</span>
-                  <span>{totalPrice}€</span>
-                </div>
-              )}
-            </div>
-
-            <div className="space-y-3">
-              {availableAddOns.map((addOn) => (
-                <motion.div
-                  key={addOn.id}
-                  whileHover={{ scale: 1.01 }}
-                  whileTap={{ scale: 0.99 }}
-                  onClick={() => toggleAddOn(addOn.id)}
-                  className={`p-4 rounded-xl border cursor-pointer transition-all ${
-                    selectedAddOns.includes(addOn.id)
-                      ? "border-primary bg-primary/10"
-                      : "border-border hover:border-primary/50"
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <span className="text-2xl">{addOn.icon}</span>
-                      <div>
-                        <div className="font-medium">{addOn.name}</div>
-                        <div className="text-sm text-muted-foreground">+{addOn.price}€</div>
-                      </div>
-                    </div>
-                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                      selectedAddOns.includes(addOn.id)
-                        ? "border-primary bg-primary"
-                        : "border-muted-foreground/30"
-                    }`}>
-                      {selectedAddOns.includes(addOn.id) && (
-                        <Check className="h-4 w-4 text-white" />
-                      )}
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setCurrentStep(3)}
+                className="w-full p-4 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Weiter ohne Kennzeichen
+              </motion.button>
             </div>
           </motion.div>
         );
@@ -376,177 +282,251 @@ export function EnhancedBookingFlow({ selectedPackage, onComplete, onCancel }: E
       case 3:
         return (
           <motion.div
-            initial={{ opacity: 0, x: 20 }}
+            key="step3"
+            initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
+            exit={{ opacity: 0, x: -50 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
             className="space-y-6"
           >
-            <div className="flex items-center space-x-3 mb-6">
-              <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                <Calendar className="h-5 w-5 text-primary" />
+            <div className="text-center mb-8">
+              <h3 className="text-2xl font-bold mb-2">Add-ons auswählen</h3>
+              <p className="text-muted-foreground">Erweitere deine Wäsche</p>
+            </div>
+
+            <div className="space-y-4">
+              {availableAddOns.map((addOn, index) => (
+                <motion.div
+                  key={addOn.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => toggleAddOn(addOn.id)}
+                  className={`p-4 rounded-2xl border cursor-pointer transition-all ${
+                    selectedAddOns.includes(addOn.id)
+                      ? "border-primary bg-primary/10 shadow-lg"
+                      : "border-border hover:border-primary/50 hover:shadow-md"
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <span className="text-3xl">{addOn.icon}</span>
+                      <div>
+                        <div className="font-semibold">{addOn.name}</div>
+                        <div className="text-sm text-primary">+{addOn.price}€</div>
+                      </div>
+                    </div>
+                    <motion.div
+                      className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                        selectedAddOns.includes(addOn.id)
+                          ? "border-primary bg-primary"
+                          : "border-muted-foreground/30"
+                      }`}
+                    >
+                      {selectedAddOns.includes(addOn.id) && (
+                        <motion.div
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                        >
+                          <Check className="h-4 w-4 text-white" />
+                        </motion.div>
+                      )}
+                    </motion.div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Price Summary */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="bg-card/50 rounded-2xl p-4 border"
+            >
+              <div className="flex justify-between items-center text-lg font-bold text-primary">
+                <span>Gesamtpreis:</span>
+                <span>{totalPrice}€</span>
               </div>
+            </motion.div>
+          </motion.div>
+        );
+
+      case 4:
+        return (
+          <motion.div
+            key="step4"
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -50 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="space-y-6"
+          >
+            <div className="text-center mb-8">
+              <h3 className="text-2xl font-bold mb-2">Ort & Zeit angeben</h3>
+              <p className="text-muted-foreground">Wann und wo sollen wir kommen?</p>
+            </div>
+
+            <div className="space-y-6">
+              {/* Location Section */}
               <div>
-                <h3 className="text-xl font-bold">Wann soll's losgehen?</h3>
-                <p className="text-muted-foreground font-light">Termin auswählen</p>
-              </div>
-            </div>
-
-            <div>
-              <Label htmlFor="date" className="font-medium">Datum</Label>
-              <Input
-                id="date"
-                type="date"
-                value={formData.date}
-                onChange={(e) => setFormData({...formData, date: e.target.value})}
-                min={new Date().toISOString().split('T')[0]}
-                className="mt-2"
-              />
-            </div>
-
-            <div>
-              <Label className="font-medium">Uhrzeit</Label>
-              <div className="grid grid-cols-2 gap-3 mt-2">
-                {timeSlots.map((slot) => (
+                <Label className="text-lg font-semibold mb-4 block">📍 Ort</Label>
+                <div className="space-y-3">
+                  <Input
+                    value={formData.location}
+                    onChange={(e) => setFormData({...formData, location: e.target.value})}
+                    placeholder="Adresse eingeben..."
+                    className="text-base p-4 rounded-2xl border-2"
+                  />
                   <motion.button
-                    key={slot}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    onClick={() => setFormData({...formData, timeSlot: slot})}
-                    className={`p-3 rounded-xl border transition-all ${
-                      formData.timeSlot === slot
-                        ? "border-primary bg-primary/10 text-primary"
-                        : "border-border hover:border-primary/50"
-                    }`}
+                    onClick={() => setFormData({...formData, useCurrentLocation: !formData.useCurrentLocation})}
+                    className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors"
                   >
-                    <div className="text-sm font-medium">{slot}</div>
+                    📍 Standort automatisch erkennen
                   </motion.button>
-                ))}
-              </div>
-            </div>
-          </motion.div>
-        );
-
-      case 4:
-        return (
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            className="space-y-6"
-          >
-            <div className="flex items-center space-x-3 mb-6">
-              <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                <CreditCard className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <h3 className="text-xl font-bold">Bezahlung</h3>
-                <p className="text-muted-foreground font-light">Wie möchtest du bezahlen?</p>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <motion.button
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.99 }}
-                onClick={() => setFormData({...formData, paymentMethod: "wallet"})}
-                className={`w-full p-4 rounded-xl border transition-all ${
-                  formData.paymentMethod === "wallet"
-                    ? "border-primary bg-primary/10"
-                    : "border-border hover:border-primary/50"
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center">
-                      <CreditCard className="h-4 w-4 text-primary" />
-                    </div>
-                    <div className="text-left">
-                      <div className="font-medium">Wallet</div>
-                      <div className="text-sm text-muted-foreground">Aus Guthaben bezahlen</div>
-                    </div>
-                  </div>
-                  {formData.paymentMethod === "wallet" && (
-                    <Check className="h-5 w-5 text-primary" />
-                  )}
                 </div>
-              </motion.button>
-
-              <motion.button
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.99 }}
-                onClick={() => setFormData({...formData, paymentMethod: "stripe"})}
-                className={`w-full p-4 rounded-xl border transition-all ${
-                  formData.paymentMethod === "stripe"
-                    ? "border-primary bg-primary/10"
-                    : "border-border hover:border-primary/50"
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center">
-                      <CreditCard className="h-4 w-4 text-primary" />
-                    </div>
-                    <div className="text-left">
-                      <div className="font-medium">Kreditkarte</div>
-                      <div className="text-sm text-muted-foreground">Direkt mit Karte bezahlen</div>
-                    </div>
-                  </div>
-                  {formData.paymentMethod === "stripe" && (
-                    <Check className="h-5 w-5 text-primary" />
-                  )}
-                </div>
-              </motion.button>
-            </div>
-          </motion.div>
-        );
-
-      case 4:
-        return (
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            className="space-y-6"
-          >
-            <div className="flex items-center space-x-3 mb-6">
-              <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                <MapPin className="h-5 w-5 text-primary" />
               </div>
+
+              {/* Time Section */}
               <div>
-                <h3 className="text-xl font-bold">Gesetzliche Bestimmungen</h3>
-                <p className="text-muted-foreground font-light">Bitte bestätigen Sie die Reinigung</p>
-              </div>
-            </div>
-
-            <Card>
-              <CardContent className="p-6">
+                <Label className="text-lg font-semibold mb-4 block">🕒 Zeit</Label>
                 <div className="space-y-4">
-                  <div className="flex items-start space-x-3">
-                    <div className="w-6 h-6 bg-yellow-500/20 rounded-full flex items-center justify-center mt-1">
-                      <span className="text-yellow-500 text-sm">⚠️</span>
-                    </div>
-                    <div>
-                      <h4 className="font-medium mb-2">Wichtiger Hinweis</h4>
-                      <p className="text-sm text-muted-foreground">
-                        Die Außenreinigung mit Wasser ist nur auf privatem Grundstück erlaubt. 
-                        Öffentliche Plätze sind ausgeschlossen (gemäß deutscher Gesetzgebung).
-                      </p>
-                    </div>
-                  </div>
+                  <Input
+                    type="date"
+                    value={formData.date}
+                    onChange={(e) => setFormData({...formData, date: e.target.value})}
+                    min={new Date().toISOString().split('T')[0]}
+                    className="text-base p-4 rounded-2xl border-2"
+                  />
                   
-                  <div className="flex items-start space-x-3 pt-4">
-                    <Checkbox
-                      id="privateProperty"
-                      checked={formData.isPrivateProperty}
-                      onCheckedChange={(checked) => setFormData({...formData, isPrivateProperty: checked as boolean})}
-                    />
-                    <Label htmlFor="privateProperty" className="text-sm font-medium">
-                      Ich bestätige, dass die Reinigung auf privatem Grundstück erfolgt
-                    </Label>
+                  <div className="grid grid-cols-2 gap-3">
+                    {timeSlots.map((slot) => (
+                      <motion.button
+                        key={slot}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => setFormData({...formData, timeSlot: slot})}
+                        className={`p-3 rounded-xl border transition-all ${
+                          formData.timeSlot === slot
+                            ? "border-primary bg-primary/10 text-primary"
+                            : "border-border hover:border-primary/50"
+                        }`}
+                      >
+                        <div className="text-sm font-medium">{slot}</div>
+                      </motion.button>
+                    ))}
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+
+              <div className="text-center text-sm text-muted-foreground p-4 bg-muted/50 rounded-xl">
+                Wir kommen zum gewählten Zeitpunkt direkt zu deinem Standort.
+              </div>
+            </div>
+          </motion.div>
+        );
+
+      case 5:
+        return (
+          <motion.div
+            key="step5"
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -50 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="space-y-6"
+          >
+            <div className="text-center mb-8">
+              <h3 className="text-2xl font-bold mb-2">Zusammenfassung & Buchen</h3>
+              <p className="text-muted-foreground">Überprüfe deine Buchung</p>
+            </div>
+
+            {/* Summary Card */}
+            <div className="bg-card rounded-2xl border p-6 space-y-4">
+              {/* Vehicle */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <span className="text-2xl">{vehicleTypes.find(v => v.id === formData.vehicleType)?.icon}</span>
+                  <div>
+                    <div className="font-medium">Fahrzeugklasse</div>
+                    <div className="text-sm text-muted-foreground">
+                      {vehicleTypes.find(v => v.id === formData.vehicleType)?.name}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Package */}
+              <div className="flex items-center justify-between border-t pt-4">
+                <div className="flex items-center space-x-3">
+                  <span className="text-2xl">{selectedPackage.icon}</span>
+                  <div>
+                    <div className="font-medium">Service-Paket</div>
+                    <div className="text-sm text-muted-foreground">{selectedPackage.name}</div>
+                  </div>
+                </div>
+                <span className="font-bold">{selectedPackage.price}€</span>
+              </div>
+
+              {/* Add-ons */}
+              {selectedAddOns.length > 0 && (
+                <div className="border-t pt-4">
+                  <div className="font-medium mb-2">🧩 Add-ons</div>
+                  {selectedAddOns.map(addOnId => {
+                    const addOn = addOns.find(a => a.id === addOnId);
+                    return addOn ? (
+                      <div key={addOnId} className="flex justify-between text-sm">
+                        <span>{addOn.name}</span>
+                        <span>+{addOn.price}€</span>
+                      </div>
+                    ) : null;
+                  })}
+                </div>
+              )}
+
+              {/* SUV Surcharge */}
+              {vehicleSurcharge > 0 && (
+                <div className="border-t pt-4">
+                  <div className="flex justify-between text-sm">
+                    <span>SUV-Aufpreis</span>
+                    <span>+{vehicleSurcharge}€</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Location & Time */}
+              <div className="border-t pt-4 space-y-2">
+                <div className="flex items-center space-x-2">
+                  <span>📍</span>
+                  <span className="text-sm">{formData.location || "Standort automatisch erkannt"}</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span>🕒</span>
+                  <span className="text-sm">{formData.date} um {formData.timeSlot}</span>
+                </div>
+              </div>
+
+              {/* Total */}
+              <div className="border-t pt-4 flex justify-between items-center text-xl font-bold text-primary">
+                <span>💸 Gesamtpreis</span>
+                <span>{totalPrice}€</span>
+              </div>
+            </div>
+
+            {/* Success Animation Placeholder */}
+            <motion.div
+              className="text-center p-8 bg-primary/5 rounded-2xl border-2 border-primary/20"
+              whileHover={{ scale: 1.02 }}
+            >
+              <div className="text-4xl mb-4">🚀</div>
+              <div className="font-semibold text-lg mb-2">Bereit zum Buchen!</div>
+              <div className="text-sm text-muted-foreground">
+                Klicke auf "Jetzt buchen" um deine Buchung abzuschließen
+              </div>
+            </motion.div>
           </motion.div>
         );
 
@@ -584,8 +564,9 @@ export function EnhancedBookingFlow({ selectedPackage, onComplete, onCancel }: E
           onClick={handleNext}
           disabled={!canProceed()}
           className="min-w-[120px]"
+          size="lg"
         >
-          {currentStep === totalSteps ? "Buchen" : "Weiter"}
+          {currentStep === totalSteps ? "🚀 Jetzt buchen" : "Weiter"}
           {currentStep < totalSteps && <ChevronRight className="h-4 w-4 ml-1" />}
         </Button>
       </div>

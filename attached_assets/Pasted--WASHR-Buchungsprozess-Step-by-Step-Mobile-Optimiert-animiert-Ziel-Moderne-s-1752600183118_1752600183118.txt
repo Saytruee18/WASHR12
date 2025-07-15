@@ -1,0 +1,79 @@
+✅ WASHR – Buchungsprozess (Step-by-Step, Mobile-Optimiert, animiert)
+
+⸻
+
+🎯 Ziel:
+ • Moderne, smoothe Buchung in 5 animierten Schritten
+ • Jeder Schritt als einzelner Screen mit Übergangsanimation (Slide oder Fade)
+ • Klar, verständlich, mobil perfekt bedienbar
+ • Kurze Texte, große Buttons, starke UX
+
+⸻
+
+🔹 Schritt 1: Fahrzeugklasse wählen
+ • Große Auswahlkacheln mit Icons:
+ • 🚗 Kleinwagen
+ • 🚘 Limousine
+ • 🚙 SUV → bei Auswahl: Hinweis „SUV erkannt – Aufpreis +5 €“ (dynamisch)
+ • Animationsvorschlag: Kacheln sliden sanft ein, bei Auswahl Übergang zu Schritt 2
+
+⸻
+
+🔹 Schritt 2: Nummernschild (optional)
+ • Eingabefeld: „Kennzeichen (optional)“
+ • Grauer Hinweistext: „z. B. MZ-AB 123“
+ • Überspringen möglich → Button: „Weiter ohne Kennzeichen“
+
+⸻
+
+🔹 Schritt 3: Add-ons auswählen
+
+Slide-In Auswahl mit Checkboxen + Preisen sichtbar:
+
+ • ✅ Innenreinigung (+35 €)
+ • ✅ Kofferraum (+5 €)
+ • ✅ Spiegel (innen) (+3 €)
+ • ✅ Duftbaum (+2 €)
+
+→ Bei Auswahl: kleine Animation (z. B. Haken wird animiert, Preis aktualisiert)
+ • Gesamtpreis unten dynamisch anzeigen
+
+⸻
+
+🔹 Schritt 4: Ort & Zeit angeben
+
+📍 Ort:
+ • 📝 Adresse manuell eingeben
+ • Oder: 📍 Button: „Standort automatisch erkennen“
+→ Aktiviert GPS-Funktion
+
+🕒 Zeit:
+ • Datumsauswahl mit Kalender-Widget
+ • Uhrzeit über Scroll-Picker (mobilfreundlich)
+
+→ Hinweis unter dem Zeitfeld:
+„Wir kommen zum gewählten Zeitpunkt direkt zu deinem Standort.“
+
+⸻
+
+🔹 Schritt 5: Zusammenfassung & Buchen
+
+Zeige alle gewählten Optionen in einer sauberen Box:
+
+ • 🚙 Fahrzeugklasse
+ • 🧩 Add-ons
+ • 📍 Standort
+ • 🕒 Termin
+ • 💸 Gesamtpreis (inkl. SUV-Aufpreis & Add-ons)
+
+→ „Jetzt buchen“-Button (groß, farblich hervorgehoben)
+
+→ Nach Klick:
+✔️ Kurze Bestätigungsanimation (z. B. WASHR-Logo + „Buchung erfolgreich“)
+
+⸻
+
+⚙️ Technik-Tipp (für Replit/Frontend):
+ • Verwende Pages oder Modals für jeden Schritt
+ • Verwende einfache SlideIn / FadeIn CSS-Animationen
+ • Nutze localStorage oder einen State (z. B. bei Svelte, React, Vue), um Auswahl zu speichern bis zur finalen Zusammenfassung
