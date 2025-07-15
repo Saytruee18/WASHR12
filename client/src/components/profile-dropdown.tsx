@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { User, Mail, FileText, Shield, Book, ChevronDown, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { ProfilePage } from "@/components/profile-page";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -182,7 +182,7 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
                     className="w-full flex items-center space-x-3 px-3 py-2 rounded-xl text-left hover:bg-muted/50 transition-colors"
                   >
                     <item.icon className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">{item.label}</span>
+                    {item.label}
                   </motion.button>
                 ))}
               </div>
@@ -196,6 +196,9 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
         <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Profil</DialogTitle>
+            <DialogDescription>
+              Verwalten Sie Ihre Profilinformationen und Einstellungen.
+            </DialogDescription>
           </DialogHeader>
           <ProfilePage />
         </DialogContent>
@@ -223,6 +226,12 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
               )}
               {selectedLegalContent ? legalTexts[selectedLegalContent as keyof typeof legalTexts]?.title : "Rechtliche Informationen"}
             </DialogTitle>
+            <DialogDescription>
+              {selectedLegalContent 
+                ? "Lesen Sie die vollständigen rechtlichen Bestimmungen." 
+                : "Wählen Sie einen Bereich aus, um die entsprechenden rechtlichen Informationen anzuzeigen."
+              }
+            </DialogDescription>
           </DialogHeader>
           
           <ScrollArea className="flex-1 max-h-[70vh] pr-4">
