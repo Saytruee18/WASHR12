@@ -1,0 +1,136 @@
+Create a full-stack Uber-like car cleaning service web app called "WASHR", designed specifically for the German city of Mainz. The app should have a clean, modern, mobile-first design inspired by Uber, Wolt, and Bolt. No login or signup is required; users should immediately see the home page and begin booking a cleaning service.
+
+Tech stack:
+Frontend: React with Tailwind CSS
+Backend: Node.js + Express
+Database: MongoDB or Replit DB (if easier)
+Payment: Stripe
+Maps: Google Maps API
+Localization: German
+No authentication system needed. App must start directly on the booking/map page.
+
+Use these API keys:
+Stripe Public Key: pk_test_51RktpI2e1akrsv2TgU096mXQhG9pDJWjdGqvVgSj8xNdzadlomvkxkNseVYnYNi5iH0LSmJBqEwAnjHxnA10u7h900LCVpgMLN
+Stripe Secret Key: sk_test_51RktpI2e1akrsv2TqF5kvptpgkmj4u8icmcutu9Kx46FnIDwjBYwUmIWD1Z0AJKSTLeH9Tlt0LwDD0Pla68iPrqu00gS9OB1rX
+Google Maps API: AIzaSyC5P2v27x6bQrLvJUeA9T1lyrc3bvRtx9A
+
+On page load, show a map centered on Mainz (latitude 50.0007, longitude 8.2711). Users should be able to select a location either by clicking on the map or using their current GPS location. If the selected address is outside the city of Mainz, show a warning: "Dieser Ort liegt außerhalb unseres Servicebereichs".
+
+The UI should have a sticky bottom menu (like a mobile app) with the following tabs:
+🏠 Startseite
+📅 Buchen
+💳 Wallet
+🧽 Mein Auto
+🛠 Cleaner werden
+
+On the home tab, display a welcome text, an interactive Google map with a pin, and 3 quick-select wash packages with animated buttons:
+
+Außenwäsche – 35 €
+
+Innen + Außen – 39 €
+
+Komplett – 49 €
+
+Once a package is selected, open a booking modal with:
+
+Step 1: Choose your vehicle (dropdown with icons: Kleinwagen, Mittelklasse, SUV, Transporter)
+
+Step 2: Confirm your location (auto-filled from map or input address)
+
+Step 3: Pick date and time (date picker + time picker)
+
+Step 4: Select payment method: "Wallet-Guthaben verwenden" or "Stripe Checkout"
+
+Step 5: Optional: Rabattcode eingeben (can reduce price)
+
+Allow users to choose from pre-defined car models per vehicle type. Example:
+
+Kleinwagen: Fiat 500, VW Polo
+
+Mittelklasse: BMW 3er, Audi A4
+
+SUV: Mercedes GLC, VW Tiguan
+
+Transporter: Ford Transit, VW Crafter
+
+Save user selections temporarily in state without login. After payment, redirect to a confirmation page that shows:
+"Cleaner wird gesucht..." with a loading animation and estimated arrival time (random between 15-40 minutes).
+
+The "Wallet" tab should show:
+
+Current wallet balance (in €)
+
+Button to top up (choose 25 €, 50 €, 100 €)
+
+Bonus system: 25 € = +1,50 €, 50 € = +5 €, 100 € = +15 €
+
+Use Stripe for top-up
+
+Payment success should update balance in DB
+
+The "Mein Auto" tab allows users to save one or more vehicles (locally, without login). Vehicle data includes:
+
+Fahrzeugtyp
+
+Automodell
+
+Kennzeichen (optional)
+
+Farbe (optional)
+Display saved cars as cards with icons and quick re-booking option.
+
+The "Cleaner werden" tab contains a clean form with:
+
+Vorname, Nachname, Telefonnummer, E-Mail
+
+Warum möchtest du mitmachen? (textarea)
+
+Checkbox: „Ich habe ein Führungszeugnis“
+
+Submit sends data to backend (store in DB or send to admin email)
+
+Stripe payment should be handled using Stripe Checkout. You must generate sessions on the backend dynamically based on the selected price and return the redirect URL. After success, return to confirmation page with info message and summary of booking.
+
+Restrict the app to only accept bookings in Mainz. Any address outside of Mainz should trigger a blocking modal: "Leider sind wir aktuell nur in Mainz aktiv."
+
+Styling: Use Tailwind CSS and animate buttons, modals, transitions with Tailwind + Framer Motion. Use large, rounded buttons, shadow cards, mobile-first layout, sticky bottom nav, bottom modals, and bright, trustworthy colors like white, baby blue, light gray, and dark text. Add SVG icons to tabs for modern app-like feel.
+
+Structure code cleanly:
+
+/frontend/components – for map, modals, tabs, buttons
+
+/frontend/pages – for page views (home, booking, wallet, etc)
+
+/backend/routes – for bookings, payments, wallet, cleaners
+
+/backend/models – MongoDB schemas (bookings, cleaners, cars, payments)
+
+/backend/controllers – logic separated from routes
+
+.env – include API keys
+
+README.md – short instructions how to run app locally
+
+Add loading states for map, Stripe checkout session creation, and booking confirmation. Avoid page reloads; use modal overlays or sliding panels.
+
+Prepare the app to allow future expansion with:
+
+Cleaner app (separate login with job queue, routing)
+
+Admin dashboard (view all bookings, manage cleaners, prices)
+
+Abo-Modelle für regelmäßige Wäsche via Stripe Subscriptions
+
+Bewertungen nach jedem Auftrag
+
+PDF-Rechnung automatisch per Mail senden (optional)
+
+All buttons, texts, forms, and messages should be in German.
+
+Make sure the project runs 100% inside Replit, including environment variables, backend server, and database. Add comments in code for all major logic and API calls.
+
+Optimize for mobile – this app should feel like a native experience on iPhone or Android when opened in browser.
+
+Make everything work with test payment flows in Stripe and mock data where needed. Ensure all features are functional, polished, and scalable.
+
+This is not a prototype – it's a real app. Treat it like a startup MVP.
