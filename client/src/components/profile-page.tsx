@@ -376,9 +376,12 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
 
       {/* Edit Profile Dialog */}
       <Dialog open={isEditingProfile} onOpenChange={setIsEditingProfile}>
-        <DialogContent>
+        <DialogContent className="mobile-modal">
           <DialogHeader>
             <DialogTitle>Profil bearbeiten</DialogTitle>
+            <DialogDescription>
+              Bearbeiten Sie Ihre persönlichen Informationen
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
@@ -436,9 +439,12 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
 
       {/* Cleaner Form Dialog */}
       <Dialog open={isCleanerFormOpen} onOpenChange={setIsCleanerFormOpen}>
-        <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto mobile-modal">
           <DialogHeader>
             <DialogTitle>Cleaner werden</DialogTitle>
+            <DialogDescription>
+              Bewerben Sie sich als Reinigungsprofi
+            </DialogDescription>
           </DialogHeader>
           <CleanerForm />
         </DialogContent>
@@ -451,7 +457,7 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
           setSelectedLegalContent(null);
         }
       }}>
-        <DialogContent className="max-w-2xl max-h-[85vh] overflow-hidden">
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-hidden mobile-modal">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               {selectedLegalContent && (
@@ -481,7 +487,7 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
                   <Button
                     key={key}
                     variant="ghost"
-                    className="w-full justify-start h-auto p-4 text-left"
+                    className="w-full justify-start h-auto p-4 text-left touch-target mobile-optimized"
                     onClick={() => setSelectedLegalContent(key)}
                   >
                     <div className="flex items-center gap-3">

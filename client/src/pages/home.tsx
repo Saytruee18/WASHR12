@@ -94,13 +94,13 @@ export default function Home() {
     switch (activeTab) {
       case "home":
         return (
-          <div className="pb-20">
-            {/* Welcome Section */}
-            <div className="p-4">
+          <div className="pb-20 safe-area-bottom">
+            {/* Welcome Section - Mobile Optimized */}
+            <div className="p-3 md:p-4 mobile-compact">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-gradient-to-br from-primary via-primary/90 to-primary/80 rounded-[32px] p-8 text-primary-foreground mb-6 shadow-2xl shadow-primary/20"
+                className="bg-gradient-to-br from-primary via-primary/90 to-primary/80 rounded-[24px] p-6 md:p-8 text-primary-foreground mb-4 md:mb-6 shadow-2xl shadow-primary/20 mobile-card"
               >
                 <div className="flex items-center justify-between mb-4">
                   <div>
@@ -117,7 +117,7 @@ export default function Home() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => setActiveTab("booking")}
-                  className="bg-background text-foreground px-8 py-4 rounded-2xl font-medium hover:bg-muted transition-all shadow-lg text-lg"
+                  className="bg-background text-foreground px-6 md:px-8 py-3 md:py-4 rounded-2xl font-medium hover:bg-muted transition-all shadow-lg text-base md:text-lg touch-target mobile-optimized w-full md:w-auto"
                 >
                   Jetzt buchen
                 </motion.button>
@@ -190,16 +190,18 @@ export default function Home() {
             </div>
 
             {/* Map Section */}
-            <div className="px-4 mb-6">
-              <h3 className="text-xl font-bold mb-4 tracking-tight">
+            <div className="px-3 md:px-4 mb-4 md:mb-6 mobile-compact">
+              <h3 className="text-lg md:text-xl font-bold mb-3 md:mb-4 tracking-tight">
                 Wählen Sie Ihren Standort
               </h3>
-              <MapComponent onLocationOutsideMainz={handleLocationOutsideMainz} />
+              <div className="rounded-2xl overflow-hidden mobile-card">
+                <MapComponent onLocationOutsideMainz={handleLocationOutsideMainz} />
+              </div>
             </div>
 
             {/* Wash Packages */}
-            <div className="px-4 mb-6">
-              <h3 className="text-xl font-bold mb-4 tracking-tight">
+            <div className="px-3 md:px-4 mb-4 md:mb-6 mobile-compact">
+              <h3 className="text-lg md:text-xl font-bold mb-3 md:mb-4 tracking-tight">
                 Wählen Sie Ihr Paket
               </h3>
               <WashPackages
@@ -212,8 +214,8 @@ export default function Home() {
 
       case "booking":
         return (
-          <div className="p-4 pb-20">
-            <h2 className="text-xl font-bold mb-6">
+          <div className="p-3 md:p-4 pb-20 safe-area-bottom">
+            <h2 className="text-lg md:text-xl font-bold mb-4 md:mb-6">
               Aktuelle Buchungen
             </h2>
 
@@ -268,8 +270,8 @@ export default function Home() {
 
       case "wallet":
         return (
-          <div className="p-4 pb-20">
-            <h2 className="text-xl font-bold mb-6">Wallet</h2>
+          <div className="p-3 md:p-4 pb-20 safe-area-bottom">
+            <h2 className="text-lg md:text-xl font-bold mb-4 md:mb-6">Wallet</h2>
             <div className="space-y-6">
               <WalletTopup
                 balance={walletBalance.balance}
@@ -282,7 +284,7 @@ export default function Home() {
 
       case "profile":
         return (
-          <div className="p-4 pb-20">
+          <div className="p-3 md:p-4 pb-20 safe-area-bottom">
             <ProfilePage />
           </div>
         );
@@ -295,18 +297,18 @@ export default function Home() {
   return (
     <div className="max-w-md mx-auto bg-background min-h-screen relative">
       {/* Header */}
-      <header className="bg-card/80 backdrop-blur-xl shadow-sm p-4 border-b border-border/50 sticky top-0 z-40">
+      <header className="bg-card/80 backdrop-blur-xl shadow-sm p-3 md:p-4 border-b border-border/50 sticky top-0 z-40 safe-area-top">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2 md:space-x-3">
             <motion.div
               whileHover={{ scale: 1.05 }}
-              className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center shadow-lg"
+              className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center shadow-lg mobile-optimized"
             >
-              <Droplets className="text-primary-foreground text-lg" />
+              <Droplets className="text-primary-foreground text-base md:text-lg" />
             </motion.div>
             <div>
-              <h1 className="text-xl font-bold tracking-tight">WASHR</h1>
-              <p className="text-xs text-muted-foreground font-light">Autowäsche in Mainz</p>
+              <h1 className="text-lg md:text-xl font-bold tracking-tight">WASHR</h1>
+              <p className="text-xs text-muted-foreground font-light hidden md:block">Autowäsche in Mainz</p>
             </div>
           </div>
           <ProfileDropdown />

@@ -129,16 +129,17 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
           variant="ghost"
           size="sm"
           onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center space-x-2 hover:bg-muted/50 transition-colors"
+          className="flex items-center space-x-1 md:space-x-2 hover:bg-muted/50 transition-colors touch-target mobile-optimized p-1 md:p-2"
         >
-          <Avatar className="h-8 w-8">
-            <AvatarFallback className="bg-primary text-primary-foreground text-sm font-medium">
+          <Avatar className="h-7 w-7 md:h-8 md:w-8">
+            <AvatarFallback className="bg-primary text-primary-foreground text-xs md:text-sm font-medium">
               {profileData.initials}
             </AvatarFallback>
           </Avatar>
           <motion.div
             animate={{ rotate: isOpen ? 180 : 0 }}
             transition={{ duration: 0.2 }}
+            className="hidden md:block"
           >
             <ChevronDown className="h-4 w-4" />
           </motion.div>

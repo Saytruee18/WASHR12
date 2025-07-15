@@ -34,6 +34,17 @@ Preferred communication style: Simple, everyday language.
   - Professional German legal text content with proper formatting
   - Navigable interface with back buttons and scroll areas
   - Emoji icons for visual identification
+✓ Comprehensive mobile optimization (July 15, 2025):
+  - Touch-optimized interface with 44px minimum touch targets
+  - Safe area support for notched devices and iOS/Android status bars
+  - Mobile-first responsive design with optimized spacing and typography
+  - Prevented zoom on input fields (16px font size minimum)
+  - Enhanced button accessibility with proper mobile touch feedback
+  - Optimized header size and spacing for small screens
+  - Modal dialogs adapted for mobile with bottom-sheet style
+  - Improved bottom navigation with better touch feedback
+  - Added mobile-specific CSS classes for consistent behavior
+  - PWA-ready optimizations for standalone app mode
 
 ## System Architecture
 
