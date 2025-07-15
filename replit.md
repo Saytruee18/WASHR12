@@ -29,7 +29,11 @@ Preferred communication style: Simple, everyday language.
 ✓ Enhanced profile dropdown with click-outside functionality
 ✓ Updated booking area to show service packages when empty
 ✓ Integrated direct support contact via washr.mainz@gmail.com
-✓ Added legal links (Impressum, Datenschutz, AGB) in profile menu
+✓ Enhanced legal content system in profile dropdown:
+  - Individual modal pages for Impressum, Datenschutzerklärung, AGB, Widerrufsrecht
+  - Professional German legal text content with proper formatting
+  - Navigable interface with back buttons and scroll areas
+  - Emoji icons for visual identification
 
 ## System Architecture
 
