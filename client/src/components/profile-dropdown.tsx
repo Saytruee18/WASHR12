@@ -1,40 +1,126 @@
+// client/src/components/profile-dropdown.tsx
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { User, Mail, FileText, Shield, Book, ChevronDown, ArrowLeft } from "lucide-react";
+import {
+  User,
+  Mail,
+  FileText,
+  Shield,
+  Book,
+  ChevronDown,
+  ArrowLeft,
+  LogIn,
+  LogOut,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { ProfilePage } from "@/components/profile-page";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useToast } from "@/hooks/use-toast";
 
 export function ProfileDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isLegalModalOpen, setIsLegalModalOpen] = useState(false);
-  const [selectedLegalContent, setSelectedLegalContent] = useState<string | null>(null);
+  const [selectedLegalContent, setSelectedLegalContent] = useState<
+    string | null
+  >(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showLoginForm, setShowLoginForm] = useState(false);
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     }
 
     if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
     }
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isOpen]);
-  
-  const profileData = {
-    name: "Max Mustermann",
-    email: "max@example.com",
-    initials: "MM"
+
+  // Check login status on mount
+  useEffect(() => {
+    const savedLogin = localStorage.getItem('washr_logged_in');
+    if (savedLogin === 'true') {
+      setIsLoggedIn(true);
+    }
+  }, []);
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (loginEmail && loginPassword) {
+      localStorage.setItem('washr_logged_in', 'true');
+      localStorage.setItem('washr_user_email', loginEmail);
+      setIsLoggedIn(true);
+      setShowLoginForm(false);
+      setIsOpen(false);
+      setLoginEmail("");
+      setLoginPassword("");
+      toast({
+        title: "Erfolgreich eingeloggt",
+        description: `Willkommen zurück, ${loginEmail}!`,
+      });
+    } else {
+      toast({
+        title: "Fehler",
+        description: "Bitte E-Mail und Passwort eingeben.",
+        variant: "destructive",
+      });
+    }
   };
+
+  const handleLogout = () => {
+    localStorage.removeItem('washr_logged_in');
+    localStorage.removeItem('washr_user_email');
+    setIsLoggedIn(false);
+    setIsOpen(false);
+    toast({
+      title: "Erfolgreich ausgeloggt",
+      description: "Auf Wiedersehen!",
+    });
+  };
+
+  const getUserData = () => {
+    if (isLoggedIn) {
+      const savedEmail = localStorage.getItem('washr_user_email') || 'user@example.com';
+      const name = savedEmail.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+      const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+      return {
+        name: name,
+        email: savedEmail,
+        initials: initials
+      };
+    }
+    return {
+      name: "Gast",
+      email: "",
+      initials: "G"
+    };
+  };
+
+  const profileData = getUserData();
 
   const legalTexts = {
     impressum: {
@@ -48,7 +134,7 @@ E-Mail: washr.mainz@gmail.com
 Telefon: +49 6131 123456
 
 Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV:
-Max Mustermann`
+Max Mustermann`,
     },
     datenschutz: {
       title: "Datenschutzerklärung",
@@ -66,7 +152,7 @@ Sie haben jederzeit das Recht auf Auskunft über die bezüglich Ihrer Person ges
 Unsere App verwendet keine Cookies, die personenbezogene Daten speichern.
 
 5. Änderungen dieser Datenschutzerklärung
-Wir behalten uns vor, diese Datenschutzerklärung anzupassen, damit sie stets den aktuellen rechtlichen Anforderungen entspricht oder um Änderungen unserer Leistungen in der Datenschutzerklärung umzusetzen.`
+Wir behalten uns vor, diese Datenschutzerklärung anzupassen, damit sie stets den aktuellen rechtlichen Anforderungen entspricht oder um Änderungen unserer Leistungen in der Datenschutzerklärung umzusetzen.`,
     },
     agb: {
       title: "Allgemeine Geschäftsbedingungen (AGB)",
@@ -90,7 +176,7 @@ WASHR haftet für Schäden, die durch grobe Fahrlässigkeit oder Vorsatz unserer
 Buchungen können bis zu 24 Stunden vor dem vereinbarten Termin kostenfrei storniert werden. Spätere Stornierungen können Stornogebühren nach sich ziehen.
 
 7. Gerichtsstand
-Es gilt deutsches Recht. Gerichtsstand ist Mainz, sofern der Kunde Kaufmann ist oder keinen allgemeinen Gerichtsstand in Deutschland hat.`
+Es gilt deutsches Recht. Gerichtsstand ist Mainz, sofern der Kunde Kaufmann ist oder keinen allgemeinen Gerichtsstand in Deutschland hat.`,
     },
     widerrufsrecht: {
       title: "Widerrufsrecht",
@@ -109,18 +195,35 @@ Folgen des Widerrufs
 Wenn Sie diesen Vertrag widerrufen, haben wir Ihnen alle Zahlungen, die wir von Ihnen erhalten haben, unverzüglich und spätestens binnen vierzehn Tagen ab dem Tag zurückzuzahlen, an dem die Mitteilung über Ihren Widerruf dieses Vertrags bei uns eingegangen ist.
 
 Muster-Widerrufsformular
-Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular aus und senden Sie es zurück an: washr.mainz@gmail.com`
-    }
+Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular aus und senden Sie es zurück an: washr.mainz@gmail.com`,
+    },
   };
 
-  const menuItems = [
-    { icon: User, label: "Buchungshistorie", action: () => {} },
-    { icon: Mail, label: "Support kontaktieren", action: () => window.open('mailto:washr.mainz@gmail.com') },
-    { icon: FileText, label: "Impressum", action: () => { setSelectedLegalContent('impressum'); setIsLegalModalOpen(true); setIsOpen(false); } },
-    { icon: Shield, label: "Datenschutzerklärung", action: () => { setSelectedLegalContent('datenschutz'); setIsLegalModalOpen(true); setIsOpen(false); } },
-    { icon: Book, label: "AGB", action: () => { setSelectedLegalContent('agb'); setIsLegalModalOpen(true); setIsOpen(false); } },
-    { icon: FileText, label: "Widerrufsrecht", action: () => { setSelectedLegalContent('widerrufsrecht'); setIsLegalModalOpen(true); setIsOpen(false); } },
-  ];
+  const getMenuItems = () => {
+    if (!isLoggedIn) {
+      return [
+        { icon: LogIn, label: "Anmelden", action: () => setShowLoginForm(true) },
+        {
+          icon: Mail,
+          label: "Support kontaktieren",
+          action: () => window.open("mailto:washr.mainz@gmail.com"),
+        },
+      ];
+    }
+
+    return [
+      { icon: User, label: "Mein Profil", action: () => { setIsProfileOpen(true); setIsOpen(false); } },
+      { icon: User, label: "Buchungshistorie", action: () => {} },
+      {
+        icon: Mail,
+        label: "Support kontaktieren",
+        action: () => window.open("mailto:washr.mainz@gmail.com"),
+      },
+      { icon: LogOut, label: "Abmelden", action: handleLogout }
+    ];
+  };
+
+  const menuItems = getMenuItems();
 
   return (
     <>
@@ -129,17 +232,16 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
           variant="ghost"
           size="sm"
           onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center space-x-1 md:space-x-2 hover:bg-muted/50 transition-colors touch-target mobile-optimized p-1 md:p-2"
+          className="flex items-center space-x-2 hover:bg-muted/50 transition-colors"
         >
-          <Avatar className="h-7 w-7 md:h-8 md:w-8">
-            <AvatarFallback className="bg-primary text-primary-foreground text-xs md:text-sm font-medium">
+          <Avatar className="h-8 w-8">
+            <AvatarFallback className="bg-primary text-primary-foreground text-sm font-medium">
               {profileData.initials}
             </AvatarFallback>
           </Avatar>
           <motion.div
             animate={{ rotate: isOpen ? 180 : 0 }}
             transition={{ duration: 0.2 }}
-            className="hidden md:block"
           >
             <ChevronDown className="h-4 w-4" />
           </motion.div>
@@ -156,17 +258,33 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
             >
               {/* Profile Header */}
               <div className="p-4 border-b border-border">
-                <div className="flex items-center space-x-3">
-                  <Avatar className="h-10 w-10">
-                    <AvatarFallback className="bg-primary text-primary-foreground font-medium">
-                      {profileData.initials}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <div className="font-medium">{profileData.name}</div>
-                    <div className="text-sm text-muted-foreground">{profileData.email}</div>
+                {!isLoggedIn ? (
+                  <div className="text-center">
+                    <div className="w-10 h-10 bg-muted rounded-full flex items-center justify-center mx-auto mb-2">
+                      <User className="h-5 w-5 text-muted-foreground" />
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Nicht angemeldet
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Melden Sie sich an für vollständigen Zugriff
+                    </p>
                   </div>
-                </div>
+                ) : (
+                  <div className="flex items-center space-x-3">
+                    <Avatar className="h-10 w-10">
+                      <AvatarFallback className="bg-primary text-primary-foreground font-medium">
+                        {profileData.initials}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <div className="font-medium">{profileData.name}</div>
+                      <div className="text-sm text-muted-foreground">
+                        {profileData.email}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Menu Items */}
@@ -178,14 +296,16 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
                     whileTap={{ scale: 0.98 }}
                     onClick={() => {
                       item.action();
-                      if (!item.label.includes("Impressum") && !item.label.includes("Datenschutz") && !item.label.includes("AGB") && !item.label.includes("Widerrufs")) {
+                      if (item.label !== "Anmelden") {
                         setIsOpen(false);
                       }
                     }}
-                    className="w-full flex items-center space-x-3 px-3 py-2 rounded-xl text-left hover:bg-muted/50 transition-colors"
+                    className={`w-full flex items-center space-x-3 px-3 py-2 rounded-xl text-left hover:bg-muted/50 transition-colors touch-target mobile-optimized ${
+                      item.label === "Abmelden" ? "text-destructive hover:bg-destructive/10" : ""
+                    }`}
                   >
                     <item.icon className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">{item.label}</span>
+                    {item.label}
                   </motion.button>
                 ))}
               </div>
@@ -194,28 +314,89 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
         </AnimatePresence>
       </div>
 
+      {/* Login Form Dialog */}
+      <Dialog open={showLoginForm} onOpenChange={setShowLoginForm}>
+        <DialogContent className="max-w-md mobile-modal">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <LogIn className="h-5 w-5 text-primary" />
+              Bei WASHR anmelden
+            </DialogTitle>
+            <DialogDescription>
+              Melden Sie sich an für vollständigen Zugriff auf alle Funktionen
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">E-Mail</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="ihre@email.de"
+                value={loginEmail}
+                onChange={(e) => setLoginEmail(e.target.value)}
+                required
+                className="touch-target"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Passwort</Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="Ihr Passwort"
+                value={loginPassword}
+                onChange={(e) => setLoginPassword(e.target.value)}
+                required
+                className="touch-target"
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <Button type="submit" className="w-full touch-target mobile-optimized">
+                <LogIn className="h-4 w-4 mr-2" />
+                Anmelden
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowLoginForm(false)}
+                className="w-full touch-target mobile-optimized"
+              >
+                Abbrechen
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground text-center">
+              Demo: Jede E-Mail und Passwort-Kombination funktioniert
+            </p>
+          </form>
+        </DialogContent>
+      </Dialog>
+
       {/* Profile Dialog */}
       <Dialog open={isProfileOpen} onOpenChange={setIsProfileOpen}>
-        <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto">
+        <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto mobile-modal">
           <DialogHeader>
             <DialogTitle>Profil</DialogTitle>
             <DialogDescription>
-              Verwalten Sie Ihre Profil-Einstellungen
+              Verwalten Sie Ihre Profilinformationen und Einstellungen.
             </DialogDescription>
           </DialogHeader>
           <ProfilePage />
         </DialogContent>
       </Dialog>
 
-      {/* Legal Modal */}
-      <Dialog open={isLegalModalOpen} onOpenChange={(open) => {
-        setIsLegalModalOpen(open);
-        if (!open) {
-          setSelectedLegalContent(null);
-        }
-      }}>
-        <DialogContent className="max-w-2xl max-h-[85vh] overflow-hidden">
-          <DialogHeader>
+      {/* Legal Modal - HIER WIRD DER INHALT GERENDERT */}
+      <Dialog
+        open={isLegalModalOpen}
+        onOpenChange={(open) => {
+          setIsLegalModalOpen(open);
+          if (!open) {
+            setSelectedLegalContent(null);
+          }
+        }}
+      >
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
+          <DialogHeader className="p-4 border-b">
             <DialogTitle className="flex items-center gap-2">
               {selectedLegalContent && (
                 <Button
@@ -227,35 +408,48 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
                   <ArrowLeft className="h-4 w-4" />
                 </Button>
               )}
-              {selectedLegalContent ? legalTexts[selectedLegalContent as keyof typeof legalTexts]?.title : "Rechtliche Informationen"}
+              {selectedLegalContent
+                ? legalTexts[selectedLegalContent as keyof typeof legalTexts]
+                    ?.title
+                : "Rechtliche Informationen"}
             </DialogTitle>
             <DialogDescription>
-              {selectedLegalContent ? "Lesen Sie die vollständigen rechtlichen Bestimmungen." : "Wählen Sie einen Bereich aus, um die entsprechenden rechtlichen Informationen anzuzeigen."}
+              {selectedLegalContent
+                ? "Lesen Sie die vollständigen rechtlichen Bestimmungen."
+                : "Wählen Sie einen Bereich aus, um die entsprechenden rechtlichen Informationen anzuzeigen."}
             </DialogDescription>
           </DialogHeader>
-          
-          <ScrollArea className="flex-1 max-h-[70vh] pr-4">
+
+          <ScrollArea className="flex-1 overflow-y-auto p-4">
             {!selectedLegalContent ? (
               <div className="space-y-3">
                 <p className="text-sm text-muted-foreground mb-4">
-                  Wählen Sie einen Bereich aus, um die entsprechenden rechtlichen Informationen anzuzeigen:
+                  Wählen Sie einen Bereich aus, um die entsprechenden
+                  rechtlichen Informationen anzuzeigen:
                 </p>
                 {Object.entries(legalTexts).map(([key, content]) => (
                   <Button
                     key={key}
                     variant="ghost"
-                    className="w-full justify-start h-auto p-4 text-left"
+                    className="w-full justify-start h-auto p-4 text-left border rounded-lg hover:bg-muted/50 transition-colors"
                     onClick={() => setSelectedLegalContent(key)}
                   >
-                    <div className="flex items-center gap-3">
-                      <span className="text-lg">{content.icon}</span>
+                    <div className="flex items-center gap-4">
+                      <span className="text-2xl">{content.icon}</span>{" "}
+                      {/* Größeres Icon */}
                       <div>
-                        <div className="font-medium">{content.title}</div>
+                        <div className="font-semibold text-base">
+                          {content.title}
+                        </div>{" "}
+                        {/* Fettere Schrift */}
                         <div className="text-sm text-muted-foreground mt-1">
-                          {key === 'impressum' && 'Angaben gemäß § 5 TMG'}
-                          {key === 'datenschutz' && 'Informationen zur Datenverarbeitung'}
-                          {key === 'agb' && 'Vertragsbedingungen für unsere Services'}
-                          {key === 'widerrufsrecht' && 'Ihre Rechte als Verbraucher'}
+                          {key === "impressum" && "Angaben gemäß § 5 TMG"}
+                          {key === "datenschutz" &&
+                            "Informationen zur Datenverarbeitung"}
+                          {key === "agb" &&
+                            "Vertragsbedingungen für unsere Services"}
+                          {key === "widerrufsrecht" &&
+                            "Ihre Rechte als Verbraucher"}
                         </div>
                       </div>
                     </div>
@@ -264,13 +458,17 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
               </div>
             ) : (
               <div className="space-y-4">
-                <div className="whitespace-pre-line text-sm leading-relaxed">
-                  {legalTexts[selectedLegalContent as keyof typeof legalTexts]?.content}
+                <div className="whitespace-pre-line text-sm leading-relaxed text-foreground">
+                  {
+                    legalTexts[selectedLegalContent as keyof typeof legalTexts]
+                      ?.content
+                  }
                 </div>
-                {selectedLegalContent === 'datenschutz' && (
+                {selectedLegalContent === "datenschutz" && (
                   <div className="mt-6 p-4 bg-muted/50 rounded-lg">
                     <p className="text-xs text-muted-foreground">
-                      Für weitere Fragen zum Datenschutz kontaktieren Sie uns unter: washr.mainz@gmail.com
+                      Für weitere Fragen zum Datenschutz kontaktieren Sie uns
+                      unter: washr.mainz@gmail.com
                     </p>
                   </div>
                 )}

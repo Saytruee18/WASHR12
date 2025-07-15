@@ -1,0 +1,131 @@
+🔧 Struktur
+pgsql
+Kopieren
+Bearbeiten
+/app
+  /profile
+    page.tsx        ← Profilseite mit Login-Prüfung
+/components
+  Header.tsx        ← Dropdown mit Login-Trigger
+✅ 1. Header.tsx (in /components ablegen)
+tsx
+Kopieren
+Bearbeiten
+'use client';
+import { useState, useEffect } from 'react';
+
+export default function Header() {
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const savedLogin = localStorage.getItem('loggedIn');
+    if (savedLogin === 'true') setIsLoggedIn(true);
+  }, []);
+
+  const handleLogin = () => {
+    localStorage.setItem('loggedIn', 'true');
+    setIsLoggedIn(true);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('loggedIn');
+    setIsLoggedIn(false);
+  };
+
+  return (
+    <div className="relative">
+      <button
+        className="p-2 bg-gray-100 rounded"
+        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+      >
+        ☰ Profil
+      </button>
+
+      {isDropdownOpen && (
+        <div className="absolute right-0 mt-2 bg-white shadow-lg rounded p-4 w-48 z-50">
+          {!isLoggedIn ? (
+            <div>
+              <p className="mb-2 text-sm">Bitte anmelden</p>
+              <button
+                onClick={handleLogin}
+                className="bg-blue-500 text-white px-3 py-1 rounded text-sm"
+              >
+                Login
+              </button>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-2 text-sm">
+              <a href="/profile" className="hover:underline">
+                Mein Profil
+              </a>
+              <button
+                onClick={handleLogout}
+                className="text-red-500 hover:underline"
+              >
+                Logout
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+✅ 2. page.tsx für /profile
+tsx
+Kopieren
+Bearbeiten
+'use client';
+import { useEffect, useState } from 'react';
+
+export default function ProfilePage() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const logged = localStorage.getItem('loggedIn');
+    if (logged === 'true') {
+      setIsLoggedIn(true);
+    }
+  }, []);
+
+  if (!isLoggedIn) {
+    return (
+      <div className="p-10 text-center">
+        <h1 className="text-xl font-bold mb-4">Du bist nicht eingeloggt</h1>
+        <p className="mb-2">Bitte logge dich ein, um dein Profil zu sehen.</p>
+        <a href="/" className="text-blue-500 underline">
+          Zur Startseite
+        </a>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-10">
+      <h1 className="text-2xl font-bold">Willkommen in deinem Profil!</h1>
+      <p className="mt-2 text-gray-600">Hier könnten deine Daten stehen.</p>
+    </div>
+  );
+}
+✅ 3. In layout.tsx Header einbauen
+Falls du layout.tsx in /app hast:
+
+tsx
+Kopieren
+Bearbeiten
+import './globals.css';
+import Header from '@/components/Header';
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="de">
+      <body>
+        <header className="p-4 border-b flex justify-end">
+          <Header />
+        </header>
+        <main>{children}</main>
+      </body>
+    </html>
+  );
+}
