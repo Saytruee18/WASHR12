@@ -26,21 +26,37 @@ interface WashPackage {
 
 const washPackages: WashPackage[] = [
   {
-    id: "basic-trocken",
-    name: "Basic Reinigung (trocken)",
-    price: 25,
-    description: "Innenreinigung ohne Wasser",
-    icon: "🧽",
-    features: ["Innenraumreinigung", "Staubsaugen", "Oberflächenreinigung", "Überall buchbar"]
+    id: "aussen",
+    name: "Außenreinigung",
+    price: 39,
+    description: "Blitzsauber von Außen",
+    icon: "🚗",
+    features: ["Gründliches manuelles Schrubben", "Felgen & Fenster reinigen", "Ohne Hochdruckreiniger", "Maximale Rücksichtnahme"]
   },
   {
-    id: "privatgrundstück",
-    name: "Privatgrundstück Reinigung",
-    price: 45,
-    description: "Vollreinigung mit Wasser",
-    icon: "🏠",
+    id: "innen",
+    name: "Innenreinigung",
+    price: 35,
+    description: "Komfort im Innenraum",
+    icon: "🧽",
+    features: ["Intensives Staubsaugen", "Umfassende Oberflächenreinigung", "Cockpit-Pflege", "Optionale Extras verfügbar"]
+  },
+  {
+    id: "beide",
+    name: "Beide (Außen- & Innenreinigung)",
+    price: 59,
+    description: "Rundum-Pflege",
+    icon: "✨",
     popular: true,
-    features: ["Außen- & Innenreinigung", "Hochdruckreinigung", "Wachs & Versiegelung", "Nur auf Privatgrundstück"]
+    features: ["Das Beste aus beiden Welten", "Komplette Außenreinigung", "Komplette Innenreinigung", "Umfassend & Effizient"]
+  },
+  {
+    id: "premium",
+    name: "Premium-Reinigung",
+    price: 80,
+    description: "Exklusivität für Privatgrundstücke",
+    icon: "👑",
+    features: ["Ultimative Tiefenreinigung", "Hochdruckreiniger", "Spezielle Polsterreiniger", "Professionelle Lackversiegelung", "Nur auf Privatgrundstücken"]
   }
 ];
 
