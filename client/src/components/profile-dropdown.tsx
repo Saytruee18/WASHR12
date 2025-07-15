@@ -177,12 +177,14 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
                     whileTap={{ scale: 0.98 }}
                     onClick={() => {
                       item.action();
-                      setIsOpen(false);
+                      if (!item.label.includes("Impressum") && !item.label.includes("Datenschutz") && !item.label.includes("AGB") && !item.label.includes("Widerrufs")) {
+                        setIsOpen(false);
+                      }
                     }}
                     className="w-full flex items-center space-x-3 px-3 py-2 rounded-xl text-left hover:bg-muted/50 transition-colors"
                   >
                     <item.icon className="h-4 w-4 text-muted-foreground" />
-                    {item.label}
+                    <span className="text-sm">{item.label}</span>
                   </motion.button>
                 ))}
               </div>
@@ -197,7 +199,7 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
           <DialogHeader>
             <DialogTitle>Profil</DialogTitle>
             <DialogDescription>
-              Verwalten Sie Ihre Profilinformationen und Einstellungen.
+              Verwalten Sie Ihre Profil-Einstellungen
             </DialogDescription>
           </DialogHeader>
           <ProfilePage />
@@ -227,10 +229,7 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
               {selectedLegalContent ? legalTexts[selectedLegalContent as keyof typeof legalTexts]?.title : "Rechtliche Informationen"}
             </DialogTitle>
             <DialogDescription>
-              {selectedLegalContent 
-                ? "Lesen Sie die vollständigen rechtlichen Bestimmungen." 
-                : "Wählen Sie einen Bereich aus, um die entsprechenden rechtlichen Informationen anzuzeigen."
-              }
+              {selectedLegalContent ? "Lesen Sie die vollständigen rechtlichen Bestimmungen." : "Wählen Sie einen Bereich aus, um die entsprechenden rechtlichen Informationen anzuzeigen."}
             </DialogDescription>
           </DialogHeader>
           
