@@ -7,6 +7,7 @@ import { WashPackages } from "@/components/wash-packages";
 import { WalletTopup } from "@/components/wallet-topup";
 import { VoucherManagement } from "@/components/voucher-management";
 import { ProfilePage } from "@/components/profile-page";
+import { ProfileDropdown } from "@/components/profile-dropdown";
 import { ServiceAreaWarning } from "@/components/service-area-warning";
 import { useQuery } from "@tanstack/react-query";
 import { Droplets, Circle, Shield, Users, Star } from "lucide-react";
@@ -83,68 +84,87 @@ export default function Home() {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-gradient-to-r from-primary to-primary/80 rounded-2xl p-6 text-primary-foreground mb-6"
+                className="bg-gradient-to-br from-primary via-primary/90 to-primary/80 rounded-[32px] p-8 text-primary-foreground mb-6 shadow-2xl shadow-primary/20"
               >
-                <h2 className="text-2xl font-bold mb-2">Willkommen bei WASHR</h2>
-                <p className="text-primary-foreground/80 mb-4">
-                  Mainz' Nr. 1 für mobile Autopflege
-                </p>
-                <button
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h2 className="text-2xl font-bold mb-2 tracking-tight">Willkommen bei WASHR</h2>
+                    <p className="text-primary-foreground/80 font-light text-lg">
+                      Mainz' Nr. 1 für mobile Autopflege
+                    </p>
+                  </div>
+                  <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center">
+                    <Droplets className="h-8 w-8 text-white" />
+                  </div>
+                </div>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                   onClick={() => setActiveTab("booking")}
-                  className="bg-background text-foreground px-6 py-3 rounded-xl font-semibold hover:bg-muted transition-colors"
+                  className="bg-background text-foreground px-8 py-4 rounded-2xl font-medium hover:bg-muted transition-all shadow-lg text-lg"
                 >
                   Jetzt buchen
-                </button>
+                </motion.button>
               </motion.div>
             </div>
 
             {/* Trust Indicators */}
             <div className="px-4 mb-6">
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-3 gap-4">
                 <motion.div
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.1 }}
-                  className="bg-card rounded-xl p-3 text-center"
+                  whileHover={{ scale: 1.05 }}
+                  className="bg-card rounded-2xl p-4 text-center border border-border/50 hover:border-primary/50 transition-all shadow-lg hover:shadow-xl"
                 >
-                  <Shield className="h-6 w-6 text-primary mx-auto mb-2" />
-                  <div className="text-xs font-medium">100% lokal</div>
-                  <div className="text-xs text-muted-foreground">aus Mainz</div>
+                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <Shield className="h-6 w-6 text-primary" />
+                  </div>
+                  <div className="text-sm font-medium">100% lokal</div>
+                  <div className="text-xs text-muted-foreground font-light">aus Mainz</div>
                 </motion.div>
                 <motion.div
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.2 }}
-                  className="bg-card rounded-xl p-3 text-center"
+                  whileHover={{ scale: 1.05 }}
+                  className="bg-card rounded-2xl p-4 text-center border border-border/50 hover:border-primary/50 transition-all shadow-lg hover:shadow-xl"
                 >
-                  <Users className="h-6 w-6 text-primary mx-auto mb-2" />
-                  <div className="text-xs font-medium">Geprüfte</div>
-                  <div className="text-xs text-muted-foreground">Cleaner</div>
+                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <Users className="h-6 w-6 text-primary" />
+                  </div>
+                  <div className="text-sm font-medium">Geprüfte</div>
+                  <div className="text-xs text-muted-foreground font-light">Cleaner</div>
                 </motion.div>
                 <motion.div
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.3 }}
-                  className="bg-card rounded-xl p-3 text-center"
+                  whileHover={{ scale: 1.05 }}
+                  className="bg-card rounded-2xl p-4 text-center border border-border/50 hover:border-primary/50 transition-all shadow-lg hover:shadow-xl"
                 >
-                  <Star className="h-6 w-6 text-primary mx-auto mb-2" />
-                  <div className="text-xs font-medium">4.9/5</div>
-                  <div className="text-xs text-muted-foreground">Bewertung</div>
+                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <Star className="h-6 w-6 text-primary" />
+                  </div>
+                  <div className="text-sm font-medium">4.9/5</div>
+                  <div className="text-xs text-muted-foreground font-light">Bewertung</div>
                 </motion.div>
               </div>
             </div>
 
             {/* Info Cards */}
             <div className="px-4 mb-6">
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.4 }}
-                  className="bg-card rounded-xl p-4"
+                  whileHover={{ scale: 1.01 }}
+                  className="bg-card rounded-2xl p-6 border border-border/50 hover:border-primary/50 transition-all shadow-lg hover:shadow-xl"
                 >
-                  <h4 className="font-semibold mb-2">Was ist WASHR?</h4>
-                  <p className="text-sm text-muted-foreground">
+                  <h4 className="font-bold mb-3 text-lg">Was ist WASHR?</h4>
+                  <p className="text-muted-foreground font-light">
                     Mobile Autopflege direkt zu Ihnen - professionell, schnell und umweltfreundlich.
                   </p>
                 </motion.div>
@@ -152,10 +172,11 @@ export default function Home() {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.5 }}
-                  className="bg-card rounded-xl p-4"
+                  whileHover={{ scale: 1.01 }}
+                  className="bg-card rounded-2xl p-6 border border-border/50 hover:border-primary/50 transition-all shadow-lg hover:shadow-xl"
                 >
-                  <h4 className="font-semibold mb-2">Wie funktioniert's?</h4>
-                  <p className="text-sm text-muted-foreground">
+                  <h4 className="font-bold mb-3 text-lg">Wie funktioniert's?</h4>
+                  <p className="text-muted-foreground font-light">
                     Paket wählen → Termin buchen → Cleaner kommt zu Ihnen → Bezahlen per App.
                   </p>
                 </motion.div>
@@ -164,7 +185,7 @@ export default function Home() {
 
             {/* Map Section */}
             <div className="px-4 mb-6">
-              <h3 className="text-lg font-semibold mb-3">
+              <h3 className="text-xl font-bold mb-4 tracking-tight">
                 Wählen Sie Ihren Standort
               </h3>
               <MapComponent onLocationOutsideMainz={handleLocationOutsideMainz} />
@@ -172,7 +193,7 @@ export default function Home() {
 
             {/* Wash Packages */}
             <div className="px-4 mb-6">
-              <h3 className="text-lg font-semibold mb-4">
+              <h3 className="text-xl font-bold mb-4 tracking-tight">
                 Wählen Sie Ihr Paket
               </h3>
               <WashPackages
@@ -266,23 +287,21 @@ export default function Home() {
   return (
     <div className="max-w-md mx-auto bg-background min-h-screen relative">
       {/* Header */}
-      <header className="bg-card shadow-sm p-4 border-b border-border">
+      <header className="bg-card/80 backdrop-blur-xl shadow-sm p-4 border-b border-border/50 sticky top-0 z-40">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center shadow-lg"
+            >
               <Droplets className="text-primary-foreground text-lg" />
-            </div>
+            </motion.div>
             <div>
-              <h1 className="text-xl font-bold">WASHR</h1>
-              <p className="text-xs text-muted-foreground">Autowäsche in Mainz</p>
+              <h1 className="text-xl font-bold tracking-tight">WASHR</h1>
+              <p className="text-xs text-muted-foreground font-light">Autowäsche in Mainz</p>
             </div>
           </div>
-          <div className="flex items-center space-x-2">
-            <div className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium">
-              <Circle className="inline h-2 w-2 text-primary mr-1" />
-              Verfügbar
-            </div>
-          </div>
+          <ProfileDropdown />
         </div>
       </header>
 
