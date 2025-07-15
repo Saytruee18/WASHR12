@@ -34,8 +34,55 @@ const timeSlots = [
   "13:00 - 14:00", "14:00 - 15:00", "15:00 - 16:00", "16:00 - 17:00"
 ];
 
+interface AddOn {
+  id: string;
+  name: string;
+  price: number;
+  icon: string;
+  availableFor: string[]; // package IDs where this add-on is available
+}
+
+const addOns: AddOn[] = [
+  {
+    id: "duftbaum",
+    name: "Duftbaum",
+    price: 3,
+    icon: "🌿",
+    availableFor: ["aussen", "innen", "beide", "premium"]
+  },
+  {
+    id: "kofferraum",
+    name: "Kofferraum intensiv reinigen",
+    price: 5,
+    icon: "📦",
+    availableFor: ["innen", "beide", "premium"]
+  },
+  {
+    id: "spiegel",
+    name: "Spiegel innen reinigen",
+    price: 4,
+    icon: "🪞",
+    availableFor: ["aussen", "innen", "beide", "premium"]
+  },
+  {
+    id: "desinfektion",
+    name: "Innenraum-Desinfektion",
+    price: 8,
+    icon: "🧴",
+    availableFor: ["innen", "beide", "premium"]
+  },
+  {
+    id: "tierhaare",
+    name: "Tierhaare entfernen",
+    price: 10,
+    icon: "🐾",
+    availableFor: ["innen", "beide", "premium"]
+  }
+];
+
 export function EnhancedBookingFlow({ selectedPackage, onComplete, onCancel }: EnhancedBookingFlowProps) {
   const [currentStep, setCurrentStep] = useState(1);
+  const [selectedAddOns, setSelectedAddOns] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     location: "Mainz, Deutschland",
     manufacturer: "",
@@ -49,8 +96,27 @@ export function EnhancedBookingFlow({ selectedPackage, onComplete, onCancel }: E
   });
   const { toast } = useToast();
 
-  const totalSteps = selectedPackage.id === "privatgrundstück" ? 4 : 3;
+  const totalSteps = selectedPackage.id === "premium" ? 5 : 4;
   const progress = (currentStep / totalSteps) * 100;
+
+  const availableAddOns = addOns.filter(addOn => 
+    addOn.availableFor.includes(selectedPackage.id)
+  );
+
+  const addOnTotal = selectedAddOns.reduce((total, addOnId) => {
+    const addOn = addOns.find(a => a.id === addOnId);
+    return total + (addOn?.price || 0);
+  }, 0);
+
+  const totalPrice = selectedPackage.price + addOnTotal;
+
+  const toggleAddOn = (addOnId: string) => {
+    setSelectedAddOns(prev => 
+      prev.includes(addOnId)
+        ? prev.filter(id => id !== addOnId)
+        : [...prev, addOnId]
+    );
+  };
 
   const handleNext = () => {
     if (currentStep < totalSteps) {
@@ -61,7 +127,7 @@ export function EnhancedBookingFlow({ selectedPackage, onComplete, onCancel }: E
   };
 
   const handleSubmit = () => {
-    if (selectedPackage.id === "privatgrundstück" && !formData.isPrivateProperty) {
+    if (selectedPackage.id === "premium" && !formData.isPrivateProperty) {
       toast({
         title: "Bestätigung erforderlich",
         description: "Bitte bestätigen Sie, dass die Reinigung auf privatem Grundstück erfolgt.",
@@ -79,7 +145,8 @@ export function EnhancedBookingFlow({ selectedPackage, onComplete, onCancel }: E
       location: formData.location,
       bookingDate: new Date(`${formData.date}T${formData.timeSlot.split(" - ")[0]}:00`),
       timeSlot: formData.timeSlot,
-      price: selectedPackage.price * 100,
+      price: totalPrice * 100, // Include add-ons in total price
+      addOns: selectedAddOns,
       paymentMethod: formData.paymentMethod,
     };
 
@@ -91,11 +158,13 @@ export function EnhancedBookingFlow({ selectedPackage, onComplete, onCancel }: E
       case 1:
         return formData.manufacturer && formData.model;
       case 2:
-        return formData.date && formData.timeSlot;
+        return true; // Add-ons are optional
       case 3:
-        return formData.paymentMethod;
+        return formData.date && formData.timeSlot;
       case 4:
-        return formData.isPrivateProperty;
+        return formData.paymentMethod;
+      case 5:
+        return selectedPackage.id === "premium" ? formData.isPrivateProperty : true;
       default:
         return false;
     }
@@ -186,6 +255,85 @@ export function EnhancedBookingFlow({ selectedPackage, onComplete, onCancel }: E
           >
             <div className="flex items-center space-x-3 mb-6">
               <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                <span className="text-lg">➕</span>
+              </div>
+              <div>
+                <h3 className="text-xl font-bold">Add-ons wählen</h3>
+                <p className="text-muted-foreground font-light">Zusatzleistungen hinzufügen (optional)</p>
+              </div>
+            </div>
+
+            <div className="bg-card/50 rounded-xl p-4 mb-4">
+              <div className="flex justify-between items-center">
+                <span className="font-medium">{selectedPackage.name}</span>
+                <span className="text-lg font-bold text-primary">{selectedPackage.price}€</span>
+              </div>
+              {selectedAddOns.length > 0 && (
+                <div className="mt-2 space-y-1">
+                  {selectedAddOns.map(addOnId => {
+                    const addOn = addOns.find(a => a.id === addOnId);
+                    return addOn ? (
+                      <div key={addOnId} className="flex justify-between text-sm text-muted-foreground">
+                        <span>+ {addOn.name}</span>
+                        <span>{addOn.price}€</span>
+                      </div>
+                    ) : null;
+                  })}
+                  <div className="border-t pt-2 flex justify-between font-bold text-primary">
+                    <span>Gesamt:</span>
+                    <span>{totalPrice}€</span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-3">
+              {availableAddOns.map((addOn) => (
+                <motion.div
+                  key={addOn.id}
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.99 }}
+                  onClick={() => toggleAddOn(addOn.id)}
+                  className={`p-4 rounded-xl border cursor-pointer transition-all ${
+                    selectedAddOns.includes(addOn.id)
+                      ? "border-primary bg-primary/10"
+                      : "border-border hover:border-primary/50"
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <span className="text-2xl">{addOn.icon}</span>
+                      <div>
+                        <div className="font-medium">{addOn.name}</div>
+                        <div className="text-sm text-muted-foreground">+{addOn.price}€</div>
+                      </div>
+                    </div>
+                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                      selectedAddOns.includes(addOn.id)
+                        ? "border-primary bg-primary"
+                        : "border-muted-foreground/30"
+                    }`}>
+                      {selectedAddOns.includes(addOn.id) && (
+                        <Check className="h-4 w-4 text-white" />
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        );
+
+      case 3:
+        return (
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            className="space-y-6"
+          >
+            <div className="flex items-center space-x-3 mb-6">
+              <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
                 <Calendar className="h-5 w-5 text-primary" />
               </div>
               <div>
@@ -229,7 +377,7 @@ export function EnhancedBookingFlow({ selectedPackage, onComplete, onCancel }: E
           </motion.div>
         );
 
-      case 3:
+      case 4:
         return (
           <motion.div
             initial={{ opacity: 0, x: 20 }}

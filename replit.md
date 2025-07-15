@@ -8,18 +8,25 @@ WASHR is a full-stack Uber-like car cleaning service web application designed sp
 
 Preferred communication style: Simple, everyday language.
 
-## Recent Changes (December 2024)
+## Recent Changes (July 2025)
 
-✓ Implemented modern dark mode interface with professional styling
-✓ Updated color scheme to elegant dark theme with cyan/turquoise accents
-✓ Restructured navigation to 4 tabs: Home, Booking, Wallet, Profile
-✓ Added comprehensive Profile page with booking history and cleaner application
-✓ Integrated voucher management system within wallet
-✓ Updated service packages to comply with German regulations:
-  - Basic Reinigung (trocken): Interior cleaning without water, allowed anywhere
-  - Privatgrundstück Reinigung: Full service only on private property
-✓ Enhanced trust indicators and marketing elements on home page
-✓ All components updated to dark theme with proper contrast and accessibility
+✓ Successfully migrated from Replit Agent to Replit environment
+✓ Updated service packages to match new German structure:
+  - Außenreinigung (39€): Handwäsche ohne Hochdruckreiniger
+  - Innenreinigung (35€): Komplette Innenraumpflege
+  - Innen & Außen (59€): Rundum-Pflege Kombipaket
+  - Premium (80€): Exklusivität nur für Privatgrundstücke
+✓ Implemented comprehensive add-ons system:
+  - Duftbaum (3€), Kofferraum intensiv (5€), Spiegel innen (4€)
+  - Innenraum-Desinfektion (8€), Tierhaare entfernen (10€)
+  - Live price calculation with selected add-ons
+✓ Enhanced booking flow with 4-5 step process including add-ons selection
+✓ Added splash screen animation with WASHR branding
+✓ Improved trust indicators with modern emoji-based design
+✓ Enhanced profile dropdown with click-outside functionality
+✓ Updated booking area to show service packages when empty
+✓ Integrated direct support contact via washr.mainz@gmail.com
+✓ Added legal links (Impressum, Datenschutz, AGB) in profile menu
 
 ## System Architecture
 

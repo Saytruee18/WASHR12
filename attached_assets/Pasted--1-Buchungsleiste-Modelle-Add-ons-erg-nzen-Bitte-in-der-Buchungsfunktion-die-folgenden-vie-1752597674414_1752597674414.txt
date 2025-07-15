@@ -1,0 +1,103 @@
+🧼 1. Buchungsleiste – Modelle & Add-ons ergänzen
+
+Bitte in der Buchungsfunktion die folgenden vier Reinigungsmodelle hinzufügen (visuell als Karten, Buttons oder Dropdown):
+
+📦 Reinigungsmodelle:
+ • Außenreinigung – 39 €
+ • Handwäsche
+ • Felgenreinigung
+ • Scheibenreinigung außen
+ • Hinweis: Kein Hochdruckreiniger, da im öffentlichen Raum nicht erlaubt
+ • Innenreinigung – 35 €
+ • Staubsaugen
+ • Oberflächenreinigung
+ • Spiegel innen nur über Add-on buchbar
+ • Innen & Außen – 59 €
+ • Kombination beider Leistungen
+ • Add-ons weiterhin zubuchbar
+ • Premium – 80 € (nur auf Privatgrundstück!)
+ • Hochdruckreiniger
+ • Dampfgerät
+ • Polierwerkzeuge
+ • Intensive Komplettreinigung
+ • Hinweis: Nur buchbar auf Privatgrundstücken, da sonst nicht erlaubt
+
+⸻
+
+➕ 2. Add-ons (Zusatzauswahl nach Modellwahl)
+
+Nach Auswahl eines Modells sollen folgende kostenpflichtige Zusatzoptionen erscheinen (visuell als Häkchenliste, Buttons oder Umschalter mit Icons):
+ • Duftbaum – 3 € 🌿
+ • Kofferraum intensiv reinigen – 5 € 📦
+ • Spiegel innen reinigen – 4 € 🪞
+ • Innenraum-Desinfektion – 8 € 🧴
+ • Tierhaare entfernen – 10 € 🐾 (nur bei Innen/Kombi verfügbar)
+
+✅ Live-Preis-Anzeige, z. B.:
+
+„Ausgewählt: Innenreinigung (35 €) + Duftbaum (3 €) + Spiegel (4 €) = 42 €“
+
+⸻
+
+🏠 3. Startseite & Buchungsbereich – Angebote bei leerem Konto anzeigen
+
+📍 Startseite:
+ • Die 4 Reinigungsmodelle sollen immer auch auf der Startseite sichtbar sein
+→ Unterhalb oder neben dem Hauptbanner
+→ Mit Preis, Beschreibung & „Jetzt buchen“-Button
+
+📍 Buchungsbereich (wo sonst „Keine Buchung vorhanden“ steht):
+ • Wenn der Nutzer noch keine Buchung hat:
+→ Statt nur dem Text „Keine Buchung vorhanden“ bitte:
+ • Zuerst: Hinweistext
+„Du hast noch keine aktive Buchung – wähle hier einen unserer beliebtesten Services 👇“
+ • Direkt darunter: Darstellung der 4 Reinigungsangebote mit Buttons
+
+✅ Ziel: Leerer Buchungsbereich wird zu aktivem Angebotsbereich → bessere Conversion
+
+⸻
+
+👤 4. Profilmenü (oben rechts) – Verhalten & Inhalte verbessern
+ • Beim Klick auf das Profil-Icon öffnet sich wie bisher das Menü
+ • Neu: Menü soll sich automatisch schließen, wenn man irgendwo anders auf die Seite klickt (nicht nur manuell)
+ • Menüinhalte:
+ • Buchungshistorie
+ • Support kontaktieren → Link/Trigger zu washr.mainz@gmail.com
+ • Impressum, Datenschutz, AGB → im Footer oder als Linkliste unten im Profilbereich
+
+⸻
+
+🚀 5. Splash-Animation beim App-Start
+ • Animation erscheint beim Öffnen der App/Webseite (max. 2–3 Sekunden):
+ • Hintergrund in WASHR-Farbe (z. B. Türkis oder Dunkelblau)
+ • Logo „WASHR“ kommt mit schneller Animation rein (Fade-in oder Slide-in)
+ • Danach automatische Weiterleitung zur Startseite
+
+→ Wichtig: Animation muss leicht und schnell ladbar sein (Replit Free Plan!)
+
+⸻
+
+🌟 6. Vertrauensanzeige (statt “100 % lokal…”) – modern & visuell gestalten
+
+Alt: „100 % lokal, Geprüft, 4.9/5“ → wirkt langweilig
+Neu (modern & mit Icons):
+
+✅ Vorschlag als statische Zeile:
+
+📍 Lokal aktiv – 🛡️ Geprüfte Cleaner – ⭐️ 4.9 / 5 Bewertungen
+
+✅ Oder rotierend:
+
+„Geprüfte Qualität 🧼“ → „Top bewertet von Kunden ⭐️“ → „In deiner Stadt 📍“
+
+✅ Darstellung als kleine Icon-Badges oder Laufband-Text im Header oder unter dem Hero
+
+⸻
+
+⚙️ 7. Technische Hinweise für Umsetzung (Replit Free Plan beachten):
+ • Kein komplexes State-Handling oder dauerhafte Listener
+ • Bilder nur komprimiert nutzen (WebP, JPG klein)
+ • Animationen nur leicht & am Anfang
+ • Keine großen Maps oder Drittanbieter-APIs beim Start
+ • Design Mobile-First gedacht
+ • Wiederverwendbare Komponenten für Buttons, Cards & Menü

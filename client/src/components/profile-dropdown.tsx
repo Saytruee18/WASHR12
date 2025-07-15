@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { User, Settings, CreditCard, History, LogOut, ChevronDown } from "lucide-react";
+import { User, Mail, FileText, Shield, Book, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -9,6 +9,23 @@ import { ProfilePage } from "@/components/profile-page";
 export function ProfileDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen]);
   
   const profileData = {
     name: "Max Mustermann",
@@ -17,16 +34,16 @@ export function ProfileDropdown() {
   };
 
   const menuItems = [
-    { icon: User, label: "Profil bearbeiten", action: () => setIsProfileOpen(true) },
-    { icon: History, label: "Meine Buchungen", action: () => {} },
-    { icon: CreditCard, label: "Zahlungsmethoden", action: () => {} },
-    { icon: Settings, label: "Einstellungen", action: () => {} },
-    { icon: LogOut, label: "Abmelden", action: () => {} },
+    { icon: User, label: "Buchungshistorie", action: () => {} },
+    { icon: Mail, label: "Support kontaktieren", action: () => window.open('mailto:washr.mainz@gmail.com') },
+    { icon: FileText, label: "Impressum", action: () => {} },
+    { icon: Shield, label: "Datenschutzerklärung", action: () => {} },
+    { icon: Book, label: "AGB", action: () => {} },
   ];
 
   return (
     <>
-      <div className="relative">
+      <div className="relative" ref={dropdownRef}>
         <Button
           variant="ghost"
           size="sm"

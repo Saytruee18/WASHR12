@@ -29,34 +29,34 @@ const washPackages: WashPackage[] = [
     id: "aussen",
     name: "Außenreinigung",
     price: 39,
-    description: "Blitzsauber von Außen",
+    description: "Handwäsche ohne Hochdruckreiniger",
     icon: "🚗",
-    features: ["Gründliches manuelles Schrubben", "Felgen & Fenster reinigen", "Ohne Hochdruckreiniger", "Maximale Rücksichtnahme"]
+    features: ["Handwäsche", "Felgenreinigung", "Scheibenreinigung außen", "Kein Hochdruckreiniger (öffentlicher Raum)"]
   },
   {
     id: "innen",
     name: "Innenreinigung",
     price: 35,
-    description: "Komfort im Innenraum",
+    description: "Komplette Innenraumpflege",
     icon: "🧽",
-    features: ["Intensives Staubsaugen", "Umfassende Oberflächenreinigung", "Cockpit-Pflege", "Optionale Extras verfügbar"]
+    features: ["Staubsaugen", "Oberflächenreinigung", "Cockpit-Pflege", "Spiegel innen über Add-on"]
   },
   {
     id: "beide",
-    name: "Beide (Außen- & Innenreinigung)",
+    name: "Innen & Außen",
     price: 59,
-    description: "Rundum-Pflege",
+    description: "Rundum-Pflege für Ihr Fahrzeug",
     icon: "✨",
     popular: true,
-    features: ["Das Beste aus beiden Welten", "Komplette Außenreinigung", "Komplette Innenreinigung", "Umfassend & Effizient"]
+    features: ["Kombination beider Leistungen", "Umfassend & Effizient", "Add-ons zubuchbar", "Beste Preis-Leistung"]
   },
   {
     id: "premium",
-    name: "Premium-Reinigung",
+    name: "Premium",
     price: 80,
     description: "Exklusivität für Privatgrundstücke",
     icon: "👑",
-    features: ["Ultimative Tiefenreinigung", "Hochdruckreiniger", "Spezielle Polsterreiniger", "Professionelle Lackversiegelung", "Nur auf Privatgrundstücken"]
+    features: ["Hochdruckreiniger", "Dampfgerät", "Polierwerkzeuge", "Nur auf Privatgrundstücken"]
   }
 ];
 
@@ -126,47 +126,36 @@ export default function Home() {
 
             {/* Trust Indicators */}
             <div className="px-4 mb-6">
-              <div className="grid grid-cols-3 gap-4">
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.1 }}
-                  whileHover={{ scale: 1.05 }}
-                  className="bg-card rounded-2xl p-4 text-center border border-border/50 hover:border-primary/50 transition-all shadow-lg hover:shadow-xl"
-                >
-                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <Shield className="h-6 w-6 text-primary" />
-                  </div>
-                  <div className="text-sm font-medium">100% lokal</div>
-                  <div className="text-xs text-muted-foreground font-light">aus Mainz</div>
-                </motion.div>
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.2 }}
-                  whileHover={{ scale: 1.05 }}
-                  className="bg-card rounded-2xl p-4 text-center border border-border/50 hover:border-primary/50 transition-all shadow-lg hover:shadow-xl"
-                >
-                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <Users className="h-6 w-6 text-primary" />
-                  </div>
-                  <div className="text-sm font-medium">Geprüfte</div>
-                  <div className="text-xs text-muted-foreground font-light">Cleaner</div>
-                </motion.div>
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.3 }}
-                  whileHover={{ scale: 1.05 }}
-                  className="bg-card rounded-2xl p-4 text-center border border-border/50 hover:border-primary/50 transition-all shadow-lg hover:shadow-xl"
-                >
-                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <Star className="h-6 w-6 text-primary" />
-                  </div>
-                  <div className="text-sm font-medium">4.9/5</div>
-                  <div className="text-xs text-muted-foreground font-light">Bewertung</div>
-                </motion.div>
-              </div>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 rounded-2xl p-4 border border-primary/20"
+              >
+                <div className="flex items-center justify-center space-x-6 text-sm">
+                  <motion.div 
+                    className="flex items-center space-x-2"
+                    whileHover={{ scale: 1.05 }}
+                  >
+                    <span className="text-lg">📍</span>
+                    <span className="font-medium">Lokal aktiv</span>
+                  </motion.div>
+                  <motion.div 
+                    className="flex items-center space-x-2"
+                    whileHover={{ scale: 1.05 }}
+                  >
+                    <span className="text-lg">🛡️</span>
+                    <span className="font-medium">Geprüfte Cleaner</span>
+                  </motion.div>
+                  <motion.div 
+                    className="flex items-center space-x-2"
+                    whileHover={{ scale: 1.05 }}
+                  >
+                    <span className="text-lg">⭐️</span>
+                    <span className="font-medium">4.9/5 Bewertungen</span>
+                  </motion.div>
+                </div>
+              </motion.div>
             </div>
 
             {/* Info Cards */}
@@ -228,17 +217,19 @@ export default function Home() {
             </h2>
 
             {bookings.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Droplets className="h-8 w-8 text-muted-foreground" />
+              <div className="space-y-6">
+                <div className="text-center py-8">
+                  <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Droplets className="h-8 w-8 text-muted-foreground" />
+                  </div>
+                  <p className="text-muted-foreground mb-2">Du hast noch keine aktive Buchung</p>
+                  <p className="text-sm text-muted-foreground/80">Wähle hier einen unserer beliebtesten Services 👇</p>
                 </div>
-                <p className="text-muted-foreground">Noch keine Buchungen vorhanden</p>
-                <button
-                  onClick={() => setActiveTab("home")}
-                  className="mt-4 bg-primary text-primary-foreground px-6 py-3 rounded-xl font-semibold hover:bg-primary/90 transition-colors"
-                >
-                  Erste Buchung erstellen
-                </button>
+                
+                <WashPackages
+                  packages={washPackages}
+                  onPackageSelect={handlePackageSelect}
+                />
               </div>
             ) : (
               <div className="space-y-4">
