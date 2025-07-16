@@ -625,16 +625,6 @@ export function EnhancedBookingFlow({ selectedPackage, onComplete, onCancel }: E
         >
           {currentStep === 1 ? "Abbrechen" : "Zurück"}
         </Button>
-        
-        <Button 
-          onClick={handleNext}
-          disabled={!canProceed()}
-          className="min-w-[120px]"
-          size="lg"
-        >
-          {currentStep === totalSteps ? "🚀 Jetzt buchen" : "Weiter"}
-          {currentStep < totalSteps && <ChevronRight className="h-4 w-4 ml-1" />}
-        </Button>
       </div>
     </div>
   );
