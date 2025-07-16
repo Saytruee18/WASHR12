@@ -71,6 +71,23 @@ export const loyaltyStorage = {
     }
   },
 
+  getGuestBookings(): number {
+    try {
+      return parseInt(localStorage.getItem("guestBookings") || "0");
+    } catch (error) {
+      console.error('Error loading guest bookings:', error);
+      return 0;
+    }
+  },
+
+  setGuestBookings(count: number): void {
+    localStorage.setItem("guestBookings", count.toString());
+  },
+
+  clearGuestBookings(): void {
+    localStorage.removeItem("guestBookings");
+  },
+
   updateProgress(bookings: number): UserProgress {
     const progress = this.getProgress();
     progress.currentBookings = bookings;

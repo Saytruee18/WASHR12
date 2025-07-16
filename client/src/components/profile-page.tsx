@@ -34,7 +34,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { CleanerForm } from "@/components/cleaner-form";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
-import { authStorage, User as AuthUser } from "@/lib/auth-storage";
+import { authStorage, User as AuthUser, UserBookingData } from "@/lib/auth-storage";
 import { loyaltyStorage, loyaltyTiers } from "@/lib/loyalty-storage";
 
 interface ProfileData {
@@ -56,10 +56,12 @@ export function ProfilePage() {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [selectedLegalContent, setSelectedLegalContent] = useState<string | null>(null);
   const [user, setUser] = useState<AuthUser | null>(null);
+  const [userData, setUserData] = useState<UserBookingData | null>(null);
+  const [guestBookings, setGuestBookings] = useState<number>(0);
   const [profileData, setProfileData] = useState<ProfileData>({
-    firstName: "Max",
-    lastName: "Mustermann",
-    email: "max@example.com",
+    firstName: "",
+    lastName: "",
+    email: "",
     phone: "+49 123 456 789",
   });
   const [loginData, setLoginData] = useState<LoginFormData>({
@@ -79,6 +81,14 @@ export function ProfilePage() {
         email: currentUser.email,
         phone: "+49 123 456 789", // Default phone
       });
+      
+      // Load user data
+      const currentUserData = authStorage.getUserData();
+      setUserData(currentUserData);
+    } else {
+      // Guest mode - load guest bookings
+      const guestBookingCount = loyaltyStorage.getGuestBookings();
+      setGuestBookings(guestBookingCount);
     }
   }, []);
 
@@ -167,32 +177,47 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
     queryKey: ["/api/wallet/balance"],
   });
 
-  // Update loyalty progress when bookings change
-  useEffect(() => {
-    loyaltyStorage.updateProgress(bookings.length);
-  }, [bookings.length]);
-
-  // Sync guest bookings when user logs in
+  // Real-time data synchronization
   useEffect(() => {
     if (user) {
-      const guestBookings = parseInt(localStorage.getItem("guestBookings") || "0");
-      if (guestBookings > 0) {
-        // Transfer guest bookings to user account
-        const currentUserBookings = bookings.length;
-        const totalBookings = Math.max(currentUserBookings, guestBookings);
-        loyaltyStorage.updateProgress(totalBookings);
-        
-        // Clear guest bookings
-        localStorage.removeItem("guestBookings");
+      // Handle guest booking transfer on login
+      const guestBookingCount = loyaltyStorage.getGuestBookings();
+      if (guestBookingCount > 0) {
+        const mergedData = authStorage.mergeGuestBookingsWithUser(guestBookingCount);
+        setUserData(mergedData);
+        loyaltyStorage.clearGuestBookings();
         
         toast({
           title: "Willkommen zurück!",
-          description: `Ihre ${guestBookings} Gastbuchungen wurden übertragen.`,
+          description: `Ihre ${guestBookingCount} Gastbuchungen wurden übertragen.`,
         });
       }
+      
+      // Update loyalty progress with real bookings + user data
+      const totalBookings = Math.max(bookings.length, userData?.bookings || 0);
+      loyaltyStorage.updateProgress(totalBookings);
+    } else {
+      // Guest mode - update loyalty progress with guest bookings
+      loyaltyStorage.updateProgress(guestBookings);
     }
-  }, [user, bookings.length]);
+  }, [user, bookings.length, userData?.bookings]);
 
+  // Handle new bookings
+  const handleBookingComplete = async () => {
+    if (user) {
+      const updatedData = authStorage.incrementUserBookings();
+      setUserData(updatedData);
+      loyaltyStorage.updateProgress(updatedData.bookings);
+    } else {
+      const newCount = Math.min(guestBookings + 1, 10);
+      setGuestBookings(newCount);
+      loyaltyStorage.setGuestBookings(newCount);
+      loyaltyStorage.updateProgress(newCount);
+    }
+  };
+
+  // Get current booking count for display
+  const currentBookings = user ? (userData?.bookings || 0) : guestBookings;
   const loyaltyProgress = loyaltyStorage.getProgress();
   const currentTier = loyaltyStorage.getCurrentTier();
   const progressPercentage = loyaltyStorage.getProgressPercentage();
@@ -207,11 +232,21 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
         email: loggedInUser.email,
         phone: "+49 123 456 789",
       });
+      
+      // Initialize user data
+      const currentUserData = authStorage.getUserData() || {
+        bookings: 0,
+        earnedRewards: [],
+        availableRewards: []
+      };
+      setUserData(currentUserData);
+      
       setIsLoginModalOpen(false);
       setLoginData({ email: "", password: "" });
+      
       toast({
-        title: "Willkommen zurück!",
-        description: `Hallo ${loggedInUser.firstName}, schön dich zu sehen.`,
+        title: "Anmeldung erfolgreich!",
+        description: `Willkommen zurück, ${loggedInUser.displayName}!`,
       });
     } catch (error) {
       toast({
@@ -223,17 +258,24 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
   };
 
   const handleLogout = () => {
+    const currentUserName = user?.displayName || "User";
     authStorage.logout();
     setUser(null);
+    setUserData(null);
     setProfileData({
-      firstName: "Max",
-      lastName: "Mustermann", 
-      email: "max@example.com",
+      firstName: "",
+      lastName: "",
+      email: "",
       phone: "+49 123 456 789",
     });
+    
+    // Reset to guest mode
+    const guestBookingCount = loyaltyStorage.getGuestBookings();
+    setGuestBookings(guestBookingCount);
+    
     toast({
       title: "Auf Wiedersehen!",
-      description: "Sie wurden erfolgreich abgemeldet.",
+      description: `Bis bald, ${currentUserName}! Sie wurden erfolgreich abgemeldet.`,
     });
   };
 
@@ -268,16 +310,16 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
   const getProgressText = () => {
     if (!currentTier) return "Alle Belohnungen erreicht! 🎉";
     
-    const remaining = currentTier.bookingsRequired - loyaltyProgress.currentBookings;
+    const remaining = currentTier.bookingsRequired - currentBookings;
     if (remaining <= 0) return `✅ ${currentTier.reward} verdient!`;
     
-    if (loyaltyProgress.currentBookings === 0) {
+    if (currentBookings === 0) {
       return `Starte jetzt! Noch ${currentTier.bookingsRequired} Buchungen bis zu deinem kostenlosen Duftbaum!`;
     }
     
     return currentTier.description
       .replace('%d', remaining.toString())
-      .replace('%d/%d', `${loyaltyProgress.currentBookings}/${currentTier.bookingsRequired}`);
+      .replace('%d/%d', `${currentBookings}/${currentTier.bookingsRequired}`);
   };
 
   return (
@@ -372,7 +414,7 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
             
             <div className="space-y-2">
               <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
-                <span>📦 Buchungen: {loyaltyProgress.currentBookings}/{currentTier?.bookingsRequired || "∞"}</span>
+                <span>📦 Buchungen: {currentBookings}/{currentTier?.bookingsRequired || "∞"}</span>
                 <span>{Math.round(progressPercentage)}%</span>
               </div>
               <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 shadow-inner">
@@ -384,6 +426,16 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
                 />
               </div>
             </div>
+            
+            {/* Demo Button for Testing */}
+            <Button 
+              onClick={handleBookingComplete}
+              variant="outline"
+              size="sm"
+              className="w-full mt-3"
+            >
+              ✨ Demo: Buchung hinzufügen
+            </Button>
 
             {!user && (
               <div className="mt-4 p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
@@ -420,9 +472,9 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
               <div 
                 key={tier.level}
                 className={`flex items-center justify-between p-3 rounded-lg border transition-all ${
-                  loyaltyProgress.currentBookings >= tier.bookingsRequired
+                  currentBookings >= tier.bookingsRequired
                     ? "bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-700"
-                    : loyaltyProgress.currentBookings >= (loyaltyTiers[index - 1]?.bookingsRequired || 0)
+                    : currentBookings >= (loyaltyTiers[index - 1]?.bookingsRequired || 0)
                     ? "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700"
                     : "bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-600"
                 }`}
@@ -438,11 +490,11 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
                     </div>
                   </div>
                 </div>
-                {loyaltyProgress.currentBookings >= tier.bookingsRequired ? (
+                {currentBookings >= tier.bookingsRequired ? (
                   <div className="text-emerald-500 font-bold">✓</div>
                 ) : (
                   <div className="text-gray-400">
-                    {tier.bookingsRequired - loyaltyProgress.currentBookings}
+                    {tier.bookingsRequired - currentBookings}
                   </div>
                 )}
               </div>
