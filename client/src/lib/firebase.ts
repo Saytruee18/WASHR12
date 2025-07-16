@@ -1,6 +1,6 @@
 // Firebase configuration and initialization
 import { initializeApp } from 'firebase/app';
-import { getAuth, connectAuthEmulator } from 'firebase/auth';
+import { getAuth, connectAuthEmulator, setPersistence, browserLocalPersistence } from 'firebase/auth';
 import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
 
 // Check if all required Firebase environment variables are available
@@ -37,6 +37,10 @@ if (hasRequiredConfig) {
     app = initializeApp(firebaseConfig);
     auth = getAuth(app);
     db = getFirestore(app);
+    
+    // Enable persistence for seamless login experience
+    setPersistence(auth, browserLocalPersistence).catch(console.error);
+    
     isFirebaseConfigured = true;
     console.log('Firebase initialized successfully');
   } catch (error) {

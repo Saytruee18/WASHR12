@@ -18,6 +18,12 @@ import {
   LogOut,
   Star,
   Crown,
+  Eye,
+  EyeOff,
+  Chrome,
+  Facebook,
+  Check,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -58,8 +64,11 @@ export function ProfilePage() {
   let authLoading = false;
   let login = null;
   let register = null;
+  let loginWithGoogle = null;
+  let loginWithFacebook = null;
   let logout = null;
   let updateUserBookings = null;
+  let validatePassword = null;
   
   try {
     const auth = useAuth();
@@ -68,8 +77,11 @@ export function ProfilePage() {
     authLoading = auth.loading;
     login = auth.login;
     register = auth.register;
+    loginWithGoogle = auth.loginWithGoogle;
+    loginWithFacebook = auth.loginWithFacebook;
     logout = auth.logout;
     updateUserBookings = auth.updateUserBookings;
+    validatePassword = auth.validatePassword;
   } catch (error) {
     // Firebase not configured, fall back to localStorage-based auth
     console.log('Firebase not configured, using localStorage auth');
@@ -92,6 +104,12 @@ export function ProfilePage() {
   const [loginData, setLoginData] = useState<LoginFormData>({
     email: "",
     password: "",
+  });
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [showRegisterPassword, setShowRegisterPassword] = useState(false);
+  const [passwordValidation, setPasswordValidation] = useState<{ isValid: boolean; errors: string[] }>({
+    isValid: true,
+    errors: []
   });
   const [registerData, setRegisterData] = useState({
     email: "",
@@ -270,6 +288,16 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
     }
   };
 
+  // Password validation effect
+  useEffect(() => {
+    if (validatePassword && registerData.password) {
+      const validation = validatePassword(registerData.password, registerData.email);
+      setPasswordValidation(validation);
+    } else {
+      setPasswordValidation({ isValid: true, errors: [] });
+    }
+  }, [registerData.password, registerData.email, validatePassword]);
+
   // Get current booking count for display
   const currentBookings = firebaseUser ? (firebaseUserData?.bookings || 0) : guestBookings;
   const loyaltyProgress = loyaltyStorage.getProgress();
@@ -351,6 +379,19 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
       return;
     }
 
+    // Validate password
+    if (validatePassword) {
+      const validation = validatePassword(registerData.password, registerData.email);
+      if (!validation.isValid) {
+        toast({
+          title: "Passwort ungültig",
+          description: validation.errors.join(', '),
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
     // Close modal immediately for instant UX
     setIsRegisterModalOpen(false);
     const registerDataCopy = { ...registerData };
@@ -394,6 +435,64 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
       toast({
         title: "Registrierung fehlgeschlagen",
         description: error?.message || "Bitte überprüfen Sie Ihre Eingaben.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      if (loginWithGoogle) {
+        await loginWithGoogle();
+        setIsLoginModalOpen(false);
+        setIsRegisterModalOpen(false);
+        
+        const guestBookingCount = loyaltyStorage.getGuestBookings();
+        if (guestBookingCount > 0) {
+          toast({
+            title: "Anmeldung erfolgreich!",
+            description: `Willkommen zurück! ${guestBookingCount} Gastbuchungen wurden übertragen.`,
+          });
+        } else {
+          toast({
+            title: "Anmeldung erfolgreich!",
+            description: "Willkommen zurück!",
+          });
+        }
+      }
+    } catch (error: any) {
+      toast({
+        title: "Google-Anmeldung fehlgeschlagen",
+        description: error?.message || "Bitte versuchen Sie es erneut.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleFacebookLogin = async () => {
+    try {
+      if (loginWithFacebook) {
+        await loginWithFacebook();
+        setIsLoginModalOpen(false);
+        setIsRegisterModalOpen(false);
+        
+        const guestBookingCount = loyaltyStorage.getGuestBookings();
+        if (guestBookingCount > 0) {
+          toast({
+            title: "Anmeldung erfolgreich!",
+            description: `Willkommen zurück! ${guestBookingCount} Gastbuchungen wurden übertragen.`,
+          });
+        } else {
+          toast({
+            title: "Anmeldung erfolgreich!",
+            description: "Willkommen zurück!",
+          });
+        }
+      }
+    } catch (error: any) {
+      toast({
+        title: "Facebook-Anmeldung fehlgeschlagen",
+        description: error?.message || "Bitte versuchen Sie es erneut.",
         variant: "destructive",
       });
     }
@@ -693,14 +792,29 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Passwort</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Passwort eingeben"
-                value={loginData.password}
-                onChange={(e) => setLoginData(prev => ({ ...prev, password: e.target.value }))}
-                className="h-12 text-base"
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showLoginPassword ? "text" : "password"}
+                  placeholder="Passwort eingeben"
+                  value={loginData.password}
+                  onChange={(e) => setLoginData(prev => ({ ...prev, password: e.target.value }))}
+                  className="h-12 text-base pr-10"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                  onClick={() => setShowLoginPassword(!showLoginPassword)}
+                >
+                  {showLoginPassword ? (
+                    <EyeOff className="h-4 w-4 text-gray-500" />
+                  ) : (
+                    <Eye className="h-4 w-4 text-gray-500" />
+                  )}
+                </Button>
+              </div>
             </div>
             <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
               <input type="checkbox" id="privacy" className="rounded" required />
@@ -715,6 +829,35 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
             >
               Jetzt anmelden
             </Button>
+            
+            {/* Social Login Options */}
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white text-gray-500">oder anmelden mit</span>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-3">
+              <Button
+                variant="outline"
+                onClick={handleGoogleLogin}
+                className="w-full h-12"
+              >
+                <Chrome className="w-4 h-4 mr-2" />
+                Google
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handleFacebookLogin}
+                className="w-full h-12"
+              >
+                <Facebook className="w-4 h-4 mr-2" />
+                Facebook
+              </Button>
+            </div>
             <div className="text-center">
               <Button
                 variant="link"
@@ -781,14 +924,47 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
             </div>
             <div className="space-y-2">
               <Label htmlFor="registerPassword">Passwort</Label>
-              <Input
-                id="registerPassword"
-                type="password"
-                placeholder="Passwort eingeben"
-                value={registerData.password}
-                onChange={(e) => setRegisterData(prev => ({ ...prev, password: e.target.value }))}
-                className="h-12 text-base"
-              />
+              <div className="relative">
+                <Input
+                  id="registerPassword"
+                  type={showRegisterPassword ? "text" : "password"}
+                  placeholder="Passwort eingeben"
+                  value={registerData.password}
+                  onChange={(e) => setRegisterData(prev => ({ ...prev, password: e.target.value }))}
+                  className="h-12 text-base pr-10"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                  onClick={() => setShowRegisterPassword(!showRegisterPassword)}
+                >
+                  {showRegisterPassword ? (
+                    <EyeOff className="h-4 w-4 text-gray-500" />
+                  ) : (
+                    <Eye className="h-4 w-4 text-gray-500" />
+                  )}
+                </Button>
+              </div>
+              
+              {/* Password validation indicators */}
+              {registerData.password && (
+                <div className="space-y-1">
+                  {passwordValidation.errors.map((error, index) => (
+                    <div key={index} className="flex items-center space-x-2 text-xs">
+                      <X className="h-3 w-3 text-red-500" />
+                      <span className="text-red-500">{error}</span>
+                    </div>
+                  ))}
+                  {passwordValidation.isValid && (
+                    <div className="flex items-center space-x-2 text-xs">
+                      <Check className="h-3 w-3 text-green-500" />
+                      <span className="text-green-500">Passwort ist gültig</span>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
             <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
               <input type="checkbox" id="registerPrivacy" className="rounded" required />
@@ -803,6 +979,35 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
             >
               Jetzt registrieren
             </Button>
+            
+            {/* Social Login Options */}
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white text-gray-500">oder registrieren mit</span>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-3">
+              <Button
+                variant="outline"
+                onClick={handleGoogleLogin}
+                className="w-full h-12"
+              >
+                <Chrome className="w-4 h-4 mr-2" />
+                Google
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handleFacebookLogin}
+                className="w-full h-12"
+              >
+                <Facebook className="w-4 h-4 mr-2" />
+                Facebook
+              </Button>
+            </div>
             <div className="text-center">
               <Button
                 variant="link"

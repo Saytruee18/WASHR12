@@ -1,0 +1,40 @@
+Please extend and fix my existing Firebase authentication system in Replit without rebuilding anything. Everything works visually already, but the following core logic needs to be implemented or fixed:
+
+1. 🔐 **Firebase Authentication & Firestore Sync:**
+   - When a user registers, store their user data (`uid`, `email`, and `timestamp`) in Firestore under `/users/{uid}`.
+   - Prevent registration with an email that already exists (Firebase does this by default — just show error properly).
+   - On successful login or register, update UI state accordingly (hide Register/Login buttons and show username).
+
+2. 👁️ **Password Visibility & Validation:**
+   - Add an "eye" icon to toggle password visibility.
+   - Show live validation under the password field:
+     - At least 6 characters.
+     - Must include both letters and numbers.
+     - Must not be identical to the email address.
+
+3. 🔄 **Persistent Login:**
+   - Ensure users stay logged in after refreshing or reopening the app by enabling Firebase `setPersistence(auth, browserLocalPersistence)` or equivalent.
+   - On app start, use `onAuthStateChanged` to check login status and update the UI automatically (e.g., remove guest view, show user data).
+
+4. ☁️ **Gmail & Facebook Login:**
+   - Add buttons for Google and Facebook login using Firebase `signInWithPopup()` and their providers.
+   - After login, also store the user in Firestore `/users/{uid}` if not already stored.
+   - Make sure these options are low-resource and don’t load any heavy libraries unnecessarily.
+
+5. 🔄 **Live UI Updates:**
+   - When a user logs in or registers, update:
+     - Dropdown menu: replace Register/Login with Logout and user email.
+     - Profile page: hide the "Register" and "Already registered? Login" sections.
+     - Replace "Guest" with the user's display name or email across the app.
+
+6. ⚠️ **Error Handling:**
+   - Show clear error messages on register or login:
+     - "Email already in use"
+     - "Invalid email format"
+     - "Wrong password"
+     - etc.
+
+⚠️ Important: Do not increase overall resource usage significantly. I'm on a free Replit plan and want to stay under the usage limits.
+
+Firebase config is already set up and working.
+

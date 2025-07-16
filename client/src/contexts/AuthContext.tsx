@@ -6,9 +6,13 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut,
-  updateProfile
+  updateProfile,
+  signInWithPopup,
+  GoogleAuthProvider,
+  FacebookAuthProvider,
+  AuthError
 } from 'firebase/auth';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db, isFirebaseConfigured } from '@/lib/firebase';
 
 export interface UserData {
@@ -30,9 +34,12 @@ interface AuthContextType {
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, firstName: string, lastName: string) => Promise<void>;
+  loginWithGoogle: () => Promise<void>;
+  loginWithFacebook: () => Promise<void>;
   logout: () => Promise<void>;
   updateUserBookings: () => Promise<void>;
   refreshUserData: () => Promise<void>;
+  validatePassword: (password: string, email?: string) => { isValid: boolean; errors: string[] };
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -73,6 +80,46 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  // Create or update user in Firestore
+  const createOrUpdateUser = async (user: User, additionalData?: Partial<UserData>) => {
+    if (!isFirebaseConfigured || !db) return;
+
+    try {
+      const userRef = doc(db, 'users', user.uid);
+      const snap = await getDoc(userRef);
+      
+      if (!snap.exists()) {
+        // Create new user document
+        const userData: Partial<UserData> = {
+          uid: user.uid,
+          email: user.email || '',
+          displayName: user.displayName || '',
+          firstName: additionalData?.firstName || user.displayName?.split(' ')[0] || '',
+          lastName: additionalData?.lastName || user.displayName?.split(' ').slice(1).join(' ') || '',
+          bookings: 0,
+          joinDate: new Date(),
+          earnedRewards: [],
+          availableRewards: [],
+          ...additionalData
+        };
+        
+        await setDoc(userRef, {
+          ...userData,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        });
+      } else {
+        // Update existing user
+        await setDoc(userRef, {
+          updatedAt: serverTimestamp(),
+          ...additionalData
+        }, { merge: true });
+      }
+    } catch (error) {
+      console.error('Error creating/updating user:', error);
+    }
+  };
+
   // Merge guest bookings with user data
   const mergeGuestBookings = async (uid: string) => {
     if (!isFirebaseConfigured || !db) return 0;
@@ -86,7 +133,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         await setDoc(userRef, { 
           bookings: Math.max(currentBookings, guestBookings),
-          lastBookingDate: new Date()
+          lastBookingDate: new Date(),
+          updatedAt: serverTimestamp()
         }, { merge: true });
         
         localStorage.removeItem('guestBookings');
@@ -97,6 +145,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.error('Error merging guest bookings:', error);
       return 0;
     }
+  };
+
+  // Password validation function
+  const validatePassword = (password: string, email?: string) => {
+    const errors: string[] = [];
+    
+    if (password.length < 6) {
+      errors.push('Mindestens 6 Zeichen erforderlich');
+    }
+    
+    if (!/[A-Za-z]/.test(password)) {
+      errors.push('Muss mindestens einen Buchstaben enthalten');
+    }
+    
+    if (!/[0-9]/.test(password)) {
+      errors.push('Muss mindestens eine Zahl enthalten');
+    }
+    
+    if (email && password.toLowerCase() === email.toLowerCase()) {
+      errors.push('Passwort darf nicht identisch mit E-Mail sein');
+    }
+    
+    return {
+      isValid: errors.length === 0,
+      errors
+    };
   };
 
   // Refresh user data from Firestore
@@ -161,7 +235,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     } catch (error: any) {
       console.error('Login error:', error);
-      throw new Error(error.message || 'Anmeldung fehlgeschlagen');
+      const authError = error as AuthError;
+      
+      // Provide user-friendly error messages
+      let errorMessage = 'Anmeldung fehlgeschlagen';
+      switch (authError.code) {
+        case 'auth/user-not-found':
+          errorMessage = 'Kein Benutzer mit dieser E-Mail-Adresse gefunden';
+          break;
+        case 'auth/wrong-password':
+          errorMessage = 'Falsches Passwort';
+          break;
+        case 'auth/invalid-email':
+          errorMessage = 'Ungültige E-Mail-Adresse';
+          break;
+        case 'auth/user-disabled':
+          errorMessage = 'Dieser Benutzer wurde deaktiviert';
+          break;
+        case 'auth/too-many-requests':
+          errorMessage = 'Zu viele Anmeldeversuche. Bitte versuchen Sie es später erneut';
+          break;
+        default:
+          errorMessage = authError.message || 'Anmeldung fehlgeschlagen';
+      }
+      
+      throw new Error(errorMessage);
     }
   };
 
@@ -218,26 +316,43 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       // Create user document in Firestore
-      const userData: Partial<UserData> = {
-        uid: user.uid,
-        email: user.email || '',
-        displayName: `${firstName} ${lastName}`,
+      await createOrUpdateUser(user, {
         firstName,
         lastName,
+        displayName: `${firstName} ${lastName}`,
         bookings: 0,
         joinDate: new Date(),
         earnedRewards: [],
         availableRewards: []
-      };
-
-      await setDoc(doc(db, 'users', user.uid), userData);
+      });
       
       // Merge any guest bookings
       await mergeGuestBookings(user.uid);
       
     } catch (error: any) {
       console.error('Registration error:', error);
-      throw new Error(error.message || 'Registrierung fehlgeschlagen');
+      const authError = error as AuthError;
+      
+      // Provide user-friendly error messages
+      let errorMessage = 'Registrierung fehlgeschlagen';
+      switch (authError.code) {
+        case 'auth/email-already-in-use':
+          errorMessage = 'E-Mail-Adresse wird bereits verwendet';
+          break;
+        case 'auth/invalid-email':
+          errorMessage = 'Ungültige E-Mail-Adresse';
+          break;
+        case 'auth/weak-password':
+          errorMessage = 'Passwort ist zu schwach';
+          break;
+        case 'auth/operation-not-allowed':
+          errorMessage = 'Registrierung ist derzeit nicht verfügbar';
+          break;
+        default:
+          errorMessage = authError.message || 'Registrierung fehlgeschlagen';
+      }
+      
+      throw new Error(errorMessage);
     }
   };
 
@@ -267,6 +382,87 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  // Google login function
+  const loginWithGoogle = async () => {
+    if (!isFirebaseConfigured || !auth) {
+      throw new Error('Firebase nicht konfiguriert');
+    }
+
+    try {
+      const provider = new GoogleAuthProvider();
+      provider.addScope('email');
+      provider.addScope('profile');
+      
+      const result = await signInWithPopup(auth, provider);
+      await createOrUpdateUser(result.user);
+      await mergeGuestBookings(result.user.uid);
+      
+    } catch (error: any) {
+      console.error('Google login error:', error);
+      const authError = error as AuthError;
+      
+      let errorMessage = 'Google-Anmeldung fehlgeschlagen';
+      switch (authError.code) {
+        case 'auth/account-exists-with-different-credential':
+          errorMessage = 'Ein Konto mit dieser E-Mail-Adresse existiert bereits';
+          break;
+        case 'auth/cancelled-popup-request':
+          errorMessage = 'Anmeldung wurde abgebrochen';
+          break;
+        case 'auth/popup-blocked':
+          errorMessage = 'Popup wurde blockiert. Bitte erlauben Sie Popups';
+          break;
+        case 'auth/popup-closed-by-user':
+          errorMessage = 'Anmeldung wurde abgebrochen';
+          break;
+        default:
+          errorMessage = authError.message || 'Google-Anmeldung fehlgeschlagen';
+      }
+      
+      throw new Error(errorMessage);
+    }
+  };
+
+  // Facebook login function
+  const loginWithFacebook = async () => {
+    if (!isFirebaseConfigured || !auth) {
+      throw new Error('Firebase nicht konfiguriert');
+    }
+
+    try {
+      const provider = new FacebookAuthProvider();
+      provider.addScope('email');
+      
+      const result = await signInWithPopup(auth, provider);
+      await createOrUpdateUser(result.user);
+      await mergeGuestBookings(result.user.uid);
+      
+    } catch (error: any) {
+      console.error('Facebook login error:', error);
+      const authError = error as AuthError;
+      
+      let errorMessage = 'Facebook-Anmeldung fehlgeschlagen';
+      switch (authError.code) {
+        case 'auth/account-exists-with-different-credential':
+          errorMessage = 'Ein Konto mit dieser E-Mail-Adresse existiert bereits';
+          break;
+        case 'auth/cancelled-popup-request':
+          errorMessage = 'Anmeldung wurde abgebrochen';
+          break;
+        case 'auth/popup-blocked':
+          errorMessage = 'Popup wurde blockiert. Bitte erlauben Sie Popups';
+          break;
+        case 'auth/popup-closed-by-user':
+          errorMessage = 'Anmeldung wurde abgebrochen';
+          break;
+        default:
+          errorMessage = authError.message || 'Facebook-Anmeldung fehlgeschlagen';
+      }
+      
+      throw new Error(errorMessage);
+    }
+  };
+
   // Update user bookings
   const updateUserBookings = async () => {
     if (!user || !isFirebaseConfigured || !db) return;
@@ -278,7 +474,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       await setDoc(userRef, { 
         bookings: currentBookings + 1,
-        lastBookingDate: new Date()
+        lastBookingDate: new Date(),
+        updatedAt: serverTimestamp()
       }, { merge: true });
       
       // Refresh user data
@@ -347,9 +544,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     loading,
     login,
     register,
+    loginWithGoogle,
+    loginWithFacebook,
     logout,
     updateUserBookings,
-    refreshUserData
+    refreshUserData,
+    validatePassword
   };
 
   return (
