@@ -328,14 +328,25 @@ export function EnhancedBookingFlow({ selectedPackage, onComplete, onCancel }: E
                 </p>
               </div>
 
-              <div className="flex justify-center">
-                <Button
-                  onClick={handleSkipLicensePlate}
-                  variant="outline"
-                  className="rounded-2xl px-8 py-3 text-muted-foreground border-dashed hover:bg-muted/50 touch-target mobile-optimized"
-                >
-                  🆔 Ohne Kennzeichen fortfahren
-                </Button>
+              <div className="space-y-4">
+                <div className="flex justify-center">
+                  <Button
+                    onClick={() => setCurrentStep(1)}
+                    variant="ghost"
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    ← Zurück
+                  </Button>
+                </div>
+                
+                <div className="flex justify-center">
+                  <Button
+                    onClick={handleSkipLicensePlate}
+                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-4 text-lg font-semibold rounded-2xl touch-target mobile-optimized"
+                  >
+                    🆔 Ohne Kennzeichen fortfahren
+                  </Button>
+                </div>
               </div>
             </div>
           </motion.div>
@@ -415,6 +426,16 @@ export function EnhancedBookingFlow({ selectedPackage, onComplete, onCancel }: E
                 <span>{totalPrice}€</span>
               </div>
             </motion.div>
+
+            {/* Next Button */}
+            <div className="pt-4">
+              <Button
+                onClick={() => setCurrentStep(4)}
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-4 text-lg font-semibold rounded-2xl touch-target mobile-optimized"
+              >
+                Weiter zur Terminauswahl
+              </Button>
+            </div>
           </motion.div>
         );
 

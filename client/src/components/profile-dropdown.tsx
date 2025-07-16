@@ -102,22 +102,22 @@ export function ProfileDropdown() {
   const getMenuItems = () => {
     if (!isLoggedIn) {
       return [
-        { icon: UserPlus, label: "Registrieren", action: () => { setIsProfileOpen(true); setIsOpen(false); } },
-        { icon: LogIn, label: "Anmelden", action: () => { setIsProfileOpen(true); setIsOpen(false); } },
+        { icon: UserPlus, label: "Registrieren", action: () => { setIsProfileOpen(true); setIsOpen(false); }, openProfile: true, authAction: "register" },
+        { icon: LogIn, label: "Anmelden", action: () => { setIsProfileOpen(true); setIsOpen(false); }, openProfile: true, authAction: "login" },
         {
           icon: Mail,
           label: "Support kontaktieren",
-          action: () => window.open("mailto:washr.mainz@gmail.com"),
+          action: () => { window.open("mailto:washr.mainz@gmail.com"); setIsOpen(false); },
         },
       ];
     }
 
     return [
-      { icon: User, label: "Mein Profil", action: () => { setIsProfileOpen(true); setIsOpen(false); } },
+      { icon: User, label: "Mein Profil", action: () => { setIsProfileOpen(true); setIsOpen(false); }, openProfile: true },
       {
         icon: Mail,
         label: "Support kontaktieren",
-        action: () => window.open("mailto:washr.mainz@gmail.com"),
+        action: () => { window.open("mailto:washr.mainz@gmail.com"); setIsOpen(false); },
       },
       { icon: LogOut, label: "Abmelden", action: handleLogout }
     ];
