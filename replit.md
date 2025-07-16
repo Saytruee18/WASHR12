@@ -99,6 +99,8 @@ Preferred communication style: Simple, everyday language.
   - Centralized authentication state with single onAuthStateChanged listener
   - Proper Firestore user document creation and synchronization
   - Seamless guest booking migration to Firebase user accounts
+  - Fixed profile page white backgrounds to match app's dark theme
+  - Added demo fallback for social login when Firebase providers are not configured
 
 ## System Architecture
 

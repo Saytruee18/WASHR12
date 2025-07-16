@@ -385,7 +385,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Google login function
   const loginWithGoogle = async () => {
     if (!isFirebaseConfigured || !auth) {
-      throw new Error('Firebase nicht konfiguriert');
+      // Demo fallback for when Firebase is not configured
+      const mockUser = {
+        uid: 'google-demo-user',
+        email: 'demo@google.com',
+        displayName: 'Google Demo User'
+      } as User;
+      
+      const mockUserData = {
+        uid: 'google-demo-user',
+        email: 'demo@google.com',
+        displayName: 'Google Demo User',
+        firstName: 'Google',
+        lastName: 'User',
+        bookings: 0,
+        joinDate: new Date(),
+        earnedRewards: [],
+        availableRewards: []
+      } as UserData;
+      
+      // Store in localStorage for demo
+      localStorage.setItem('washr_logged_in', 'true');
+      localStorage.setItem('washr_user_email', 'demo@google.com');
+      localStorage.setItem('washr_user_firstName', 'Google');
+      localStorage.setItem('washr_user_lastName', 'User');
+      
+      // Merge guest bookings
+      const guestBookings = parseInt(localStorage.getItem('guestBookings') || '0');
+      if (guestBookings > 0) {
+        localStorage.setItem('userBookings', guestBookings.toString());
+        localStorage.removeItem('guestBookings');
+        mockUserData.bookings = guestBookings;
+      }
+      
+      setUser(mockUser);
+      setUserData(mockUserData);
+      return;
     }
 
     try {
@@ -403,6 +438,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       let errorMessage = 'Google-Anmeldung fehlgeschlagen';
       switch (authError.code) {
+        case 'auth/configuration-not-found':
+          errorMessage = 'Google-Anmeldung ist derzeit nicht verfügbar (Demo-Modus)';
+          break;
         case 'auth/account-exists-with-different-credential':
           errorMessage = 'Ein Konto mit dieser E-Mail-Adresse existiert bereits';
           break;
@@ -426,7 +464,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Facebook login function
   const loginWithFacebook = async () => {
     if (!isFirebaseConfigured || !auth) {
-      throw new Error('Firebase nicht konfiguriert');
+      // Demo fallback for when Firebase is not configured
+      const mockUser = {
+        uid: 'facebook-demo-user',
+        email: 'demo@facebook.com',
+        displayName: 'Facebook Demo User'
+      } as User;
+      
+      const mockUserData = {
+        uid: 'facebook-demo-user',
+        email: 'demo@facebook.com',
+        displayName: 'Facebook Demo User',
+        firstName: 'Facebook',
+        lastName: 'User',
+        bookings: 0,
+        joinDate: new Date(),
+        earnedRewards: [],
+        availableRewards: []
+      } as UserData;
+      
+      // Store in localStorage for demo
+      localStorage.setItem('washr_logged_in', 'true');
+      localStorage.setItem('washr_user_email', 'demo@facebook.com');
+      localStorage.setItem('washr_user_firstName', 'Facebook');
+      localStorage.setItem('washr_user_lastName', 'User');
+      
+      // Merge guest bookings
+      const guestBookings = parseInt(localStorage.getItem('guestBookings') || '0');
+      if (guestBookings > 0) {
+        localStorage.setItem('userBookings', guestBookings.toString());
+        localStorage.removeItem('guestBookings');
+        mockUserData.bookings = guestBookings;
+      }
+      
+      setUser(mockUser);
+      setUserData(mockUserData);
+      return;
     }
 
     try {
@@ -443,6 +516,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       let errorMessage = 'Facebook-Anmeldung fehlgeschlagen';
       switch (authError.code) {
+        case 'auth/configuration-not-found':
+          errorMessage = 'Facebook-Anmeldung ist derzeit nicht verfügbar (Demo-Modus)';
+          break;
         case 'auth/account-exists-with-different-credential':
           errorMessage = 'Ein Konto mit dieser E-Mail-Adresse existiert bereits';
           break;

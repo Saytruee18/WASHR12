@@ -41,7 +41,11 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { CleanerForm } from "@/components/cleaner-form";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
-import { authStorage, User as AuthUser, UserBookingData } from "@/lib/auth-storage";
+import {
+  authStorage,
+  User as AuthUser,
+  UserBookingData,
+} from "@/lib/auth-storage";
 import { loyaltyStorage, loyaltyTiers } from "@/lib/loyalty-storage";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -69,7 +73,7 @@ export function ProfilePage() {
   let logout = null;
   let updateUserBookings = null;
   let validatePassword = null;
-  
+
   try {
     const auth = useAuth();
     firebaseUser = auth.user;
@@ -84,14 +88,16 @@ export function ProfilePage() {
     validatePassword = auth.validatePassword;
   } catch (error) {
     // Firebase not configured, fall back to localStorage-based auth
-    console.log('Firebase not configured, using localStorage auth');
+    console.log("Firebase not configured, using localStorage auth");
   }
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [isCleanerFormOpen, setIsCleanerFormOpen] = useState(false);
   const [isLegalModalOpen, setIsLegalModalOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
-  const [selectedLegalContent, setSelectedLegalContent] = useState<string | null>(null);
+  const [selectedLegalContent, setSelectedLegalContent] = useState<
+    string | null
+  >(null);
   const [user, setUser] = useState<AuthUser | null>(null);
   const [userData, setUserData] = useState<UserBookingData | null>(null);
   const [guestBookings, setGuestBookings] = useState<number>(0);
@@ -107,9 +113,12 @@ export function ProfilePage() {
   });
   const [showLoginPassword, setShowLoginPassword] = useState(false);
   const [showRegisterPassword, setShowRegisterPassword] = useState(false);
-  const [passwordValidation, setPasswordValidation] = useState<{ isValid: boolean; errors: string[] }>({
+  const [passwordValidation, setPasswordValidation] = useState<{
+    isValid: boolean;
+    errors: string[];
+  }>({
     isValid: true,
-    errors: []
+    errors: [],
   });
   const [registerData, setRegisterData] = useState({
     email: "",
@@ -124,27 +133,27 @@ export function ProfilePage() {
     if (firebaseUser && firebaseUserData) {
       setUser({
         uid: firebaseUser.uid,
-        email: firebaseUser.email || '',
+        email: firebaseUser.email || "",
         firstName: firebaseUserData.firstName,
         lastName: firebaseUserData.lastName,
         displayName: firebaseUserData.displayName,
         joinDate: firebaseUserData.joinDate,
         bookings: firebaseUserData.bookings,
-        lastBookingDate: firebaseUserData.lastBookingDate
+        lastBookingDate: firebaseUserData.lastBookingDate,
       });
-      
+
       setUserData({
         bookings: firebaseUserData.bookings,
         lastBookingDate: firebaseUserData.lastBookingDate,
         earnedRewards: firebaseUserData.earnedRewards,
-        availableRewards: firebaseUserData.availableRewards
+        availableRewards: firebaseUserData.availableRewards,
       });
-      
+
       setProfileData({
         firstName: firebaseUserData.firstName,
         lastName: firebaseUserData.lastName,
-        email: firebaseUser.email || '',
-        phone: "+49 123 456 789"
+        email: firebaseUser.email || "",
+        phone: "+49 123 456 789",
       });
     } else if (!firebaseUser) {
       // Guest mode - load guest bookings
@@ -156,7 +165,7 @@ export function ProfilePage() {
         firstName: "",
         lastName: "",
         email: "",
-        phone: "+49 123 456 789"
+        phone: "+49 123 456 789",
       });
     }
   }, [firebaseUser, firebaseUserData]);
@@ -173,7 +182,7 @@ E-Mail: washr.mainz@gmail.com
 Telefon: +49 6131 123456
 
 Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV:
-Max Mustermann`
+Max Mustermann`,
     },
     datenschutz: {
       title: "Datenschutzerklärung",
@@ -191,7 +200,7 @@ Sie haben jederzeit das Recht auf Auskunft über die bezüglich Ihrer Person ges
 Unsere App verwendet keine Cookies, die personenbezogene Daten speichern.
 
 5. Änderungen dieser Datenschutzerklärung
-Wir behalten uns vor, diese Datenschutzerklärung anzupassen, damit sie stets den aktuellen rechtlichen Anforderungen entspricht oder um Änderungen unserer Leistungen in der Datenschutzerklärung umzusetzen.`
+Wir behalten uns vor, diese Datenschutzerklärung anzupassen, damit sie stets den aktuellen rechtlichen Anforderungen entspricht oder um Änderungen unserer Leistungen in der Datenschutzerklärung umzusetzen.`,
     },
     agb: {
       title: "Allgemeine Geschäftsbedingungen (AGB)",
@@ -215,7 +224,7 @@ WASHR haftet für Schäden, die durch grobe Fahrlässigkeit oder Vorsatz unserer
 Buchungen können bis zu 24 Stunden vor dem vereinbarten Termin kostenfrei storniert werden. Spätere Stornierungen können Stornogebühren nach sich ziehen.
 
 7. Gerichtsstand
-Es gilt deutsches Recht. Gerichtsstand ist Mainz, sofern der Kunde Kaufmann ist oder keinen allgemeinen Gerichtsstand in Deutschland hat.`
+Es gilt deutsches Recht. Gerichtsstand ist Mainz, sofern der Kunde Kaufmann ist oder keinen allgemeinen Gerichtsstand in Deutschland hat.`,
     },
     widerrufsrecht: {
       title: "Widerrufsrecht",
@@ -234,8 +243,8 @@ Folgen des Widerrufs
 Wenn Sie diesen Vertrag widerrufen, haben wir Ihnen alle Zahlungen, die wir von Ihnen erhalten haben, unverzüglich und spätestens binnen vierzehn Tagen ab dem Tag zurückzuzahlen, an dem die Mitteilung über Ihren Widerruf dieses Vertrags bei uns eingegangen ist.
 
 Muster-Widerrufsformular
-Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular aus und senden Sie es zurück an: washr.mainz@gmail.com`
-    }
+Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular aus und senden Sie es zurück an: washr.mainz@gmail.com`,
+    },
   };
 
   const { data: bookings = [] } = useQuery({
@@ -250,7 +259,10 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
   useEffect(() => {
     if (firebaseUser && firebaseUserData) {
       // Update loyalty progress with Firebase user data
-      const totalBookings = Math.max(bookings.length, firebaseUserData.bookings || 0);
+      const totalBookings = Math.max(
+        bookings.length,
+        firebaseUserData.bookings || 0,
+      );
       loyaltyStorage.updateProgress(totalBookings);
     } else {
       // Guest mode - update loyalty progress with guest bookings
@@ -291,7 +303,10 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
   // Password validation effect
   useEffect(() => {
     if (validatePassword && registerData.password) {
-      const validation = validatePassword(registerData.password, registerData.email);
+      const validation = validatePassword(
+        registerData.password,
+        registerData.email,
+      );
       setPasswordValidation(validation);
     } else {
       setPasswordValidation({ isValid: true, errors: [] });
@@ -299,14 +314,18 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
   }, [registerData.password, registerData.email, validatePassword]);
 
   // Get current booking count for display
-  const currentBookings = firebaseUser ? (firebaseUserData?.bookings || 0) : guestBookings;
+  const currentBookings = firebaseUser
+    ? firebaseUserData?.bookings || 0
+    : guestBookings;
   const loyaltyProgress = loyaltyStorage.getProgress();
   const currentTier = loyaltyStorage.getCurrentTier();
   const progressPercentage = loyaltyStorage.getProgressPercentage();
 
   const handleLogin = async () => {
     // Check privacy checkbox
-    const privacyCheckbox = document.getElementById('privacy') as HTMLInputElement;
+    const privacyCheckbox = document.getElementById(
+      "privacy",
+    ) as HTMLInputElement;
     if (!privacyCheckbox?.checked) {
       toast({
         title: "Datenschutzerklärung erforderlich",
@@ -320,16 +339,19 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
     setIsLoginModalOpen(false);
     const loginDataCopy = { ...loginData };
     setLoginData({ email: "", password: "" });
-    
+
     try {
       const guestBookingCount = loyaltyStorage.getGuestBookings();
-      
+
       if (login) {
         // Firebase login - context will handle state updates
         await login(loginDataCopy.email, loginDataCopy.password);
       } else {
         // Fallback to localStorage login
-        const loggedInUser = authStorage.login(loginDataCopy.email, loginDataCopy.password);
+        const loggedInUser = authStorage.login(
+          loginDataCopy.email,
+          loginDataCopy.password,
+        );
         setUser(loggedInUser);
         setProfileData({
           firstName: loggedInUser.firstName,
@@ -337,15 +359,16 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
           email: loggedInUser.email,
           phone: "+49 123 456 789",
         });
-        
+
         // Transfer guest bookings
         if (guestBookingCount > 0) {
-          const mergedData = authStorage.mergeGuestBookingsWithUser(guestBookingCount);
+          const mergedData =
+            authStorage.mergeGuestBookingsWithUser(guestBookingCount);
           setUserData(mergedData);
           loyaltyStorage.clearGuestBookings();
         }
       }
-      
+
       if (guestBookingCount > 0) {
         toast({
           title: "Anmeldung erfolgreich!",
@@ -358,7 +381,7 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
         });
       }
     } catch (error: any) {
-      console.error('Login error:', error);
+      console.error("Login error:", error);
       toast({
         title: "Anmeldung fehlgeschlagen",
         description: error?.message || "Bitte überprüfen Sie Ihre Eingaben.",
@@ -369,7 +392,9 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
 
   const handleRegister = async () => {
     // Check privacy checkbox
-    const privacyCheckbox = document.getElementById('registerPrivacy') as HTMLInputElement;
+    const privacyCheckbox = document.getElementById(
+      "registerPrivacy",
+    ) as HTMLInputElement;
     if (!privacyCheckbox?.checked) {
       toast({
         title: "AGB und Datenschutzerklärung erforderlich",
@@ -381,11 +406,14 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
 
     // Validate password
     if (validatePassword) {
-      const validation = validatePassword(registerData.password, registerData.email);
+      const validation = validatePassword(
+        registerData.password,
+        registerData.email,
+      );
       if (!validation.isValid) {
         toast({
           title: "Passwort ungültig",
-          description: validation.errors.join(', '),
+          description: validation.errors.join(", "),
           variant: "destructive",
         });
         return;
@@ -396,19 +424,27 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
     setIsRegisterModalOpen(false);
     const registerDataCopy = { ...registerData };
     setRegisterData({ email: "", password: "", firstName: "", lastName: "" });
-    
+
     try {
       if (register) {
         // Firebase registration - context will handle state updates
-        await register(registerDataCopy.email, registerDataCopy.password, registerDataCopy.firstName, registerDataCopy.lastName);
+        await register(
+          registerDataCopy.email,
+          registerDataCopy.password,
+          registerDataCopy.firstName,
+          registerDataCopy.lastName,
+        );
       } else {
         // Fallback to localStorage registration
-        const newUser = authStorage.login(registerDataCopy.email, registerDataCopy.password);
+        const newUser = authStorage.login(
+          registerDataCopy.email,
+          registerDataCopy.password,
+        );
         setUser({
           ...newUser,
           firstName: registerDataCopy.firstName,
           lastName: registerDataCopy.lastName,
-          displayName: `${registerDataCopy.firstName} ${registerDataCopy.lastName}`
+          displayName: `${registerDataCopy.firstName} ${registerDataCopy.lastName}`,
         });
         setProfileData({
           firstName: registerDataCopy.firstName,
@@ -416,22 +452,23 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
           email: registerDataCopy.email,
           phone: "+49 123 456 789",
         });
-        
+
         // Transfer guest bookings
         const guestBookingCount = loyaltyStorage.getGuestBookings();
         if (guestBookingCount > 0) {
-          const mergedData = authStorage.mergeGuestBookingsWithUser(guestBookingCount);
+          const mergedData =
+            authStorage.mergeGuestBookingsWithUser(guestBookingCount);
           setUserData(mergedData);
           loyaltyStorage.clearGuestBookings();
         }
       }
-      
+
       toast({
         title: "Registrierung erfolgreich!",
         description: `Willkommen bei WASHR, ${registerDataCopy.firstName}!`,
       });
     } catch (error: any) {
-      console.error('Registration error:', error);
+      console.error("Registration error:", error);
       toast({
         title: "Registrierung fehlgeschlagen",
         description: error?.message || "Bitte überprüfen Sie Ihre Eingaben.",
@@ -446,7 +483,7 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
         await loginWithGoogle();
         setIsLoginModalOpen(false);
         setIsRegisterModalOpen(false);
-        
+
         const guestBookingCount = loyaltyStorage.getGuestBookings();
         if (guestBookingCount > 0) {
           toast({
@@ -475,7 +512,7 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
         await loginWithFacebook();
         setIsLoginModalOpen(false);
         setIsRegisterModalOpen(false);
-        
+
         const guestBookingCount = loyaltyStorage.getGuestBookings();
         if (guestBookingCount > 0) {
           toast({
@@ -499,8 +536,9 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
   };
 
   const handleLogout = async () => {
-    const currentUserName = (firebaseUser?.displayName || user?.displayName) || "User";
-    
+    const currentUserName =
+      firebaseUser?.displayName || user?.displayName || "User";
+
     try {
       if (logout) {
         // Firebase logout
@@ -516,12 +554,12 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
           email: "",
           phone: "+49 123 456 789",
         });
-        
+
         // Reset to guest mode
         const guestBookingCount = loyaltyStorage.getGuestBookings();
         setGuestBookings(guestBookingCount);
       }
-      
+
       toast({
         title: "Auf Wiedersehen!",
         description: `Bis bald, ${currentUserName}! Sie wurden erfolgreich abgemeldet.`,
@@ -565,17 +603,17 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
 
   const getProgressText = () => {
     if (!currentTier) return "Alle Belohnungen erreicht! 🎉";
-    
+
     const remaining = currentTier.bookingsRequired - currentBookings;
     if (remaining <= 0) return `✅ ${currentTier.reward} verdient!`;
-    
+
     if (currentBookings === 0) {
       return `Starte jetzt! Noch ${currentTier.bookingsRequired} Buchungen bis zu deinem kostenlosen Duftbaum!`;
     }
-    
+
     return currentTier.description
-      .replace('%d', remaining.toString())
-      .replace('%d/%d', `${currentBookings}/${currentTier.bookingsRequired}`);
+      .replace("%d", remaining.toString())
+      .replace("%d/%d", `${currentBookings}/${currentTier.bookingsRequired}`);
   };
 
   return (
@@ -663,14 +701,17 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
                 </div>
               )}
             </div>
-            
+
             <p className="text-gray-700 dark:text-gray-300 font-medium">
               {getProgressText()}
             </p>
-            
+
             <div className="space-y-2">
               <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
-                <span>📦 Buchungen: {currentBookings}/{currentTier?.bookingsRequired || "∞"}</span>
+                <span>
+                  📦 Buchungen: {currentBookings}/
+                  {currentTier?.bookingsRequired || "∞"}
+                </span>
                 <span>{Math.round(progressPercentage)}%</span>
               </div>
               <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 shadow-inner">
@@ -682,9 +723,9 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
                 />
               </div>
             </div>
-            
+
             {/* Demo Button for Testing */}
-            <Button 
+            <Button
               onClick={handleBookingComplete}
               variant="outline"
               size="sm"
@@ -694,22 +735,23 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
             </Button>
 
             {!user && (
-              <div className="mt-4 p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
+              <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                  💡 Melde dich an, um deine Buchungen & Belohnungen zu speichern.
+                  💡 Melde dich an, um deine Buchungen & Belohnungen zu
+                  speichern.
                 </p>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
                   🔓 Profil erstellen & Bonus sichern
                 </p>
                 <div className="space-y-2">
-                  <Button 
+                  <Button
                     onClick={() => setIsRegisterModalOpen(true)}
                     className="w-full bg-green-500 hover:bg-green-600 text-white font-medium py-3 rounded-lg shadow-md flex items-center justify-center space-x-2"
                   >
                     <UserPlus className="h-5 w-5" />
                     <span>Jetzt registrieren</span>
                   </Button>
-                  <Button 
+                  <Button
                     onClick={() => setIsLoginModalOpen(true)}
                     variant="outline"
                     className="w-full font-medium py-3 rounded-lg flex items-center justify-center space-x-2"
@@ -735,14 +777,15 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
         <CardContent>
           <div className="space-y-3">
             {loyaltyTiers.map((tier, index) => (
-              <div 
+              <div
                 key={tier.level}
                 className={`flex items-center justify-between p-3 rounded-lg border transition-all ${
                   currentBookings >= tier.bookingsRequired
                     ? "bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-700"
-                    : currentBookings >= (loyaltyTiers[index - 1]?.bookingsRequired || 0)
-                    ? "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700"
-                    : "bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-600"
+                    : currentBookings >=
+                        (loyaltyTiers[index - 1]?.bookingsRequired || 0)
+                      ? "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700"
+                      : "bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-600"
                 }`}
               >
                 <div className="flex items-center space-x-3">
@@ -786,7 +829,9 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
                 type="email"
                 placeholder="ihre@email.com"
                 value={loginData.email}
-                onChange={(e) => setLoginData(prev => ({ ...prev, email: e.target.value }))}
+                onChange={(e) =>
+                  setLoginData((prev) => ({ ...prev, email: e.target.value }))
+                }
                 className="h-12 text-base"
               />
             </div>
@@ -798,7 +843,12 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
                   type={showLoginPassword ? "text" : "password"}
                   placeholder="Passwort eingeben"
                   value={loginData.password}
-                  onChange={(e) => setLoginData(prev => ({ ...prev, password: e.target.value }))}
+                  onChange={(e) =>
+                    setLoginData((prev) => ({
+                      ...prev,
+                      password: e.target.value,
+                    }))
+                  }
                   className="h-12 text-base pr-10"
                 />
                 <Button
@@ -817,29 +867,40 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
               </div>
             </div>
             <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-              <input type="checkbox" id="privacy" className="rounded" required />
+              <input
+                type="checkbox"
+                id="privacy"
+                className="rounded"
+                required
+              />
               <label htmlFor="privacy">
                 ☑️ Ich akzeptiere die Datenschutzerklärung (Pflichtfeld)
               </label>
             </div>
             <Button
               onClick={handleLogin}
-              disabled={!loginData.email || !loginData.password || !document.getElementById('privacy')?.checked}
+              disabled={
+                !loginData.email ||
+                !loginData.password ||
+                !document.getElementById("privacy")?.checked
+              }
               className="w-full h-12 bg-blue-500 hover:bg-blue-600 text-white font-medium"
             >
               Jetzt anmelden
             </Button>
-            
+
             {/* Social Login Options */}
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-300" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">oder anmelden mit</span>
+                <span className="px-2 bg-gray-50 dark:bg-gray-900 text-gray-500">
+                  oder anmelden mit
+                </span>
               </div>
             </div>
-            
+
             <div className="grid grid-cols-2 gap-3">
               <Button
                 variant="outline"
@@ -895,7 +956,12 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
                   type="text"
                   placeholder="Max"
                   value={registerData.firstName}
-                  onChange={(e) => setRegisterData(prev => ({ ...prev, firstName: e.target.value }))}
+                  onChange={(e) =>
+                    setRegisterData((prev) => ({
+                      ...prev,
+                      firstName: e.target.value,
+                    }))
+                  }
                   className="h-12 text-base"
                 />
               </div>
@@ -906,7 +972,12 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
                   type="text"
                   placeholder="Mustermann"
                   value={registerData.lastName}
-                  onChange={(e) => setRegisterData(prev => ({ ...prev, lastName: e.target.value }))}
+                  onChange={(e) =>
+                    setRegisterData((prev) => ({
+                      ...prev,
+                      lastName: e.target.value,
+                    }))
+                  }
                   className="h-12 text-base"
                 />
               </div>
@@ -918,7 +989,12 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
                 type="email"
                 placeholder="max@example.com"
                 value={registerData.email}
-                onChange={(e) => setRegisterData(prev => ({ ...prev, email: e.target.value }))}
+                onChange={(e) =>
+                  setRegisterData((prev) => ({
+                    ...prev,
+                    email: e.target.value,
+                  }))
+                }
                 className="h-12 text-base"
               />
             </div>
@@ -930,7 +1006,12 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
                   type={showRegisterPassword ? "text" : "password"}
                   placeholder="Passwort eingeben"
                   value={registerData.password}
-                  onChange={(e) => setRegisterData(prev => ({ ...prev, password: e.target.value }))}
+                  onChange={(e) =>
+                    setRegisterData((prev) => ({
+                      ...prev,
+                      password: e.target.value,
+                    }))
+                  }
                   className="h-12 text-base pr-10"
                 />
                 <Button
@@ -947,12 +1028,15 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
                   )}
                 </Button>
               </div>
-              
+
               {/* Password validation indicators */}
               {registerData.password && (
                 <div className="space-y-1">
                   {passwordValidation.errors.map((error, index) => (
-                    <div key={index} className="flex items-center space-x-2 text-xs">
+                    <div
+                      key={index}
+                      className="flex items-center space-x-2 text-xs"
+                    >
                       <X className="h-3 w-3 text-red-500" />
                       <span className="text-red-500">{error}</span>
                     </div>
@@ -960,36 +1044,51 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
                   {passwordValidation.isValid && (
                     <div className="flex items-center space-x-2 text-xs">
                       <Check className="h-3 w-3 text-green-500" />
-                      <span className="text-green-500">Passwort ist gültig</span>
+                      <span className="text-green-500">
+                        Passwort ist gültig
+                      </span>
                     </div>
                   )}
                 </div>
               )}
             </div>
             <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-              <input type="checkbox" id="registerPrivacy" className="rounded" required />
+              <input
+                type="checkbox"
+                id="registerPrivacy"
+                className="rounded"
+                required
+              />
               <label htmlFor="registerPrivacy">
                 ☑️ Ich akzeptiere die AGB und Datenschutzerklärung (Pflichtfeld)
               </label>
             </div>
             <Button
               onClick={handleRegister}
-              disabled={!registerData.email || !registerData.password || !registerData.firstName || !registerData.lastName || !document.getElementById('registerPrivacy')?.checked}
+              disabled={
+                !registerData.email ||
+                !registerData.password ||
+                !registerData.firstName ||
+                !registerData.lastName ||
+                !document.getElementById("registerPrivacy")?.checked
+              }
               className="w-full h-12 bg-green-500 hover:bg-green-600 text-white font-medium"
             >
               Jetzt registrieren
             </Button>
-            
+
             {/* Social Login Options */}
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-300" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">oder registrieren mit</span>
+                <span className="px-2 bg-gray-50 dark:bg-gray-900 text-gray-500">
+                  oder registrieren mit
+                </span>
               </div>
             </div>
-            
+
             <div className="grid grid-cols-2 gap-3">
               <Button
                 variant="outline"
@@ -1269,12 +1368,15 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
       </Dialog>
 
       {/* Legal Modal */}
-      <Dialog open={isLegalModalOpen} onOpenChange={(open) => {
-        setIsLegalModalOpen(open);
-        if (!open) {
-          setSelectedLegalContent(null);
-        }
-      }}>
+      <Dialog
+        open={isLegalModalOpen}
+        onOpenChange={(open) => {
+          setIsLegalModalOpen(open);
+          if (!open) {
+            setSelectedLegalContent(null);
+          }
+        }}
+      >
         <DialogContent className="max-w-2xl max-h-[85vh] overflow-hidden mobile-modal">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
@@ -1288,18 +1390,24 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
                   <ArrowLeft className="h-4 w-4" />
                 </Button>
               )}
-              {selectedLegalContent ? legalTexts[selectedLegalContent as keyof typeof legalTexts]?.title : "Rechtliche Informationen"}
+              {selectedLegalContent
+                ? legalTexts[selectedLegalContent as keyof typeof legalTexts]
+                    ?.title
+                : "Rechtliche Informationen"}
             </DialogTitle>
             <DialogDescription>
-              {selectedLegalContent ? "Lesen Sie die vollständigen rechtlichen Bestimmungen." : "Wählen Sie einen Bereich aus, um die entsprechenden rechtlichen Informationen anzuzeigen."}
+              {selectedLegalContent
+                ? "Lesen Sie die vollständigen rechtlichen Bestimmungen."
+                : "Wählen Sie einen Bereich aus, um die entsprechenden rechtlichen Informationen anzuzeigen."}
             </DialogDescription>
           </DialogHeader>
-          
+
           <ScrollArea className="flex-1 max-h-[70vh] pr-4">
             {!selectedLegalContent ? (
               <div className="space-y-3">
                 <p className="text-sm text-muted-foreground mb-4">
-                  Wählen Sie einen Bereich aus, um die entsprechenden rechtlichen Informationen anzuzeigen:
+                  Wählen Sie einen Bereich aus, um die entsprechenden
+                  rechtlichen Informationen anzuzeigen:
                 </p>
                 {Object.entries(legalTexts).map(([key, content]) => (
                   <Button
@@ -1313,10 +1421,13 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
                       <div>
                         <div className="font-medium">{content.title}</div>
                         <div className="text-sm text-muted-foreground mt-1">
-                          {key === 'impressum' && 'Angaben gemäß § 5 TMG'}
-                          {key === 'datenschutz' && 'Informationen zur Datenverarbeitung'}
-                          {key === 'agb' && 'Vertragsbedingungen für unsere Services'}
-                          {key === 'widerrufsrecht' && 'Ihre Rechte als Verbraucher'}
+                          {key === "impressum" && "Angaben gemäß § 5 TMG"}
+                          {key === "datenschutz" &&
+                            "Informationen zur Datenverarbeitung"}
+                          {key === "agb" &&
+                            "Vertragsbedingungen für unsere Services"}
+                          {key === "widerrufsrecht" &&
+                            "Ihre Rechte als Verbraucher"}
                         </div>
                       </div>
                     </div>
@@ -1326,12 +1437,16 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
             ) : (
               <div className="space-y-4">
                 <div className="whitespace-pre-line text-sm leading-relaxed">
-                  {legalTexts[selectedLegalContent as keyof typeof legalTexts]?.content}
+                  {
+                    legalTexts[selectedLegalContent as keyof typeof legalTexts]
+                      ?.content
+                  }
                 </div>
-                {selectedLegalContent === 'datenschutz' && (
+                {selectedLegalContent === "datenschutz" && (
                   <div className="mt-6 p-4 bg-muted/50 rounded-lg">
                     <p className="text-xs text-muted-foreground">
-                      Für weitere Fragen zum Datenschutz kontaktieren Sie uns unter: washr.mainz@gmail.com
+                      Für weitere Fragen zum Datenschutz kontaktieren Sie uns
+                      unter: washr.mainz@gmail.com
                     </p>
                   </div>
                 )}
