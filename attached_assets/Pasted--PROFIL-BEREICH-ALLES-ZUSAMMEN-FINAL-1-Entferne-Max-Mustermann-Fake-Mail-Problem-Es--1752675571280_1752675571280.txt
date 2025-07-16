@@ -1,0 +1,123 @@
+✅ PROFIL-BEREICH: ALLES ZUSAMMEN – FINAL
+🔄 1. Entferne "Max Mustermann" & Fake-Mail
+🟥 Problem: Es wird immer "Max Mustermann" und eine Beispiel-Mail angezeigt, auch wenn man nicht eingeloggt ist.
+✅ Lösung: Zeige nur dann Name & Mail, wenn User eingeloggt ist.
+
+tsx
+Kopieren
+Bearbeiten
+{user ? (
+  <>
+    <h2>{user.displayName}</h2>
+    <p>{user.email}</p>
+  </>
+) : (
+  <>
+    <h2>Gastnutzer</h2>
+    <p>Erstelle ein Profil, um Fortschritt & Belohnungen zu speichern.</p>
+  </>
+)}
+🛑 2. Login-Funktion nicht doppelt anzeigen
+🟥 Problem: Es gibt oben im Profilbereich schon Infos zur Anmeldung, aber unten nochmal den Button.
+✅ Lösung: Oben nur Text-Hinweis, Button nur unten sichtbar lassen:
+
+tsx
+Kopieren
+Bearbeiten
+{!user && (
+  <p style={{ fontSize: "0.9rem", color: "#777" }}>
+    🔒 Du bist aktuell nicht eingeloggt.
+  </p>
+)}
+📊 3. Fortschritt (z. B. 1/3 Buchungen) anzeigen – auch ohne Login
+✅ Du willst, dass man den Fortschritt auch als Gast sehen kann
+– aber nur nach Login in der Cloud gespeichert wird.
+
+Lösung:
+Lokalen Fortschritt in localStorage speichern
+
+Bei Login synchronisieren
+
+Im UI korrekt anzeigen
+
+tsx
+Kopieren
+Bearbeiten
+// LocalStorage holen
+const guestBookings = parseInt(localStorage.getItem("guestBookings") || "0");
+
+// Wert fürs UI
+const bookingProgress = user ? userBookingsFromDB : guestBookings;
+
+// Text + Balken
+<p>
+  Noch {Math.max(3 - bookingProgress, 0)} Buchungen bis zum kostenlosen Duftbaum!
+</p>
+<progress value={bookingProgress} max="3" />
+🔐 4. Fortschritt beim Login übertragen & synchronisieren
+Beim Login automatisch übertragen:
+tsx
+Kopieren
+Bearbeiten
+useEffect(() => {
+  if (user) {
+    const guestBookings = parseInt(localStorage.getItem("guestBookings") || "0");
+
+    if (guestBookings > 0) {
+      // Optional: Übertragen in die Cloud-DB
+      uploadGuestBookingsToUser(user.uid, guestBookings);
+
+      // Danach löschen
+      localStorage.removeItem("guestBookings");
+    }
+  }
+}, [user]);
+🛠️ 5. Buchungsbereich – Weiterleitung reparieren
+🟥 Problem: Nach Auswahl von Add-ons kommt man nicht mehr weiter.
+✅ Lösungsidee (je nach Framework):
+
+Button „Weiter“ deaktiviert? Dann prüfen, ob der State korrekt übergeben wird
+
+Prüfe ob onClick={goToNextStep} oder Routing z. B. via navigate("/next") korrekt ist
+
+Alternativ: console.log() nutzen, um zu checken, ob der State korrekt gesetzt wird
+
+❌ 6. Problem: "1 Buchung" steht da – obwohl keine getätigt wurde
+🟥 Fehler: App zeigt 1/3 Buchungen, obwohl User noch keine gemacht hat
+✅ Lösung: Beim ersten Aufruf auf 0 setzen – aus localStorage oder DB holen
+
+ts
+Kopieren
+Bearbeiten
+const guestBookings = parseInt(localStorage.getItem("guestBookings") || "0");
+
+// UI zeigt korrekt 0 von 3
+<progress value={guestBookings} max="3" />
+✍️ 7. Textvorschläge für UX (Klar, motivierend)
+🔓 Nicht eingeloggt:
+txt
+Kopieren
+Bearbeiten
+👤 Gastnutzer  
+🔒 Du bist aktuell nicht eingeloggt.  
+💡 Melde dich an, um deine Buchungen & Belohnungen zu speichern.
+
+Noch 2 Buchungen bis zu deinem kostenlosen Duftbaum!
+[Jetzt anmelden]
+✅ Eingeloggt:
+txt
+Kopieren
+Bearbeiten
+👤 Kalen Lange  
+✉️ kalen@example.com  
+📈 Du hast 2 von 3 Buchungen gesammelt.
+🎁 Nur noch 1 bis zum kostenlosen Duftbaum!
+✅ Zusammenfassung aller To-Dos:
+Aufgabe	Status
+🔁 Max Mustermann & Fake-Mail entfernen	✅ Erledigt
+🛠 Login nicht doppelt anzeigen	✅ Erledigt
+📊 Fortschritt auch ohne Login zeigen	✅ Mit localStorage umgesetzt
+🔐 Fortschritt beim Login synchronisieren	✅ Mit useEffect möglich
+🧭 Buchung → Add-ons → Weiter-Button fixen	❗Noch prüfen
+📉 Falsche Buchungsanzeige ("1/3") fixen	✅ mit localStorage
+💬 UX-Texte klar und logisch gestalten	✅ Vorlage vorhanden

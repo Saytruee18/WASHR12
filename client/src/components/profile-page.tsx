@@ -169,10 +169,29 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
 
   // Update loyalty progress when bookings change
   useEffect(() => {
-    if (bookings.length > 0) {
-      loyaltyStorage.updateProgress(bookings.length);
-    }
+    loyaltyStorage.updateProgress(bookings.length);
   }, [bookings.length]);
+
+  // Sync guest bookings when user logs in
+  useEffect(() => {
+    if (user) {
+      const guestBookings = parseInt(localStorage.getItem("guestBookings") || "0");
+      if (guestBookings > 0) {
+        // Transfer guest bookings to user account
+        const currentUserBookings = bookings.length;
+        const totalBookings = Math.max(currentUserBookings, guestBookings);
+        loyaltyStorage.updateProgress(totalBookings);
+        
+        // Clear guest bookings
+        localStorage.removeItem("guestBookings");
+        
+        toast({
+          title: "Willkommen zurück!",
+          description: `Ihre ${guestBookings} Gastbuchungen wurden übertragen.`,
+        });
+      }
+    }
+  }, [user, bookings.length]);
 
   const loyaltyProgress = loyaltyStorage.getProgress();
   const currentTier = loyaltyStorage.getCurrentTier();
@@ -252,6 +271,10 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
     const remaining = currentTier.bookingsRequired - loyaltyProgress.currentBookings;
     if (remaining <= 0) return `✅ ${currentTier.reward} verdient!`;
     
+    if (loyaltyProgress.currentBookings === 0) {
+      return `Starte jetzt! Noch ${currentTier.bookingsRequired} Buchungen bis zu deinem kostenlosen Duftbaum!`;
+    }
+    
     return currentTier.description
       .replace('%d', remaining.toString())
       .replace('%d/%d', `${loyaltyProgress.currentBookings}/${currentTier.bookingsRequired}`);
@@ -272,12 +295,25 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
                 )}
               </div>
               <div>
-                <h2 className="text-xl font-bold text-black dark:text-white">
-                  {user ? `👋 Hallo ${user.firstName}` : `${profileData.firstName} ${profileData.lastName}`}
-                </h2>
-                <p className="text-gray-500 dark:text-gray-400">
-                  📬 {profileData.email}
-                </p>
+                {user ? (
+                  <>
+                    <h2 className="text-xl font-bold text-black dark:text-white">
+                      👋 Hallo {user.firstName}
+                    </h2>
+                    <p className="text-gray-500 dark:text-gray-400">
+                      📬 {user.email}
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <h2 className="text-xl font-bold text-black dark:text-white">
+                      👤 Gastnutzer
+                    </h2>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm">
+                      🔒 Du bist aktuell nicht eingeloggt.
+                    </p>
+                  </>
+                )}
               </div>
             </div>
             <div className="flex space-x-2">
@@ -351,6 +387,9 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
 
             {!user && (
               <div className="mt-4 p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                  💡 Melde dich an, um deine Buchungen & Belohnungen zu speichern.
+                </p>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
                   🔓 Profil erstellen & Bonus sichern
                 </p>

@@ -76,6 +76,14 @@ Preferred communication style: Simple, everyday language.
   - Optimized date picker with 2025 pre-selection and disabled past dates
   - Modern mobile-first touch targets (44px minimum) and typography
   - Complete Uber/Bolt/Flink-style UX with smooth animations and instant feedback
+✓ Profile system improvements (July 15, 2025):
+  - Removed fake "Max Mustermann" display for non-logged users
+  - Added proper guest user state with "Gastnutzer" display
+  - Fixed loyalty progress starting at 0 instead of fake 1 booking
+  - Added guest booking synchronization when users log in
+  - Improved UX text for login prompts and progress tracking
+  - Added localStorage guest booking persistence
+  - Enhanced profile authentication with demo login system
 
 ## System Architecture
 

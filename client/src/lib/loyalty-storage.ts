@@ -53,7 +53,7 @@ export const loyaltyStorage = {
       const stored = localStorage.getItem(LOYALTY_STORAGE_KEY);
       if (!stored) {
         return {
-          currentBookings: 1, // Start with 1 to show progress
+          currentBookings: 0, // Start with 0 - no fake progress
           currentTier: 0,
           earnedRewards: [],
           availableRewards: []
@@ -63,7 +63,7 @@ export const loyaltyStorage = {
     } catch (error) {
       console.error('Error loading loyalty progress:', error);
       return {
-        currentBookings: 1,
+        currentBookings: 0, // Start with 0 - no fake progress
         currentTier: 0,
         earnedRewards: [],
         availableRewards: []
