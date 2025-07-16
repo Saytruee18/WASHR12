@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   User,
+  UserPlus,
   Settings,
   Gift,
   MessageCircle,
@@ -276,6 +277,17 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
   const progressPercentage = loyaltyStorage.getProgressPercentage();
 
   const handleLogin = async () => {
+    // Check privacy checkbox
+    const privacyCheckbox = document.getElementById('privacy') as HTMLInputElement;
+    if (!privacyCheckbox?.checked) {
+      toast({
+        title: "Datenschutzerklärung erforderlich",
+        description: "Bitte akzeptieren Sie die Datenschutzerklärung.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       const guestBookingCount = loyaltyStorage.getGuestBookings();
       
@@ -315,16 +327,28 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
           description: "Willkommen zurück!",
         });
       }
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Login error:', error);
       toast({
         title: "Anmeldung fehlgeschlagen",
-        description: "Bitte überprüfen Sie Ihre Eingaben.",
+        description: error?.message || "Bitte überprüfen Sie Ihre Eingaben.",
         variant: "destructive",
       });
     }
   };
 
   const handleRegister = async () => {
+    // Check privacy checkbox
+    const privacyCheckbox = document.getElementById('registerPrivacy') as HTMLInputElement;
+    if (!privacyCheckbox?.checked) {
+      toast({
+        title: "AGB und Datenschutzerklärung erforderlich",
+        description: "Bitte akzeptieren Sie die AGB und Datenschutzerklärung.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       if (register) {
         // Firebase registration
@@ -361,10 +385,11 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
         title: "Registrierung erfolgreich!",
         description: `Willkommen bei WASHR, ${registerData.firstName}!`,
       });
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Registration error:', error);
       toast({
         title: "Registrierung fehlgeschlagen",
-        description: "Bitte überprüfen Sie Ihre Eingaben.",
+        description: error?.message || "Bitte überprüfen Sie Ihre Eingaben.",
         variant: "destructive",
       });
     }
@@ -573,13 +598,23 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
                   🔓 Profil erstellen & Bonus sichern
                 </p>
-                <Button 
-                  onClick={() => setIsLoginModalOpen(true)}
-                  className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 rounded-lg shadow-md flex items-center justify-center space-x-2"
-                >
-                  <LogIn className="h-5 w-5" />
-                  <span>Jetzt anmelden</span>
-                </Button>
+                <div className="space-y-2">
+                  <Button 
+                    onClick={() => setIsRegisterModalOpen(true)}
+                    className="w-full bg-green-500 hover:bg-green-600 text-white font-medium py-3 rounded-lg shadow-md flex items-center justify-center space-x-2"
+                  >
+                    <UserPlus className="h-5 w-5" />
+                    <span>Jetzt registrieren</span>
+                  </Button>
+                  <Button 
+                    onClick={() => setIsLoginModalOpen(true)}
+                    variant="outline"
+                    className="w-full font-medium py-3 rounded-lg flex items-center justify-center space-x-2"
+                  >
+                    <LogIn className="h-5 w-5" />
+                    <span>Bereits registriert? Anmelden</span>
+                  </Button>
+                </div>
               </div>
             )}
           </div>
@@ -664,14 +699,14 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
               />
             </div>
             <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-              <input type="checkbox" id="privacy" className="rounded" defaultChecked />
+              <input type="checkbox" id="privacy" className="rounded" required />
               <label htmlFor="privacy">
-                ☑️ Ich akzeptiere die Datenschutzerklärung
+                ☑️ Ich akzeptiere die Datenschutzerklärung (Pflichtfeld)
               </label>
             </div>
             <Button
               onClick={handleLogin}
-              disabled={!loginData.email || !loginData.password}
+              disabled={!loginData.email || !loginData.password || !document.getElementById('privacy')?.checked}
               className="w-full h-12 bg-blue-500 hover:bg-blue-600 text-white font-medium"
             >
               Jetzt anmelden
@@ -752,14 +787,14 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
               />
             </div>
             <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-              <input type="checkbox" id="registerPrivacy" className="rounded" defaultChecked />
+              <input type="checkbox" id="registerPrivacy" className="rounded" required />
               <label htmlFor="registerPrivacy">
-                ☑️ Ich akzeptiere die AGB und Datenschutzerklärung
+                ☑️ Ich akzeptiere die AGB und Datenschutzerklärung (Pflichtfeld)
               </label>
             </div>
             <Button
               onClick={handleRegister}
-              disabled={!registerData.email || !registerData.password || !registerData.firstName || !registerData.lastName}
+              disabled={!registerData.email || !registerData.password || !registerData.firstName || !registerData.lastName || !document.getElementById('registerPrivacy')?.checked}
               className="w-full h-12 bg-green-500 hover:bg-green-600 text-white font-medium"
             >
               Jetzt registrieren

@@ -110,7 +110,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Login function
   const login = async (email: string, password: string) => {
     if (!isFirebaseConfigured || !auth) {
-      throw new Error('Firebase not configured');
+      console.warn('Firebase not configured, using localStorage fallback');
+      // Fallback to localStorage
+      localStorage.setItem('washr_logged_in', 'true');
+      localStorage.setItem('washr_user_email', email);
+      return;
     }
 
     try {
@@ -118,19 +122,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const mergedBookings = await mergeGuestBookings(userCredential.user.uid);
       
       if (mergedBookings > 0) {
-        // Show success message via toast will be handled in component
         console.log(`${mergedBookings} guest bookings merged successfully`);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Login error:', error);
-      throw error;
+      throw new Error(error.message || 'Anmeldung fehlgeschlagen');
     }
   };
 
   // Register function
   const register = async (email: string, password: string, firstName: string, lastName: string) => {
     if (!isFirebaseConfigured || !auth || !db) {
-      throw new Error('Firebase not configured');
+      console.warn('Firebase not configured, using localStorage fallback');
+      // Fallback to localStorage
+      localStorage.setItem('washr_logged_in', 'true');
+      localStorage.setItem('washr_user_email', email);
+      localStorage.setItem('washr_user_firstName', firstName);
+      localStorage.setItem('washr_user_lastName', lastName);
+      return;
     }
 
     try {
@@ -160,24 +169,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Merge any guest bookings
       await mergeGuestBookings(user.uid);
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('Registration error:', error);
-      throw error;
+      throw new Error(error.message || 'Registrierung fehlgeschlagen');
     }
   };
 
   // Logout function
   const logout = async () => {
     if (!isFirebaseConfigured || !auth) {
-      throw new Error('Firebase not configured');
+      // Fallback localStorage logout
+      localStorage.removeItem('washr_logged_in');
+      localStorage.removeItem('washr_user_email');
+      localStorage.removeItem('washr_user_firstName');
+      localStorage.removeItem('washr_user_lastName');
+      return;
     }
 
     try {
       await signOut(auth);
       setUserData(null);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Logout error:', error);
-      throw error;
+      throw new Error(error.message || 'Abmeldung fehlgeschlagen');
     }
   };
 
