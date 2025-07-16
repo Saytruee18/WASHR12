@@ -617,9 +617,9 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
   };
 
   return (
-    <div className="space-y-6 pb-20">
+    <div className="space-y-6 pb-20 bg-background text-foreground min-h-screen">
       {/* Profile Header */}
-      <Card className="bg-gray-800 dark:bg-gray-900 border-gray-700 dark:border-gray-700">
+      <Card className="bg-card border-border">
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
@@ -633,19 +633,19 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
               <div>
                 {user ? (
                   <>
-                    <h2 className="text-xl font-bold text-black dark:text-white">
+                    <h2 className="text-xl font-bold text-card-foreground">
                       👋 Hallo {user.firstName}
                     </h2>
-                    <p className="text-gray-500 dark:text-gray-400">
+                    <p className="text-muted-foreground">
                       📬 {user.email}
                     </p>
                   </>
                 ) : (
                   <>
-                    <h2 className="text-xl font-bold text-black dark:text-white">
+                    <h2 className="text-xl font-bold text-card-foreground">
                       👤 Gastnutzer
                     </h2>
-                    <p className="text-gray-500 dark:text-gray-400 text-sm">
+                    <p className="text-muted-foreground text-sm">
                       🔒 Du bist aktuell nicht eingeloggt.
                     </p>
                   </>
@@ -659,7 +659,7 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
                     variant="ghost"
                     size="icon"
                     onClick={() => setIsEditingProfile(true)}
-                    className="hover:bg-gray-100 dark:hover:bg-gray-800"
+                    className="hover:bg-muted"
                   >
                     <Edit3 className="h-5 w-5" />
                   </Button>
@@ -667,7 +667,7 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
                     variant="ghost"
                     size="icon"
                     onClick={handleLogout}
-                    className="hover:bg-gray-100 dark:hover:bg-gray-800"
+                    className="hover:bg-muted"
                   >
                     <LogOut className="h-5 w-5" />
                   </Button>
@@ -677,7 +677,7 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
                   variant="ghost"
                   size="icon"
                   onClick={() => setIsLoginModalOpen(true)}
-                  className="hover:bg-gray-100 dark:hover:bg-gray-800"
+                  className="hover:bg-muted"
                 >
                   <LogIn className="h-5 w-5" />
                 </Button>
@@ -688,11 +688,11 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
       </Card>
 
       {/* Loyalty Progress Card - Uber/Flink Style */}
-      <Card className="bg-gradient-to-r from-gray-50 to-emerald-50 dark:from-gray-800 dark:to-emerald-900 border-0 shadow-lg">
+      <Card className="bg-gradient-to-r from-card to-primary/10 border-border shadow-lg">
         <CardContent className="p-6">
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold text-black dark:text-white">
+              <h3 className="text-lg font-bold text-card-foreground">
                 {currentTier ? currentTier.icon : "🏆"} Bonus Progress
               </h3>
               {loyaltyProgress.availableRewards.length > 0 && (
@@ -702,19 +702,19 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
               )}
             </div>
 
-            <p className="text-gray-700 dark:text-gray-300 font-medium">
+            <p className="text-muted-foreground font-medium">
               {getProgressText()}
             </p>
 
             <div className="space-y-2">
-              <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
+              <div className="flex justify-between text-sm text-muted-foreground">
                 <span>
                   📦 Buchungen: {currentBookings}/
                   {currentTier?.bookingsRequired || "∞"}
                 </span>
                 <span>{Math.round(progressPercentage)}%</span>
               </div>
-              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 shadow-inner">
+              <div className="w-full bg-muted rounded-full h-3 shadow-inner">
                 <motion.div
                   className="bg-gradient-to-r from-emerald-400 to-emerald-500 h-full rounded-full shadow-sm"
                   initial={{ width: 0 }}
@@ -735,12 +735,12 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
             </Button>
 
             {!user && (
-              <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+              <div className="mt-4 p-4 bg-muted rounded-lg border border-border">
+                <p className="text-sm text-muted-foreground mb-2">
                   💡 Melde dich an, um deine Buchungen & Belohnungen zu
                   speichern.
                 </p>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                <p className="text-sm text-muted-foreground mb-3">
                   🔓 Profil erstellen & Bonus sichern
                 </p>
                 <div className="space-y-2">
@@ -767,7 +767,7 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
       </Card>
 
       {/* Bonus Tier Preview */}
-      <Card className="bg-gray-800 dark:bg-gray-900 border-gray-700 dark:border-gray-700">
+      <Card className="bg-card border-border">
         <CardHeader>
           <CardTitle className="text-lg flex items-center space-x-2">
             <Gift className="h-5 w-5 text-emerald-500" />
@@ -781,20 +781,20 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
                 key={tier.level}
                 className={`flex items-center justify-between p-3 rounded-lg border transition-all ${
                   currentBookings >= tier.bookingsRequired
-                    ? "bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-700"
+                    ? "bg-primary/10 border-primary/30"
                     : currentBookings >=
                         (loyaltyTiers[index - 1]?.bookingsRequired || 0)
-                      ? "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700"
-                      : "bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-600"
+                      ? "bg-accent border-accent"
+                      : "bg-muted border-border"
                 }`}
               >
                 <div className="flex items-center space-x-3">
                   <div className="text-2xl">{tier.icon}</div>
                   <div>
-                    <div className="font-medium text-black dark:text-white">
+                    <div className="font-medium text-card-foreground">
                       {tier.reward}
                     </div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                    <div className="text-sm text-muted-foreground">
                       {tier.bookingsRequired} Buchungen
                     </div>
                   </div>
@@ -802,7 +802,7 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
                 {currentBookings >= tier.bookingsRequired ? (
                   <div className="text-emerald-500 font-bold">✓</div>
                 ) : (
-                  <div className="text-gray-400">
+                  <div className="text-muted-foreground">
                     {tier.bookingsRequired - currentBookings}
                   </div>
                 )}
@@ -1127,7 +1127,7 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
       </Dialog>
 
       {/* Main Menu Items (Cleaner werden, Freund einladen, Support kontaktieren) */}
-      <Card className="bg-gray-800 dark:bg-gray-900 border-gray-700 dark:border-gray-700">
+      <Card className="bg-card border-border">
         <CardContent className="p-0">
           <div className="space-y-0">
             <motion.button
@@ -1181,7 +1181,7 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
       </Card>
 
       {/* CARD FÜR RECHTLICHE HINWEISE */}
-      <Card className="bg-gray-800 dark:bg-gray-900 border-gray-700 dark:border-gray-700">
+      <Card className="bg-card border-border">
         <CardHeader>
           <CardTitle className="text-lg">Rechtliche Hinweise</CardTitle>
         </CardHeader>
@@ -1256,7 +1256,7 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
       </Card>
 
       {/* Recent Bookings */}
-      <Card className="bg-gray-800 dark:bg-gray-900 border-gray-700 dark:border-gray-700">
+      <Card className="bg-card border-border">
         <CardHeader>
           <CardTitle className="text-lg">Letzte Buchungen</CardTitle>
         </CardHeader>
