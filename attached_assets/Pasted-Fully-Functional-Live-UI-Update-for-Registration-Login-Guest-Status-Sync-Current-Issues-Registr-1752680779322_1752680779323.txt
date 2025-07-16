@@ -1,0 +1,44 @@
+Fully Functional Live UI Update for Registration, Login & Guest Status Sync
+Current Issues:
+
+Registration and login form fields/buttons (“Register now” / “Already registered? Login”) do not disappear after successful action.
+
+Guest username shown on the profile page and dropdown is not replaced with the logged-in user’s real name and email immediately.
+
+Dropdown menu does not update or react when login or registration happens there — no live UI refresh.
+
+Guest mode is not properly deactivated upon login or registration.
+
+User progress saved as guest in localStorage is not merged correctly into Firestore on login.
+
+Requirements / Goals:
+
+When the user successfully registers or logs in (via profile page or dropdown):
+
+The registration and login forms/buttons must immediately disappear.
+
+Guest status is fully deactivated.
+
+The logged-in user’s display name and email replace any “guest” placeholders on the profile page and in the dropdown menu in real-time.
+
+The dropdown menu and profile page must both update live and stay fully synchronized with the current auth state.
+
+On login, migrate guest progress stored in localStorage to Firestore once, then clear it from localStorage to avoid duplicates.
+
+Use Firebase Auth’s onAuthStateChanged listener to detect auth changes instantly and update all UI components accordingly.
+
+Store user data (name, email, progress) in a global state or React Context so all relevant components read from the same source and update synchronously.
+
+Provide proper form validation and error handling for registration and login forms, so users get clear feedback.
+
+Ensure all user-related UI updates (profile name/email, progress bar, dropdown menu) happen live and without page reloads, regardless of where the user logs in or registers.
+
+Expected final behavior:
+
+No registration/login fields visible once logged in or registered.
+
+Guest status removed, replaced immediately by the authenticated user info everywhere (profile + dropdown).
+
+Progress from guest mode merges correctly on first login and is visible live.
+
+Dropdown menu updates instantly when user logs in or out, showing correct options.

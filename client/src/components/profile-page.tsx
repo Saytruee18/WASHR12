@@ -288,15 +288,20 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
       return;
     }
 
+    // Close modal immediately for instant UX
+    setIsLoginModalOpen(false);
+    const loginDataCopy = { ...loginData };
+    setLoginData({ email: "", password: "" });
+    
     try {
       const guestBookingCount = loyaltyStorage.getGuestBookings();
       
       if (login) {
-        // Firebase login
-        await login(loginData.email, loginData.password);
+        // Firebase login - context will handle state updates
+        await login(loginDataCopy.email, loginDataCopy.password);
       } else {
         // Fallback to localStorage login
-        const loggedInUser = authStorage.login(loginData.email, loginData.password);
+        const loggedInUser = authStorage.login(loginDataCopy.email, loginDataCopy.password);
         setUser(loggedInUser);
         setProfileData({
           firstName: loggedInUser.firstName,
@@ -312,9 +317,6 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
           loyaltyStorage.clearGuestBookings();
         }
       }
-      
-      setIsLoginModalOpen(false);
-      setLoginData({ email: "", password: "" });
       
       if (guestBookingCount > 0) {
         toast({
@@ -349,23 +351,28 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
       return;
     }
 
+    // Close modal immediately for instant UX
+    setIsRegisterModalOpen(false);
+    const registerDataCopy = { ...registerData };
+    setRegisterData({ email: "", password: "", firstName: "", lastName: "" });
+    
     try {
       if (register) {
-        // Firebase registration
-        await register(registerData.email, registerData.password, registerData.firstName, registerData.lastName);
+        // Firebase registration - context will handle state updates
+        await register(registerDataCopy.email, registerDataCopy.password, registerDataCopy.firstName, registerDataCopy.lastName);
       } else {
         // Fallback to localStorage registration
-        const newUser = authStorage.login(registerData.email, registerData.password);
+        const newUser = authStorage.login(registerDataCopy.email, registerDataCopy.password);
         setUser({
           ...newUser,
-          firstName: registerData.firstName,
-          lastName: registerData.lastName,
-          displayName: `${registerData.firstName} ${registerData.lastName}`
+          firstName: registerDataCopy.firstName,
+          lastName: registerDataCopy.lastName,
+          displayName: `${registerDataCopy.firstName} ${registerDataCopy.lastName}`
         });
         setProfileData({
-          firstName: registerData.firstName,
-          lastName: registerData.lastName,
-          email: registerData.email,
+          firstName: registerDataCopy.firstName,
+          lastName: registerDataCopy.lastName,
+          email: registerDataCopy.email,
           phone: "+49 123 456 789",
         });
         
@@ -378,12 +385,9 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
         }
       }
       
-      setIsRegisterModalOpen(false);
-      setRegisterData({ email: "", password: "", firstName: "", lastName: "" });
-      
       toast({
         title: "Registrierung erfolgreich!",
-        description: `Willkommen bei WASHR, ${registerData.firstName}!`,
+        description: `Willkommen bei WASHR, ${registerDataCopy.firstName}!`,
       });
     } catch (error: any) {
       console.error('Registration error:', error);

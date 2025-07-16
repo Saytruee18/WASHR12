@@ -54,15 +54,18 @@ export function ProfileDropdown() {
   }, [isOpen]);
 
   const handleLogout = async () => {
+    // Close dropdown immediately
+    setIsOpen(false);
+    
     try {
       if (logout) {
-        await logout();
+        await logout(); // This will immediately update the AuthContext state
       } else {
-        // Fallback localStorage logout
+        // Fallback localStorage logout (shouldn't be needed with new context)
         localStorage.removeItem('washr_logged_in');
         localStorage.removeItem('washr_user_email');
       }
-      setIsOpen(false);
+      
       toast({
         title: "Erfolgreich ausgeloggt",
         description: "Auf Wiedersehen!",
@@ -86,19 +89,6 @@ export function ProfileDropdown() {
       };
     }
     
-    // Check localStorage fallback
-    const savedLogin = localStorage.getItem('washr_logged_in');
-    if (savedLogin === 'true') {
-      const savedEmail = localStorage.getItem('washr_user_email') || 'user@example.com';
-      const name = savedEmail.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-      const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-      return {
-        name: name,
-        email: savedEmail,
-        initials: initials
-      };
-    }
-    
     return {
       name: "Gastnutzer",
       email: "",
@@ -107,7 +97,7 @@ export function ProfileDropdown() {
   };
 
   const profileData = getUserData();
-  const isLoggedIn = firebaseUser || localStorage.getItem('washr_logged_in') === 'true';
+  const isLoggedIn = !!firebaseUser;
 
   const getMenuItems = () => {
     if (!isLoggedIn) {

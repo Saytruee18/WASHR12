@@ -111,9 +111,44 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, password: string) => {
     if (!isFirebaseConfigured || !auth) {
       console.warn('Firebase not configured, using localStorage fallback');
-      // Fallback to localStorage
+      // Fallback to localStorage with immediate state update
+      const firstName = email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+      const lastName = firstName.split(' ').slice(1).join(' ') || '';
+      const displayName = firstName;
+      
       localStorage.setItem('washr_logged_in', 'true');
       localStorage.setItem('washr_user_email', email);
+      localStorage.setItem('washr_user_firstName', firstName);
+      localStorage.setItem('washr_user_lastName', lastName);
+      
+      // Merge guest bookings immediately
+      const guestBookings = parseInt(localStorage.getItem('guestBookings') || '0');
+      if (guestBookings > 0) {
+        localStorage.setItem('userBookings', guestBookings.toString());
+        localStorage.removeItem('guestBookings');
+      }
+      
+      // Update state immediately for instant UI response
+      const mockUser = {
+        uid: email,
+        email: email,
+        displayName: displayName
+      } as User;
+      
+      const mockUserData = {
+        uid: email,
+        email: email,
+        displayName: displayName,
+        firstName: firstName,
+        lastName: lastName,
+        bookings: guestBookings,
+        joinDate: new Date(),
+        earnedRewards: [],
+        availableRewards: []
+      } as UserData;
+      
+      setUser(mockUser);
+      setUserData(mockUserData);
       return;
     }
 
@@ -134,11 +169,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const register = async (email: string, password: string, firstName: string, lastName: string) => {
     if (!isFirebaseConfigured || !auth || !db) {
       console.warn('Firebase not configured, using localStorage fallback');
-      // Fallback to localStorage
+      // Fallback to localStorage with immediate state update
+      const displayName = `${firstName} ${lastName}`;
+      
       localStorage.setItem('washr_logged_in', 'true');
       localStorage.setItem('washr_user_email', email);
       localStorage.setItem('washr_user_firstName', firstName);
       localStorage.setItem('washr_user_lastName', lastName);
+      
+      // Merge guest bookings immediately
+      const guestBookings = parseInt(localStorage.getItem('guestBookings') || '0');
+      if (guestBookings > 0) {
+        localStorage.setItem('userBookings', guestBookings.toString());
+        localStorage.removeItem('guestBookings');
+      }
+      
+      // Update state immediately for instant UI response
+      const mockUser = {
+        uid: email,
+        email: email,
+        displayName: displayName
+      } as User;
+      
+      const mockUserData = {
+        uid: email,
+        email: email,
+        displayName: displayName,
+        firstName: firstName,
+        lastName: lastName,
+        bookings: guestBookings,
+        joinDate: new Date(),
+        earnedRewards: [],
+        availableRewards: []
+      } as UserData;
+      
+      setUser(mockUser);
+      setUserData(mockUserData);
       return;
     }
 
@@ -178,16 +244,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Logout function
   const logout = async () => {
     if (!isFirebaseConfigured || !auth) {
-      // Fallback localStorage logout
+      // Fallback localStorage logout with immediate state update
       localStorage.removeItem('washr_logged_in');
       localStorage.removeItem('washr_user_email');
       localStorage.removeItem('washr_user_firstName');
       localStorage.removeItem('washr_user_lastName');
+      localStorage.removeItem('userBookings');
+      
+      // Reset state immediately
+      setUser(null);
+      setUserData(null);
       return;
     }
 
     try {
       await signOut(auth);
+      setUser(null);
       setUserData(null);
     } catch (error: any) {
       console.error('Logout error:', error);
@@ -217,9 +289,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // Auth state listener
+  // Auth state listener with localStorage fallback
   useEffect(() => {
     if (!isFirebaseConfigured || !auth) {
+      // Check localStorage for existing login
+      const savedLogin = localStorage.getItem('washr_logged_in');
+      if (savedLogin === 'true') {
+        const email = localStorage.getItem('washr_user_email') || '';
+        const firstName = localStorage.getItem('washr_user_firstName') || '';
+        const lastName = localStorage.getItem('washr_user_lastName') || '';
+        const userBookings = parseInt(localStorage.getItem('userBookings') || '0');
+        
+        const mockUser = {
+          uid: email,
+          email: email,
+          displayName: `${firstName} ${lastName}`.trim()
+        } as User;
+        
+        const mockUserData = {
+          uid: email,
+          email: email,
+          displayName: `${firstName} ${lastName}`.trim(),
+          firstName: firstName,
+          lastName: lastName,
+          bookings: userBookings,
+          joinDate: new Date(),
+          earnedRewards: [],
+          availableRewards: []
+        } as UserData;
+        
+        setUser(mockUser);
+        setUserData(mockUserData);
+      }
       setLoading(false);
       return;
     }
