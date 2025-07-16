@@ -1,5 +1,5 @@
 // client/src/components/profile-page.tsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   User,
@@ -13,6 +13,10 @@ import {
   Shield,
   Book,
   ArrowLeft,
+  LogIn,
+  LogOut,
+  Star,
+  Crown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,6 +34,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { CleanerForm } from "@/components/cleaner-form";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
+import { authStorage, User as AuthUser } from "@/lib/auth-storage";
+import { loyaltyStorage, loyaltyTiers } from "@/lib/loyalty-storage";
 
 interface ProfileData {
   firstName: string;
@@ -38,18 +44,43 @@ interface ProfileData {
   phone: string;
 }
 
+interface LoginFormData {
+  email: string;
+  password: string;
+}
+
 export function ProfilePage() {
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [isCleanerFormOpen, setIsCleanerFormOpen] = useState(false);
   const [isLegalModalOpen, setIsLegalModalOpen] = useState(false);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [selectedLegalContent, setSelectedLegalContent] = useState<string | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [profileData, setProfileData] = useState<ProfileData>({
     firstName: "Max",
     lastName: "Mustermann",
     email: "max@example.com",
     phone: "+49 123 456 789",
   });
+  const [loginData, setLoginData] = useState<LoginFormData>({
+    email: "",
+    password: "",
+  });
   const { toast } = useToast();
+
+  useEffect(() => {
+    // Check if user is logged in on component mount
+    const currentUser = authStorage.getUser();
+    if (currentUser) {
+      setUser(currentUser);
+      setProfileData({
+        firstName: currentUser.firstName,
+        lastName: currentUser.lastName,
+        email: currentUser.email,
+        phone: "+49 123 456 789", // Default phone
+      });
+    }
+  }, []);
 
   const legalTexts = {
     impressum: {
@@ -136,7 +167,68 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
     queryKey: ["/api/wallet/balance"],
   });
 
+  // Update loyalty progress when bookings change
+  useEffect(() => {
+    if (bookings.length > 0) {
+      loyaltyStorage.updateProgress(bookings.length);
+    }
+  }, [bookings.length]);
+
+  const loyaltyProgress = loyaltyStorage.getProgress();
+  const currentTier = loyaltyStorage.getCurrentTier();
+  const progressPercentage = loyaltyStorage.getProgressPercentage();
+
+  const handleLogin = () => {
+    try {
+      const loggedInUser = authStorage.login(loginData.email, loginData.password);
+      setUser(loggedInUser);
+      setProfileData({
+        firstName: loggedInUser.firstName,
+        lastName: loggedInUser.lastName,
+        email: loggedInUser.email,
+        phone: "+49 123 456 789",
+      });
+      setIsLoginModalOpen(false);
+      setLoginData({ email: "", password: "" });
+      toast({
+        title: "Willkommen zurück!",
+        description: `Hallo ${loggedInUser.firstName}, schön dich zu sehen.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Anmeldung fehlgeschlagen",
+        description: "Bitte überprüfen Sie Ihre Eingaben.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleLogout = () => {
+    authStorage.logout();
+    setUser(null);
+    setProfileData({
+      firstName: "Max",
+      lastName: "Mustermann", 
+      email: "max@example.com",
+      phone: "+49 123 456 789",
+    });
+    toast({
+      title: "Auf Wiedersehen!",
+      description: "Sie wurden erfolgreich abgemeldet.",
+    });
+  };
+
   const handleSaveProfile = () => {
+    if (user) {
+      const updatedUser = authStorage.updateProfile({
+        firstName: profileData.firstName,
+        lastName: profileData.lastName,
+        email: profileData.email,
+      });
+      if (updatedUser) {
+        setUser(updatedUser);
+      }
+    }
     setIsEditingProfile(false);
     toast({
       title: "Profil aktualisiert",
@@ -154,60 +246,223 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
     });
   };
 
+  const getProgressText = () => {
+    if (!currentTier) return "Alle Belohnungen erreicht! 🎉";
+    
+    const remaining = currentTier.bookingsRequired - loyaltyProgress.currentBookings;
+    if (remaining <= 0) return `✅ ${currentTier.reward} verdient!`;
+    
+    return currentTier.description
+      .replace('%d', remaining.toString())
+      .replace('%d/%d', `${loyaltyProgress.currentBookings}/${currentTier.bookingsRequired}`);
+  };
+
   return (
     <div className="space-y-6 pb-20">
       {/* Profile Header */}
-      <Card className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground border-0">
+      <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700">
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
-                <User className="h-8 w-8 text-white" />
+              <div className="w-16 h-16 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                {user ? (
+                  `${user.firstName[0]}${user.lastName[0]}`
+                ) : (
+                  <User className="h-8 w-8" />
+                )}
               </div>
               <div>
-                <h2 className="text-xl font-bold">
-                  {profileData.firstName} {profileData.lastName}
+                <h2 className="text-xl font-bold text-black dark:text-white">
+                  {user ? `👋 Hallo ${user.firstName}` : `${profileData.firstName} ${profileData.lastName}`}
                 </h2>
-                <p className="text-primary-foreground/80">
-                  {profileData.email}
+                <p className="text-gray-500 dark:text-gray-400">
+                  📬 {profileData.email}
                 </p>
               </div>
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsEditingProfile(true)}
-              className="text-white hover:bg-white/20"
-            >
-              <Edit3 className="h-5 w-5" />
-            </Button>
+            <div className="flex space-x-2">
+              {user ? (
+                <>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setIsEditingProfile(true)}
+                    className="hover:bg-gray-100 dark:hover:bg-gray-800"
+                  >
+                    <Edit3 className="h-5 w-5" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleLogout}
+                    className="hover:bg-gray-100 dark:hover:bg-gray-800"
+                  >
+                    <LogOut className="h-5 w-5" />
+                  </Button>
+                </>
+              ) : (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setIsLoginModalOpen(true)}
+                  className="hover:bg-gray-100 dark:hover:bg-gray-800"
+                >
+                  <LogIn className="h-5 w-5" />
+                </Button>
+              )}
+            </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-2 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-primary">
-                {bookings.length}
-              </div>
-              <div className="text-sm text-muted-foreground">Buchungen</div>
+      {/* Loyalty Progress Card - Uber/Flink Style */}
+      <Card className="bg-gradient-to-r from-gray-50 to-emerald-50 dark:from-gray-800 dark:to-emerald-900 border-0 shadow-lg">
+        <CardContent className="p-6">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-bold text-black dark:text-white">
+                {currentTier ? currentTier.icon : "🏆"} Bonus Progress
+              </h3>
+              {loyaltyProgress.availableRewards.length > 0 && (
+                <div className="bg-emerald-500 text-white px-3 py-1 rounded-full text-sm font-medium animate-pulse">
+                  Belohnung verfügbar!
+                </div>
+              )}
             </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-primary">
-                {(walletBalance.balance / 100).toFixed(0)}€
+            
+            <p className="text-gray-700 dark:text-gray-300 font-medium">
+              {getProgressText()}
+            </p>
+            
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
+                <span>📦 Buchungen: {loyaltyProgress.currentBookings}/{currentTier?.bookingsRequired || "∞"}</span>
+                <span>{Math.round(progressPercentage)}%</span>
               </div>
-              <div className="text-sm text-muted-foreground">Guthaben</div>
+              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 shadow-inner">
+                <motion.div
+                  className="bg-gradient-to-r from-emerald-400 to-emerald-500 h-full rounded-full shadow-sm"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${progressPercentage}%` }}
+                  transition={{ duration: 1, ease: "easeOut" }}
+                />
+              </div>
             </div>
-          </CardContent>
-        </Card>
-      </div>
+
+            {!user && (
+              <div className="mt-4 p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                  🔓 Profil erstellen & Bonus sichern
+                </p>
+                <Button 
+                  onClick={() => setIsLoginModalOpen(true)}
+                  className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 rounded-lg shadow-md flex items-center justify-center space-x-2"
+                >
+                  <LogIn className="h-5 w-5" />
+                  <span>Jetzt anmelden</span>
+                </Button>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Bonus Tier Preview */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center space-x-2">
+            <Gift className="h-5 w-5 text-emerald-500" />
+            <span>Belohnungsstufen</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {loyaltyTiers.map((tier, index) => (
+              <div 
+                key={tier.level}
+                className={`flex items-center justify-between p-3 rounded-lg border transition-all ${
+                  loyaltyProgress.currentBookings >= tier.bookingsRequired
+                    ? "bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-700"
+                    : loyaltyProgress.currentBookings >= (loyaltyTiers[index - 1]?.bookingsRequired || 0)
+                    ? "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700"
+                    : "bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-600"
+                }`}
+              >
+                <div className="flex items-center space-x-3">
+                  <div className="text-2xl">{tier.icon}</div>
+                  <div>
+                    <div className="font-medium text-black dark:text-white">
+                      {tier.reward}
+                    </div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                      {tier.bookingsRequired} Buchungen
+                    </div>
+                  </div>
+                </div>
+                {loyaltyProgress.currentBookings >= tier.bookingsRequired ? (
+                  <div className="text-emerald-500 font-bold">✓</div>
+                ) : (
+                  <div className="text-gray-400">
+                    {tier.bookingsRequired - loyaltyProgress.currentBookings}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Login Modal */}
+      <Dialog open={isLoginModalOpen} onOpenChange={setIsLoginModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center">Anmelden</DialogTitle>
+            <DialogDescription className="text-center">
+              Erstellen Sie ein Profil, um Ihre Belohnungen zu sichern
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">E-Mail</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="ihre@email.com"
+                value={loginData.email}
+                onChange={(e) => setLoginData(prev => ({ ...prev, email: e.target.value }))}
+                className="h-12 text-base"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Passwort</Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="Passwort eingeben"
+                value={loginData.password}
+                onChange={(e) => setLoginData(prev => ({ ...prev, password: e.target.value }))}
+                className="h-12 text-base"
+              />
+            </div>
+            <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
+              <input type="checkbox" id="privacy" className="rounded" defaultChecked />
+              <label htmlFor="privacy">
+                ☑️ Ich akzeptiere die Datenschutzerklärung
+              </label>
+            </div>
+            <Button
+              onClick={handleLogin}
+              disabled={!loginData.email || !loginData.password}
+              className="w-full h-12 bg-blue-500 hover:bg-blue-600 text-white font-medium"
+            >
+              Jetzt anmelden
+            </Button>
+            <p className="text-xs text-center text-gray-500 dark:text-gray-400">
+              Demo-Modus: Jede E-Mail/Passwort Kombination funktioniert
+            </p>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Main Menu Items (Cleaner werden, Freund einladen, Support kontaktieren) */}
       <Card>

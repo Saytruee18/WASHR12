@@ -1,0 +1,114 @@
+🔧 Replit-Textbeschreibung für Profil-Bereich (ohne Login-Zwang)
+Funktion & Design nach moderner App-Logik wie bei Uber, Flink oder Bolt
+
+🔹 1. Profilbereich (ganz rechts in der Bottom-Navigation)
+🔸 Wenn nicht angemeldet:
+Oben steht:
+
+Max Mustermann
+max@example.com (ausgegraut)
+
+Darunter:
+
+Fortschrittsanzeige als Balken + Text:
+
+🎁 Noch 2 Buchungen bis zu deinem kostenlosen Duftbaum!
+📦 Buchungen: 1/3
+
+Balken-Design:
+
+Modern, abgerundet (wie Ladebalken bei Flink)
+
+Farbverlauf von Hellgrau → Mintgrün bei Fortschritt
+
+Hinweis-Text darunter:
+
+🔓 Profil erstellen & Bonus sichern
+👉 Button: [Jetzt anmelden] (hellblau mit Google / Apple Icons)
+
+🔸 Wenn angemeldet:
+Oben:
+
+Profilbild oder Initialen im Kreis (wie bei Uber Eats)
+
+Darunter:
+
+👋 Hallo Linus
+📬 linus@email.com
+
+Dann:
+
+Fortschrittsleiste:
+
+🧼 6/10 Buchungen bis zu deiner Gratis-Innenreinigung!
+
+Button darunter:
+
+✏️ Profil bearbeiten
+⚙️ Datenschutzerklärung (Checkbox bei Anmeldung war Pflicht)
+
+🔹 2. Bonus-Logik (sichtbar im Profil)
+🎁 Bonus-Anreiz für nicht angemeldete Nutzer:
+Nach 3 erfolgreichen Buchungen erscheint:
+
+✅ Du hast dir einen Gratis-Duftbaum verdient!
+🔓 Erstelle ein Profil, um ihn bei der nächsten Wäsche zu bekommen
+
+→ Wenn Profil erstellt: Bonus automatisch für nächste Buchung aktiviert.
+
+🔹 3. Design-Inspo – an Bolt & Flink orientiert:
+Farbschema:
+
+Hintergrund Weiß (#ffffff)
+
+Icons in Mintgrün (#34D399) & Schwarz
+
+Sekundärfarben: Hellgrau (#F3F4F6), Softblau (#60A5FA)
+
+Balken animiert beim Fortschritt (smooth filling)
+
+Typografie:
+
+Headings: Bold, modern sans-serif
+
+Text: Klar, gut lesbar, keine Großbuchstaben schreien
+
+Layout:
+
+Viel Padding, keine überladenen Inhalte
+
+Abgerundete Container, Icons mit Schatten
+
+Bottom-Navigation clean und zentriert
+
+🔹 4. Bonus-Vorschläge (für spätere Stufen):
+Stufe	Buchungen	Bonus
+3	3x	Gratis Duftbaum "Fresh Drive 🌿"
+10	10x	Gratis Innenreinigung
+20	20x	Upgrade auf Premium Shampoo
+30	30x	50 % Rabatt auf nächste Buchung
+
+🔁 Diese Infos können unter der Fortschrittsanzeige als kleine Tabelle oder Icon-Karussell angezeigt werden.
+
+🔹 5. Anmeldung (nur optional):
+Öffnet sich nur, wenn:
+
+Man auf [Jetzt anmelden] klickt oder
+
+Eine Belohnung erhalten will
+
+Oder Profil bearbeiten wählt
+
+Modal mit:
+
+Google Login
+
+Apple Login (optional)
+
+Datenschutz-Checkbox:
+
+☑️ Ich akzeptiere die Datenschutzerklärung
+
+✅ Fazit für Replit
+Das Ganze wirkt wie ein Loyalty-System ohne Login-Zwang, mit klarer Belohnung und personalisiertem Gefühl – perfekt für On-Demand-Dienste.
+Psychologisch: Du triggerst Motivation, aber machst keine Hürde draus.
