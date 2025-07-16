@@ -61,7 +61,11 @@ interface LoginFormData {
   password: string;
 }
 
-export function ProfilePage() {
+interface ProfilePageProps {
+  initialMode?: 'profile' | 'login' | 'register';
+}
+
+export function ProfilePage({ initialMode = 'profile' }: ProfilePageProps = {}) {
   // Firebase integration with fallback
   let firebaseUser = null;
   let firebaseUserData = null;
@@ -93,8 +97,8 @@ export function ProfilePage() {
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [isCleanerFormOpen, setIsCleanerFormOpen] = useState(false);
   const [isLegalModalOpen, setIsLegalModalOpen] = useState(false);
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(initialMode === 'login');
+  const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(initialMode === 'register');
   const [selectedLegalContent, setSelectedLegalContent] = useState<
     string | null
   >(null);
@@ -722,6 +726,15 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
                   transition={{ duration: 1, ease: "easeOut" }}
                 />
               </div>
+            </div>
+
+            {/* Motivational Text */}
+            <div className="mt-4 p-4 bg-gradient-to-r from-primary/10 to-primary/5 rounded-lg border border-primary/20">
+              <p className="text-sm text-foreground font-medium text-center">
+                {currentBookings === 0 
+                  ? "Starte jetzt deine erste Buchung und erlebe unseren Premium-Autoreinigungsservice!" 
+                  : "Bereit für den nächsten Glanz? Buche jetzt deine Autoreinigung!"}
+              </p>
             </div>
 
             {/* Demo Button for Testing */}

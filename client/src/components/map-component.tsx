@@ -24,14 +24,14 @@ export function MapComponent({ onLocationOutsideMainz }: MapComponentProps) {
         // Demo map with modern styling
         if (mapRef.current) {
           mapRef.current.innerHTML = `
-            <div class="w-full h-full bg-gradient-to-br from-primary/10 to-primary/20 flex items-center justify-center relative rounded-t-[32px] cursor-pointer hover:from-primary/15 hover:to-primary/25 transition-all duration-300">
+            <div class="w-full h-full bg-gradient-to-br from-green-500/10 to-green-600/20 flex items-center justify-center relative rounded-t-[32px] cursor-pointer hover:from-green-500/15 hover:to-green-600/25 transition-all duration-300">
               <div class="absolute inset-0 bg-[url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="%23ffffff" stroke-width="0.5" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>')] opacity-30"></div>
               <div class="text-center z-10">
-                <div class="w-20 h-20 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur-sm border border-primary/30 hover:scale-105 transition-transform duration-200">
+                <div class="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur-sm border border-green-500/30 hover:scale-105 transition-transform duration-200">
                   <span class="text-3xl">📍</span>
                 </div>
                 <h3 class="text-lg font-semibold text-foreground mb-2">Mainz Servicebereich</h3>
-                <p class="text-sm text-muted-foreground">Klicken für Adresseingabe</p>
+                <p class="text-sm text-muted-foreground">✅ Grün = Service verfügbar</p>
               </div>
             </div>
           `;

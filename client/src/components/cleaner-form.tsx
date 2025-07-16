@@ -8,7 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import { ChevronLeft, User, Phone, Mail, FileText, CheckCircle } from "lucide-react";
+import { ChevronLeft, User, Phone, Mail, FileText, CheckCircle, Play, MapPin, MessageSquare, Upload } from "lucide-react";
 
 export function CleanerForm() {
   const [currentStep, setCurrentStep] = useState(1);
@@ -17,6 +17,9 @@ export function CleanerForm() {
     lastName: "",
     phone: "",
     email: "",
+    address: "",
+    postalCode: "",
+    city: "",
     motivation: "",
     hasDriversLicense: false,
     hasClearanceRecord: false,
@@ -59,7 +62,7 @@ export function CleanerForm() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.firstName || !formData.lastName || !formData.phone || !formData.email || !formData.motivation) {
+    if (!formData.firstName || !formData.lastName || !formData.phone || !formData.email || !formData.motivation || !formData.address || !formData.postalCode || !formData.city) {
       toast({
         title: "Fehler",
         description: "Bitte füllen Sie alle Pflichtfelder aus.",
@@ -85,7 +88,7 @@ export function CleanerForm() {
   };
 
   const nextStep = () => {
-    setCurrentStep(prev => Math.min(prev + 1, 4));
+    setCurrentStep(prev => Math.min(prev + 1, 6));
   };
 
   const prevStep = () => {
@@ -95,12 +98,16 @@ export function CleanerForm() {
   const canProceed = (step: number) => {
     switch (step) {
       case 1:
-        return formData.firstName && formData.lastName;
+        return true; // Marketing page, no validation needed
       case 2:
-        return formData.phone && formData.email;
+        return formData.firstName && formData.lastName;
       case 3:
-        return formData.motivation.trim().length > 0;
+        return formData.address && formData.postalCode && formData.city;
       case 4:
+        return formData.phone && formData.email;
+      case 5:
+        return formData.motivation.trim().length > 0;
+      case 6:
         return formData.hasDriversLicense && formData.hasClearanceRecord && formData.isOver18;
       default:
         return false;
@@ -113,6 +120,45 @@ export function CleanerForm() {
         return (
           <motion.div
             key="step1"
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -50 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="space-y-6"
+          >
+            <div className="text-center mb-8">
+              <Play className="mx-auto h-16 w-16 text-primary mb-4" />
+              <h3 className="text-2xl font-bold mb-2">Willkommen bei WASHR!</h3>
+              <p className="text-muted-foreground">Starte hier mit einem kurzen Einführungsvideo</p>
+            </div>
+
+            <div className="space-y-6">
+              <div className="bg-card/50 rounded-2xl p-6 border text-center">
+                <div className="w-full h-48 bg-gradient-to-br from-primary/10 to-primary/20 rounded-xl flex items-center justify-center mb-4">
+                  <div className="text-center">
+                    <Play className="mx-auto h-12 w-12 text-primary mb-2" />
+                    <p className="text-sm text-muted-foreground">Video kommt bald!</p>
+                  </div>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Starte hier mit einem kurzen Einführungsvideo — kommt bald!
+                </p>
+              </div>
+
+              <div className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-2xl p-6 border border-primary/20">
+                <h4 className="font-bold text-lg mb-3">💰 Verdienst-System</h4>
+                <p className="text-sm text-foreground">
+                  Bei uns wirst du nicht nach Stunden bezahlt, sondern für jede erfolgreich abgeschlossene Mission.
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        );
+
+      case 2:
+        return (
+          <motion.div
+            key="step2"
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -50 }}
@@ -153,51 +199,6 @@ export function CleanerForm() {
           </motion.div>
         );
 
-      case 2:
-        return (
-          <motion.div
-            key="step2"
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -50 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="space-y-6"
-          >
-            <div className="text-center mb-8">
-              <Phone className="mx-auto h-16 w-16 text-primary mb-4" />
-              <h3 className="text-2xl font-bold mb-2">Kontaktdaten</h3>
-              <p className="text-muted-foreground">Wie können wir Sie erreichen?</p>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="phone" className="text-lg font-medium">Telefonnummer</Label>
-                <Input
-                  id="phone"
-                  type="tel"
-                  value={formData.phone}
-                  onChange={(e) => handleInputChange("phone", e.target.value)}
-                  placeholder="+49 123 456 789"
-                  className="mt-3 text-lg py-4 touch-target mobile-optimized"
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="email" className="text-lg font-medium">E-Mail</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => handleInputChange("email", e.target.value)}
-                  placeholder="max@example.com"
-                  className="mt-3 text-lg py-4 touch-target mobile-optimized"
-                  required
-                />
-              </div>
-            </div>
-          </motion.div>
-        );
-
       case 3:
         return (
           <motion.div
@@ -209,21 +210,47 @@ export function CleanerForm() {
             className="space-y-6"
           >
             <div className="text-center mb-8">
-              <FileText className="mx-auto h-16 w-16 text-primary mb-4" />
-              <h3 className="text-2xl font-bold mb-2">Motivation</h3>
-              <p className="text-muted-foreground">Warum möchten Sie bei uns arbeiten?</p>
+              <MapPin className="mx-auto h-16 w-16 text-primary mb-4" />
+              <h3 className="text-2xl font-bold mb-2">Adresse</h3>
+              <p className="text-muted-foreground">Wo wohnen Sie?</p>
             </div>
 
-            <div>
-              <Label htmlFor="motivation" className="text-lg font-medium">Ihre Motivation</Label>
-              <Textarea
-                id="motivation"
-                value={formData.motivation}
-                onChange={(e) => handleInputChange("motivation", e.target.value)}
-                placeholder="Erzählen Sie uns von Ihrer Motivation..."
-                className="mt-3 text-base py-4 h-32 touch-target mobile-optimized"
-                required
-              />
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="address" className="text-lg font-medium">Straße & Hausnummer</Label>
+                <Input
+                  id="address"
+                  value={formData.address}
+                  onChange={(e) => handleInputChange("address", e.target.value)}
+                  placeholder="Musterstraße 123"
+                  className="mt-3 text-lg py-4 touch-target mobile-optimized"
+                  required
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="postalCode" className="text-lg font-medium">PLZ</Label>
+                  <Input
+                    id="postalCode"
+                    value={formData.postalCode}
+                    onChange={(e) => handleInputChange("postalCode", e.target.value)}
+                    placeholder="55116"
+                    className="mt-3 text-lg py-4 touch-target mobile-optimized"
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="city" className="text-lg font-medium">Stadt</Label>
+                  <Input
+                    id="city"
+                    value={formData.city}
+                    onChange={(e) => handleInputChange("city", e.target.value)}
+                    placeholder="Mainz"
+                    className="mt-3 text-lg py-4 touch-target mobile-optimized"
+                    required
+                  />
+                </div>
+              </div>
             </div>
           </motion.div>
         );
@@ -239,43 +266,139 @@ export function CleanerForm() {
             className="space-y-6"
           >
             <div className="text-center mb-8">
-              <CheckCircle className="mx-auto h-16 w-16 text-primary mb-4" />
-              <h3 className="text-2xl font-bold mb-2">Voraussetzungen</h3>
-              <p className="text-muted-foreground">Bestätigen Sie die Anforderungen</p>
+              <Phone className="mx-auto h-16 w-16 text-primary mb-4" />
+              <h3 className="text-2xl font-bold mb-2">Kontaktdaten</h3>
+              <p className="text-muted-foreground">Wie können wir Sie erreichen?</p>
             </div>
 
             <div className="space-y-4">
-              <div className="flex items-start space-x-3 p-4 bg-muted/30 rounded-lg">
-                <Checkbox
-                  id="hasDriversLicense"
-                  checked={formData.hasDriversLicense}
-                  onCheckedChange={(checked) => handleInputChange("hasDriversLicense", checked)}
+              <div>
+                <Label htmlFor="phone" className="text-lg font-medium">Telefon</Label>
+                <Input
+                  id="phone"
+                  value={formData.phone}
+                  onChange={(e) => handleInputChange("phone", e.target.value)}
+                  placeholder="+49 123 456 789"
+                  className="mt-3 text-lg py-4 touch-target mobile-optimized"
+                  required
                 />
-                <label htmlFor="hasDriversLicense" className="text-sm leading-5 cursor-pointer">
-                  Ich besitze einen gültigen Führerschein
-                </label>
+              </div>
+              <div>
+                <Label htmlFor="email" className="text-lg font-medium">E-Mail</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => handleInputChange("email", e.target.value)}
+                  placeholder="max@beispiel.de"
+                  className="mt-3 text-lg py-4 touch-target mobile-optimized"
+                  required
+                />
+              </div>
+            </div>
+          </motion.div>
+        );
+
+      case 5:
+        return (
+          <motion.div
+            key="step5"
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -50 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="space-y-6"
+          >
+            <div className="text-center mb-8">
+              <MessageSquare className="mx-auto h-16 w-16 text-primary mb-4" />
+              <h3 className="text-2xl font-bold mb-2">Motivation</h3>
+              <p className="text-muted-foreground">Warum möchten Sie bei uns arbeiten?</p>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="motivation" className="text-lg font-medium">Ihre Motivation</Label>
+                <Textarea
+                  id="motivation"
+                  value={formData.motivation}
+                  onChange={(e) => handleInputChange("motivation", e.target.value)}
+                  placeholder="Erzählen Sie uns, warum Sie gerne bei WASHR arbeiten möchten..."
+                  className="mt-3 text-lg py-4 touch-target mobile-optimized min-h-[120px]"
+                  required
+                />
+              </div>
+            </div>
+          </motion.div>
+        );
+
+      case 6:
+        return (
+          <motion.div
+            key="step6"
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -50 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="space-y-6"
+          >
+            <div className="text-center mb-8">
+              <Upload className="mx-auto h-16 w-16 text-primary mb-4" />
+              <h3 className="text-2xl font-bold mb-2">Bewerbungsunterlagen</h3>
+              <p className="text-muted-foreground">Bestätigen Sie die Voraussetzungen</p>
+            </div>
+
+            <div className="space-y-6">
+              <div className="bg-card/50 rounded-2xl p-6 border space-y-4">
+                <div className="flex items-start space-x-3">
+                  <Checkbox
+                    id="driversLicense"
+                    checked={formData.hasDriversLicense}
+                    onCheckedChange={(checked) => handleInputChange("hasDriversLicense", checked)}
+                    className="mt-1"
+                  />
+                  <Label htmlFor="driversLicense" className="text-sm font-medium leading-relaxed">
+                    Ich besitze einen gültigen Führerschein
+                  </Label>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <Checkbox
+                    id="clearanceRecord"
+                    checked={formData.hasClearanceRecord}
+                    onCheckedChange={(checked) => handleInputChange("hasClearanceRecord", checked)}
+                    className="mt-1"
+                  />
+                  <Label htmlFor="clearanceRecord" className="text-sm font-medium leading-relaxed">
+                    Ich kann ein einwandfreies Führungszeugnis vorlegen
+                  </Label>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <Checkbox
+                    id="over18"
+                    checked={formData.isOver18}
+                    onCheckedChange={(checked) => handleInputChange("isOver18", checked)}
+                    className="mt-1"
+                  />
+                  <Label htmlFor="over18" className="text-sm font-medium leading-relaxed">
+                    Ich bin mindestens 18 Jahre alt
+                  </Label>
+                </div>
               </div>
 
-              <div className="flex items-start space-x-3 p-4 bg-muted/30 rounded-lg">
-                <Checkbox
-                  id="hasClearanceRecord"
-                  checked={formData.hasClearanceRecord}
-                  onCheckedChange={(checked) => handleInputChange("hasClearanceRecord", checked)}
-                />
-                <label htmlFor="hasClearanceRecord" className="text-sm leading-5 cursor-pointer">
-                  Ich habe ein einwandfreies Führungszeugnis
-                </label>
-              </div>
-
-              <div className="flex items-start space-x-3 p-4 bg-muted/30 rounded-lg">
-                <Checkbox
-                  id="isOver18"
-                  checked={formData.isOver18}
-                  onCheckedChange={(checked) => handleInputChange("isOver18", checked)}
-                />
-                <label htmlFor="isOver18" className="text-sm leading-5 cursor-pointer">
-                  Ich bin mindestens 18 Jahre alt
-                </label>
+              <div className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-2xl p-6 border border-primary/20">
+                <h4 className="font-bold text-lg mb-3">📄 Bewerbungsschreiben & Zertifikate</h4>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Laden Sie optional Ihr Bewerbungsschreiben und relevante Zertifikate hoch.
+                </p>
+                <div className="space-y-3">
+                  <div className="border-2 border-dashed border-primary/30 rounded-xl p-4 text-center">
+                    <Upload className="mx-auto h-8 w-8 text-primary mb-2" />
+                    <p className="text-sm text-muted-foreground">Bewerbungsschreiben hochladen</p>
+                  </div>
+                  <div className="border-2 border-dashed border-primary/30 rounded-xl p-4 text-center">
+                    <Upload className="mx-auto h-8 w-8 text-primary mb-2" />
+                    <p className="text-sm text-muted-foreground">Zertifikate hochladen</p>
+                  </div>
+                </div>
               </div>
             </div>
           </motion.div>
@@ -299,14 +422,14 @@ export function CleanerForm() {
         {/* Progress Bar */}
         <div className="mb-8">
           <div className="flex justify-between mb-2">
-            <span className="text-sm text-muted-foreground">Schritt {currentStep} von 4</span>
-            <span className="text-sm text-muted-foreground">{Math.round((currentStep / 4) * 100)}%</span>
+            <span className="text-sm text-muted-foreground">Schritt {currentStep} von 6</span>
+            <span className="text-sm text-muted-foreground">{Math.round((currentStep / 6) * 100)}%</span>
           </div>
           <div className="w-full bg-muted rounded-full h-2">
             <motion.div
               className="bg-primary h-2 rounded-full"
-              initial={{ width: "25%" }}
-              animate={{ width: `${(currentStep / 4) * 100}%` }}
+              initial={{ width: "16.66%" }}
+              animate={{ width: `${(currentStep / 6) * 100}%` }}
               transition={{ duration: 0.3 }}
             />
           </div>
@@ -332,15 +455,15 @@ export function CleanerForm() {
                 <span>Zurück</span>
               </Button>
             ) : (
-              <div></div>
+              <div /> // Empty div to maintain layout
             )}
 
-            {currentStep < 4 ? (
+            {currentStep < 6 ? (
               <Button
                 type="button"
                 onClick={nextStep}
                 disabled={!canProceed(currentStep)}
-                className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3 rounded-2xl font-semibold touch-target mobile-optimized"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-3 rounded-xl font-medium"
               >
                 Weiter
               </Button>
@@ -348,9 +471,9 @@ export function CleanerForm() {
               <Button
                 type="submit"
                 disabled={!canProceed(currentStep) || submitApplicationMutation.isPending}
-                className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3 rounded-2xl font-semibold touch-target mobile-optimized"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-3 rounded-xl font-medium"
               >
-                {submitApplicationMutation.isPending ? "Wird eingereicht..." : "Bewerbung einreichen"}
+                {submitApplicationMutation.isPending ? "Wird gesendet..." : "Bewerbung senden"}
               </Button>
             )}
           </div>

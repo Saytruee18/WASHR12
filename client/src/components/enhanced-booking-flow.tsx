@@ -94,6 +94,7 @@ export function EnhancedBookingFlow({ selectedPackage, onComplete, onCancel }: E
   const [skipLicensePlate, setSkipLicensePlate] = useState(false);
   const [formData, setFormData] = useState({
     location: "",
+    locationDetails: "",
     vehicleType: "",
     licensePlate: "",
     date: "",
@@ -464,7 +465,16 @@ export function EnhancedBookingFlow({ selectedPackage, onComplete, onCancel }: E
                     onChange={(e) => setFormData({...formData, location: e.target.value})}
                     placeholder="Adresse eingeben..."
                     className="text-base p-4 rounded-2xl border-2"
+                    autoComplete="address-line1"
                   />
+                  {formData.location && (
+                    <Input
+                      value={formData.locationDetails || ''}
+                      onChange={(e) => setFormData({...formData, locationDetails: e.target.value})}
+                      placeholder="Hausnummer, Stockwerk oder weitere Angaben (optional)"
+                      className="text-base p-4 rounded-2xl border-2"
+                    />
+                  )}
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
@@ -511,6 +521,17 @@ export function EnhancedBookingFlow({ selectedPackage, onComplete, onCancel }: E
 
               <div className="text-center text-sm text-muted-foreground p-4 bg-muted/50 rounded-xl">
                 Wir kommen zum gewählten Zeitpunkt direkt zu deinem Standort.
+              </div>
+
+              {/* Pay Now Button */}
+              <div className="pt-4">
+                <Button
+                  onClick={handleComplete}
+                  disabled={!formData.location || !formData.date || !formData.timeSlot}
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-4 text-lg font-semibold rounded-2xl touch-target mobile-optimized disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Jetzt bezahlen
+                </Button>
               </div>
             </div>
           </motion.div>

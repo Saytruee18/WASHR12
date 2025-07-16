@@ -17,6 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 export function ProfileDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [profileMode, setProfileMode] = useState<'profile' | 'login' | 'register'>('profile');
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   
@@ -102,8 +103,24 @@ export function ProfileDropdown() {
   const getMenuItems = () => {
     if (!isLoggedIn) {
       return [
-        { icon: UserPlus, label: "Registrieren", action: () => { setIsProfileOpen(true); setIsOpen(false); }, openProfile: true, authAction: "register" },
-        { icon: LogIn, label: "Anmelden", action: () => { setIsProfileOpen(true); setIsOpen(false); }, openProfile: true, authAction: "login" },
+        { 
+          icon: UserPlus, 
+          label: "Registrieren", 
+          action: () => { 
+            setProfileMode('register'); 
+            setIsProfileOpen(true); 
+            setIsOpen(false); 
+          } 
+        },
+        { 
+          icon: LogIn, 
+          label: "Anmelden", 
+          action: () => { 
+            setProfileMode('login'); 
+            setIsProfileOpen(true); 
+            setIsOpen(false); 
+          } 
+        },
         {
           icon: Mail,
           label: "Support kontaktieren",
@@ -113,7 +130,15 @@ export function ProfileDropdown() {
     }
 
     return [
-      { icon: User, label: "Mein Profil", action: () => { setIsProfileOpen(true); setIsOpen(false); }, openProfile: true },
+      { 
+        icon: User, 
+        label: "Mein Profil", 
+        action: () => { 
+          setProfileMode('profile'); 
+          setIsProfileOpen(true); 
+          setIsOpen(false); 
+        } 
+      },
       {
         icon: Mail,
         label: "Support kontaktieren",
@@ -215,7 +240,7 @@ export function ProfileDropdown() {
       {isProfileOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="relative w-full max-w-md max-h-[90vh] overflow-auto bg-card rounded-lg shadow-xl">
-            <ProfilePage />
+            <ProfilePage initialMode={profileMode} />
             <button
               onClick={() => setIsProfileOpen(false)}
               className="absolute top-4 right-4 text-muted-foreground hover:text-foreground"

@@ -19,31 +19,31 @@ const LOYALTY_STORAGE_KEY = 'washr_loyalty';
 export const loyaltyTiers: LoyaltyTier[] = [
   {
     level: 1,
-    bookingsRequired: 3,
-    reward: 'Gratis Duftbaum "Fresh Drive 🌿"',
+    bookingsRequired: 2,
+    reward: 'WASHR Duftbaum',
     description: 'Noch %d Buchungen bis zu deinem kostenlosen Duftbaum!',
     icon: '🌿'
   },
   {
     level: 2,
-    bookingsRequired: 10,
-    reward: 'Gratis Innenreinigung',
-    description: '%d/%d Buchungen bis zu deiner Gratis-Innenreinigung!',
-    icon: '🧼'
-  },
-  {
-    level: 3,
-    bookingsRequired: 20,
-    reward: 'Upgrade auf Premium Shampoo',
-    description: '%d/%d Buchungen bis zum Premium Shampoo Upgrade!',
+    bookingsRequired: 3,
+    reward: 'Premium Shampoo',
+    description: '%d/%d Buchungen bis zum Premium Shampoo!',
     icon: '✨'
   },
   {
-    level: 4,
-    bookingsRequired: 30,
-    reward: '50% Rabatt auf nächste Buchung',
+    level: 3,
+    bookingsRequired: 5,
+    reward: '50% Rabatt',
     description: '%d/%d Buchungen bis zu 50% Rabatt!',
     icon: '🎁'
+  },
+  {
+    level: 4,
+    bookingsRequired: 7,
+    reward: 'Gratis Innenreinigung',
+    description: '%d/%d Buchungen bis zur Gratis-Innenreinigung!',
+    icon: '🧼'
   }
 ];
 

@@ -1,0 +1,118 @@
+1. Dropdown Menu for Login and Register
+The dropdown menu for "Login" and "Register" is currently broken. When users click on either option, they are incorrectly redirected directly to the profile page, which is a bug. Instead, the correct behavior is:
+
+When a user clicks Login in the dropdown, they should be redirected to the dedicated Login page where they can enter their credentials.
+
+When a user clicks Register in the dropdown, they should be redirected to the dedicated Registration page where they can create a new account.
+
+Ensure that these links point exactly to the correct existing pages, and no automatic redirect to the profile page should happen at this point.
+
+2. Bonus System & Reward Progress
+The bonus rewards for bookings should be motivational and realistic, based on achievable milestones. Update the bonus levels as follows:
+
+After 2 bookings: The user unlocks a free WASHR Duftbaum (car freshener).
+
+After 3 bookings: The user receives a free Premium Shampoo for their car cleaning.
+
+After 5 bookings: The user gets 50% off the next booking.
+
+After 7 bookings: The user unlocks a free interior cleaning.
+
+Implementation details:
+
+The bonus status and progress must be tracked automatically after every completed booking.
+
+Bonus rewards should appear directly in the add-ons section during booking, clearly labeled, e.g. "Kostenloser Duftbaum (Bonus)", "50% Rabatt (Bonus)".
+
+When a bonus is applied, the prices in the add-ons should automatically update:
+
+50% discount halves the total price of the booking.
+
+Free interior cleaning sets the price for interior cleaning to 0 €, but only for that specific add-on, not the entire booking.
+
+The bonus progress should update dynamically after each booking and be visually represented, for example with a progress bar and milestone icons.
+
+3. Cleaner Selection Animation
+The cleaner selection step in the booking process should have the same smooth, step-by-step animated flow as the car selection step. This means:
+
+Each step appears with a smooth transition.
+
+The user can clearly see which step they are on and progress intuitively through selecting the cleaner.
+
+4. Booking Add-ons Page Navigation
+Currently, after selecting add-ons in the booking process, there is no "Next" button to proceed further. Please add a clear and visible Next button at the bottom of the add-ons page so the user can continue smoothly.
+
+5. License Plate Input Design
+The input design for license plate entry needs to be cleaner and more user-friendly:
+
+The option "Continue without license plate" should appear as a primary button at the bottom of the page.
+
+The Back button should be placed above the continue button, separated visually to avoid confusion.
+
+6. Address Input with Google Maps Autocomplete
+Improve the address input field by integrating Google Maps Autocomplete:
+
+When the user starts typing their location, the app should suggest matching addresses in real-time.
+
+The user can quickly select one of the suggested addresses to autofill the field.
+
+After selecting the main address, an additional input field should appear for more details, such as house number, floor, or other notes.
+
+Example placeholder for extra details:
+„Hausnummer, Stockwerk oder weitere Angaben (optional)“
+
+7. Payment Button Activation
+On the booking page, after entering location, date, and time, a "Jetzt bezahlen" (Pay now) button should appear below these inputs.
+
+This button should remain disabled until all required fields are correctly filled out.
+
+Only when the form is complete and valid should the button become clickable to proceed with payment.
+
+8. Map Display and Availability Indicator
+The current map is not working properly — it keeps loading without showing anything. This must be fixed and optimized:
+
+The map should load quickly and clearly display the service availability by region.
+
+Use color coding:
+
+Green areas show where car cleaning is available.
+
+Red areas indicate no service possible.
+
+This allows users to immediately see if their location is within the service area.
+
+9. Profile Page – Motivational Text
+On the profile page, below the "Last booking" section, add a motivational message tailored to the user's booking history:
+
+If the user has no previous bookings, show:
+„Starte jetzt deine erste Buchung und erlebe unseren Premium-Autoreinigungsservice!“
+
+If the user has at least one booking, show:
+„Bereit für den nächsten Glanz? Buche jetzt deine Autoreinigung!“
+
+All user interface texts should remain in German for consistency.
+
+10. Cleaner Section – Marketing & Onboarding Flow
+The cleaner onboarding should be designed in several clear steps with marketing content upfront:
+
+First page:
+A short introductory video (to be uploaded later) with this text above it:
+„Starte hier mit einem kurzen Einführungsvideo — kommt bald!
+Bei uns wirst du nicht nach Stunden bezahlt, sondern für jede erfolgreich abgeschlossene Mission.“
+
+Second page:
+Input fields for Vorname und Nachname (already existing, but move it here).
+
+Third page:
+More detailed personal information such as Adresse, Straße, PLZ, etc.
+
+Fourth page:
+Contact information (existing contact page).
+
+Fifth page:
+Motivation page (why the cleaner wants to work here).
+
+Sixth page:
+Upload options for Bewerbungsschreiben und Zertifikate.
+
+This step-by-step flow makes onboarding easy to understand and complete.
