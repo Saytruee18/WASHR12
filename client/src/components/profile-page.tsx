@@ -36,6 +36,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { authStorage, User as AuthUser, UserBookingData } from "@/lib/auth-storage";
 import { loyaltyStorage, loyaltyTiers } from "@/lib/loyalty-storage";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface ProfileData {
   firstName: string;
@@ -50,10 +51,33 @@ interface LoginFormData {
 }
 
 export function ProfilePage() {
+  // Firebase integration with fallback
+  let firebaseUser = null;
+  let firebaseUserData = null;
+  let authLoading = false;
+  let login = null;
+  let register = null;
+  let logout = null;
+  let updateUserBookings = null;
+  
+  try {
+    const auth = useAuth();
+    firebaseUser = auth.user;
+    firebaseUserData = auth.userData;
+    authLoading = auth.loading;
+    login = auth.login;
+    register = auth.register;
+    logout = auth.logout;
+    updateUserBookings = auth.updateUserBookings;
+  } catch (error) {
+    // Firebase not configured, fall back to localStorage-based auth
+    console.log('Firebase not configured, using localStorage auth');
+  }
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [isCleanerFormOpen, setIsCleanerFormOpen] = useState(false);
   const [isLegalModalOpen, setIsLegalModalOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
   const [selectedLegalContent, setSelectedLegalContent] = useState<string | null>(null);
   const [user, setUser] = useState<AuthUser | null>(null);
   const [userData, setUserData] = useState<UserBookingData | null>(null);
@@ -68,29 +92,55 @@ export function ProfilePage() {
     email: "",
     password: "",
   });
+  const [registerData, setRegisterData] = useState({
+    email: "",
+    password: "",
+    firstName: "",
+    lastName: "",
+  });
   const { toast } = useToast();
 
+  // Sync Firebase user with local state
   useEffect(() => {
-    // Check if user is logged in on component mount
-    const currentUser = authStorage.getUser();
-    if (currentUser) {
-      setUser(currentUser);
-      setProfileData({
-        firstName: currentUser.firstName,
-        lastName: currentUser.lastName,
-        email: currentUser.email,
-        phone: "+49 123 456 789", // Default phone
+    if (firebaseUser && firebaseUserData) {
+      setUser({
+        uid: firebaseUser.uid,
+        email: firebaseUser.email || '',
+        firstName: firebaseUserData.firstName,
+        lastName: firebaseUserData.lastName,
+        displayName: firebaseUserData.displayName,
+        joinDate: firebaseUserData.joinDate,
+        bookings: firebaseUserData.bookings,
+        lastBookingDate: firebaseUserData.lastBookingDate
       });
       
-      // Load user data
-      const currentUserData = authStorage.getUserData();
-      setUserData(currentUserData);
-    } else {
+      setUserData({
+        bookings: firebaseUserData.bookings,
+        lastBookingDate: firebaseUserData.lastBookingDate,
+        earnedRewards: firebaseUserData.earnedRewards,
+        availableRewards: firebaseUserData.availableRewards
+      });
+      
+      setProfileData({
+        firstName: firebaseUserData.firstName,
+        lastName: firebaseUserData.lastName,
+        email: firebaseUser.email || '',
+        phone: "+49 123 456 789"
+      });
+    } else if (!firebaseUser) {
       // Guest mode - load guest bookings
       const guestBookingCount = loyaltyStorage.getGuestBookings();
       setGuestBookings(guestBookingCount);
+      setUser(null);
+      setUserData(null);
+      setProfileData({
+        firstName: "",
+        lastName: "",
+        email: "",
+        phone: "+49 123 456 789"
+      });
     }
-  }, []);
+  }, [firebaseUser, firebaseUserData]);
 
   const legalTexts = {
     impressum: {
@@ -179,36 +229,39 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
 
   // Real-time data synchronization
   useEffect(() => {
-    if (user) {
-      // Handle guest booking transfer on login
-      const guestBookingCount = loyaltyStorage.getGuestBookings();
-      if (guestBookingCount > 0) {
-        const mergedData = authStorage.mergeGuestBookingsWithUser(guestBookingCount);
-        setUserData(mergedData);
-        loyaltyStorage.clearGuestBookings();
-        
-        toast({
-          title: "Willkommen zurück!",
-          description: `Ihre ${guestBookingCount} Gastbuchungen wurden übertragen.`,
-        });
-      }
-      
-      // Update loyalty progress with real bookings + user data
-      const totalBookings = Math.max(bookings.length, userData?.bookings || 0);
+    if (firebaseUser && firebaseUserData) {
+      // Update loyalty progress with Firebase user data
+      const totalBookings = Math.max(bookings.length, firebaseUserData.bookings || 0);
       loyaltyStorage.updateProgress(totalBookings);
     } else {
       // Guest mode - update loyalty progress with guest bookings
       loyaltyStorage.updateProgress(guestBookings);
     }
-  }, [user, bookings.length, userData?.bookings]);
+  }, [firebaseUser, firebaseUserData, bookings.length, guestBookings]);
 
   // Handle new bookings
   const handleBookingComplete = async () => {
-    if (user) {
+    if (firebaseUser && updateUserBookings) {
+      try {
+        await updateUserBookings();
+        toast({
+          title: "Buchung hinzugefügt!",
+          description: "Ihr Fortschritt wurde aktualisiert.",
+        });
+      } catch (error) {
+        toast({
+          title: "Fehler",
+          description: "Buchung konnte nicht hinzugefügt werden.",
+          variant: "destructive",
+        });
+      }
+    } else if (user) {
+      // Fallback to localStorage for authenticated users
       const updatedData = authStorage.incrementUserBookings();
       setUserData(updatedData);
       loyaltyStorage.updateProgress(updatedData.bookings);
     } else {
+      // Guest mode
       const newCount = Math.min(guestBookings + 1, 10);
       setGuestBookings(newCount);
       loyaltyStorage.setGuestBookings(newCount);
@@ -217,37 +270,51 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
   };
 
   // Get current booking count for display
-  const currentBookings = user ? (userData?.bookings || 0) : guestBookings;
+  const currentBookings = firebaseUser ? (firebaseUserData?.bookings || 0) : guestBookings;
   const loyaltyProgress = loyaltyStorage.getProgress();
   const currentTier = loyaltyStorage.getCurrentTier();
   const progressPercentage = loyaltyStorage.getProgressPercentage();
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     try {
-      const loggedInUser = authStorage.login(loginData.email, loginData.password);
-      setUser(loggedInUser);
-      setProfileData({
-        firstName: loggedInUser.firstName,
-        lastName: loggedInUser.lastName,
-        email: loggedInUser.email,
-        phone: "+49 123 456 789",
-      });
+      const guestBookingCount = loyaltyStorage.getGuestBookings();
       
-      // Initialize user data
-      const currentUserData = authStorage.getUserData() || {
-        bookings: 0,
-        earnedRewards: [],
-        availableRewards: []
-      };
-      setUserData(currentUserData);
+      if (login) {
+        // Firebase login
+        await login(loginData.email, loginData.password);
+      } else {
+        // Fallback to localStorage login
+        const loggedInUser = authStorage.login(loginData.email, loginData.password);
+        setUser(loggedInUser);
+        setProfileData({
+          firstName: loggedInUser.firstName,
+          lastName: loggedInUser.lastName,
+          email: loggedInUser.email,
+          phone: "+49 123 456 789",
+        });
+        
+        // Transfer guest bookings
+        if (guestBookingCount > 0) {
+          const mergedData = authStorage.mergeGuestBookingsWithUser(guestBookingCount);
+          setUserData(mergedData);
+          loyaltyStorage.clearGuestBookings();
+        }
+      }
       
       setIsLoginModalOpen(false);
       setLoginData({ email: "", password: "" });
       
-      toast({
-        title: "Anmeldung erfolgreich!",
-        description: `Willkommen zurück, ${loggedInUser.displayName}!`,
-      });
+      if (guestBookingCount > 0) {
+        toast({
+          title: "Anmeldung erfolgreich!",
+          description: `Willkommen zurück! ${guestBookingCount} Gastbuchungen wurden übertragen.`,
+        });
+      } else {
+        toast({
+          title: "Anmeldung erfolgreich!",
+          description: "Willkommen zurück!",
+        });
+      }
     } catch (error) {
       toast({
         title: "Anmeldung fehlgeschlagen",
@@ -257,26 +324,87 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
     }
   };
 
-  const handleLogout = () => {
-    const currentUserName = user?.displayName || "User";
-    authStorage.logout();
-    setUser(null);
-    setUserData(null);
-    setProfileData({
-      firstName: "",
-      lastName: "",
-      email: "",
-      phone: "+49 123 456 789",
-    });
+  const handleRegister = async () => {
+    try {
+      if (register) {
+        // Firebase registration
+        await register(registerData.email, registerData.password, registerData.firstName, registerData.lastName);
+      } else {
+        // Fallback to localStorage registration
+        const newUser = authStorage.login(registerData.email, registerData.password);
+        setUser({
+          ...newUser,
+          firstName: registerData.firstName,
+          lastName: registerData.lastName,
+          displayName: `${registerData.firstName} ${registerData.lastName}`
+        });
+        setProfileData({
+          firstName: registerData.firstName,
+          lastName: registerData.lastName,
+          email: registerData.email,
+          phone: "+49 123 456 789",
+        });
+        
+        // Transfer guest bookings
+        const guestBookingCount = loyaltyStorage.getGuestBookings();
+        if (guestBookingCount > 0) {
+          const mergedData = authStorage.mergeGuestBookingsWithUser(guestBookingCount);
+          setUserData(mergedData);
+          loyaltyStorage.clearGuestBookings();
+        }
+      }
+      
+      setIsRegisterModalOpen(false);
+      setRegisterData({ email: "", password: "", firstName: "", lastName: "" });
+      
+      toast({
+        title: "Registrierung erfolgreich!",
+        description: `Willkommen bei WASHR, ${registerData.firstName}!`,
+      });
+    } catch (error) {
+      toast({
+        title: "Registrierung fehlgeschlagen",
+        description: "Bitte überprüfen Sie Ihre Eingaben.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleLogout = async () => {
+    const currentUserName = (firebaseUser?.displayName || user?.displayName) || "User";
     
-    // Reset to guest mode
-    const guestBookingCount = loyaltyStorage.getGuestBookings();
-    setGuestBookings(guestBookingCount);
-    
-    toast({
-      title: "Auf Wiedersehen!",
-      description: `Bis bald, ${currentUserName}! Sie wurden erfolgreich abgemeldet.`,
-    });
+    try {
+      if (logout) {
+        // Firebase logout
+        await logout();
+      } else {
+        // Fallback to localStorage logout
+        authStorage.logout();
+        setUser(null);
+        setUserData(null);
+        setProfileData({
+          firstName: "",
+          lastName: "",
+          email: "",
+          phone: "+49 123 456 789",
+        });
+        
+        // Reset to guest mode
+        const guestBookingCount = loyaltyStorage.getGuestBookings();
+        setGuestBookings(guestBookingCount);
+      }
+      
+      toast({
+        title: "Auf Wiedersehen!",
+        description: `Bis bald, ${currentUserName}! Sie wurden erfolgreich abgemeldet.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Fehler beim Abmelden",
+        description: "Bitte versuchen Sie es erneut.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleSaveProfile = () => {
@@ -548,8 +676,108 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
             >
               Jetzt anmelden
             </Button>
+            <div className="text-center">
+              <Button
+                variant="link"
+                onClick={() => {
+                  setIsLoginModalOpen(false);
+                  setIsRegisterModalOpen(true);
+                }}
+                className="text-sm text-blue-600 hover:text-blue-800"
+              >
+                Noch kein Konto? Hier registrieren
+              </Button>
+            </div>
             <p className="text-xs text-center text-gray-500 dark:text-gray-400">
               Demo-Modus: Jede E-Mail/Passwort Kombination funktioniert
+            </p>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Register Modal */}
+      <Dialog open={isRegisterModalOpen} onOpenChange={setIsRegisterModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center">Registrieren</DialogTitle>
+            <DialogDescription className="text-center">
+              Erstellen Sie ein neues Konto bei WASHR
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="firstName">Vorname</Label>
+                <Input
+                  id="firstName"
+                  type="text"
+                  placeholder="Max"
+                  value={registerData.firstName}
+                  onChange={(e) => setRegisterData(prev => ({ ...prev, firstName: e.target.value }))}
+                  className="h-12 text-base"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="lastName">Nachname</Label>
+                <Input
+                  id="lastName"
+                  type="text"
+                  placeholder="Mustermann"
+                  value={registerData.lastName}
+                  onChange={(e) => setRegisterData(prev => ({ ...prev, lastName: e.target.value }))}
+                  className="h-12 text-base"
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="registerEmail">E-Mail</Label>
+              <Input
+                id="registerEmail"
+                type="email"
+                placeholder="max@example.com"
+                value={registerData.email}
+                onChange={(e) => setRegisterData(prev => ({ ...prev, email: e.target.value }))}
+                className="h-12 text-base"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="registerPassword">Passwort</Label>
+              <Input
+                id="registerPassword"
+                type="password"
+                placeholder="Passwort eingeben"
+                value={registerData.password}
+                onChange={(e) => setRegisterData(prev => ({ ...prev, password: e.target.value }))}
+                className="h-12 text-base"
+              />
+            </div>
+            <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
+              <input type="checkbox" id="registerPrivacy" className="rounded" defaultChecked />
+              <label htmlFor="registerPrivacy">
+                ☑️ Ich akzeptiere die AGB und Datenschutzerklärung
+              </label>
+            </div>
+            <Button
+              onClick={handleRegister}
+              disabled={!registerData.email || !registerData.password || !registerData.firstName || !registerData.lastName}
+              className="w-full h-12 bg-green-500 hover:bg-green-600 text-white font-medium"
+            >
+              Jetzt registrieren
+            </Button>
+            <div className="text-center">
+              <Button
+                variant="link"
+                onClick={() => {
+                  setIsRegisterModalOpen(false);
+                  setIsLoginModalOpen(true);
+                }}
+                className="text-sm text-blue-600 hover:text-blue-800"
+              >
+                Bereits registriert? Hier anmelden
+              </Button>
+            </div>
+            <p className="text-xs text-center text-gray-500 dark:text-gray-400">
+              Demo-Modus: Jede Eingabe funktioniert
             </p>
           </div>
         </DialogContent>
