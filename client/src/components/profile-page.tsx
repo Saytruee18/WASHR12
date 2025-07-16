@@ -619,7 +619,7 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
   return (
     <div className="space-y-6 pb-20">
       {/* Profile Header */}
-      <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700">
+      <Card className="bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700">
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
@@ -767,7 +767,7 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
       </Card>
 
       {/* Bonus Tier Preview */}
-      <Card>
+      <Card className="bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700">
         <CardHeader>
           <CardTitle className="text-lg flex items-center space-x-2">
             <Gift className="h-5 w-5 text-emerald-500" />
@@ -1127,7 +1127,7 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
       </Dialog>
 
       {/* Main Menu Items (Cleaner werden, Freund einladen, Support kontaktieren) */}
-      <Card>
+      <Card className="bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700">
         <CardContent className="p-0">
           <div className="space-y-0">
             <motion.button
@@ -1181,7 +1181,7 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
       </Card>
 
       {/* CARD FÜR RECHTLICHE HINWEISE */}
-      <Card>
+      <Card className="bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700">
         <CardHeader>
           <CardTitle className="text-lg">Rechtliche Hinweise</CardTitle>
         </CardHeader>
@@ -1256,7 +1256,7 @@ Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular a
       </Card>
 
       {/* Recent Bookings */}
-      <Card>
+      <Card className="bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700">
         <CardHeader>
           <CardTitle className="text-lg">Letzte Buchungen</CardTitle>
         </CardHeader>
