@@ -41,7 +41,7 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
     return '👋';
   };
 
-  // OpenStreetMap Nominatim API for address suggestions
+  // Enhanced OpenStreetMap Nominatim API for address suggestions with house number validation
   const getAutocompleteSuggestions = useCallback(async (input: string) => {
     if (input.length < 3) {
       setSuggestions([]);
@@ -60,16 +60,26 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
       const results = await response.json();
 
       if (results.length > 0) {
-        // Convert OpenStreetMap results to our format
-        const osmSuggestions = results.map((place: any, index: number) => ({
-          place_id: place.place_id || `osm_${index}`,
-          description: place.display_name,
-          structured_formatting: {
-            main_text: place.display_name.split(',')[0],
-            secondary_text: place.display_name.split(',').slice(1).join(',')
-          },
-          osmData: place // Store original OSM data for validation
-        }));
+        // Convert OpenStreetMap results to our format with enhanced validation
+        const osmSuggestions = results.map((place: any, index: number) => {
+          const address = place.address || {};
+          const city = address.city || address.town || address.village || address.municipality || '';
+          const houseNumber = address.house_number || '';
+          
+          return {
+            place_id: place.place_id || `osm_${index}`,
+            description: place.display_name,
+            structured_formatting: {
+              main_text: place.display_name.split(',')[0],
+              secondary_text: place.display_name.split(',').slice(1).join(',')
+            },
+            osmData: place, // Store original OSM data for validation
+            isMainz: city.toLowerCase() === 'mainz',
+            hasHouseNumber: !!houseNumber,
+            isComplete: city.toLowerCase() === 'mainz' && !!houseNumber
+          };
+        });
+        
         setSuggestions(osmSuggestions as any);
         setShowSuggestions(true);
       } else {
@@ -132,18 +142,35 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
     getAutocompleteSuggestions(value);
   };
 
-  // Handle suggestion selection
+  // Enhanced suggestion selection with strict validation
   const handleSuggestionSelect = (suggestion: any) => {
     setAddressInput(suggestion.description);
     setShowSuggestions(false);
     
-    // For OpenStreetMap results, check the city from address details
+    // For OpenStreetMap results with enhanced validation
     if (suggestion.osmData) {
       const address = suggestion.osmData.address || {};
       const city = address.city || address.town || address.village || address.municipality || '';
+      const houseNumber = address.house_number || '';
       
+      // Check if city is Mainz
       if (city.toLowerCase() !== 'mainz') {
+        toast({
+          title: "Servicebereich nicht verfügbar",
+          description: "Diesen Bereich machen wir derzeit leider nicht. Melde dich beim Support für weitere Hilfe.",
+          variant: "destructive"
+        });
         setShowAreaWarning(true);
+        return;
+      }
+
+      // Check if house number is present
+      if (!houseNumber) {
+        toast({
+          title: "Vollständige Adresse erforderlich",
+          description: "Bitte gib eine vollständige Adresse mit Hausnummer ein.",
+          variant: "destructive"
+        });
         return;
       }
 
@@ -154,12 +181,18 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
       if (lat && lng) {
         handleLocationSelect(lat, lng, suggestion.description);
         toast({
-          title: "Adresse ausgewählt",
-          description: "Ihre Adresse wurde erfolgreich gesetzt.",
+          title: "Adresse in Mainz akzeptiert",
+          description: "Du kannst fortfahren!",
+          variant: "default"
         });
       } else {
         // Fallback to Mainz center
         handleLocationSelect(MAINZ_CENTER.lat, MAINZ_CENTER.lng, suggestion.description);
+        toast({
+          title: "Adresse in Mainz akzeptiert",
+          description: "Du kannst fortfahren!",
+          variant: "default"
+        });
       }
       return;
     }
@@ -167,14 +200,14 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
     // For local addresses (place_id starts with 'local_'), these are all Mainz addresses
     if (suggestion.place_id.startsWith('local_')) {
       // Use Mainz center with slight offset for different addresses
-      const baseIndex = parseInt(suggestion.place_id.replace('local_', ''));
       const lat = MAINZ_CENTER.lat + (Math.random() - 0.5) * 0.01;
       const lng = MAINZ_CENTER.lng + (Math.random() - 0.5) * 0.01;
       handleLocationSelect(lat, lng, suggestion.description);
       
       toast({
-        title: "Adresse ausgewählt",
-        description: "Ihre Adresse wurde erfolgreich gesetzt.",
+        title: "Adresse in Mainz akzeptiert",
+        description: "Du kannst fortfahren!",
+        variant: "default"
       });
       return;
     }
@@ -182,6 +215,11 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
     // Fallback check if no OSM data
     const isMainzAddress = suggestion.description.toLowerCase().includes('mainz');
     if (!isMainzAddress) {
+      toast({
+        title: "Servicebereich nicht verfügbar",
+        description: "Diesen Bereich machen wir derzeit leider nicht. Melde dich beim Support für weitere Hilfe.",
+        variant: "destructive"
+      });
       setShowAreaWarning(true);
       return;
     }
@@ -753,26 +791,51 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
                       boxShadow: '0 10px 25px rgba(0,0,0,0.3)',
                     }}
                   >
-                    {suggestions.map((suggestion, index) => (
-                      <motion.li
-                        key={suggestion.place_id}
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.05 }}
-                        className="px-4 py-3 text-white cursor-pointer border-b border-gray-700 last:border-b-0 hover:bg-[#333] transition-colors duration-200 flex items-center space-x-3"
-                        onClick={() => handleSuggestionSelect(suggestion)}
-                      >
-                        <MapPin className="h-4 w-4 text-gray-400 flex-shrink-0" />
-                        <div className="flex-1 min-w-0">
-                          <div className="text-sm font-medium text-white truncate">
-                            {suggestion.structured_formatting?.main_text || suggestion.description}
+                    {suggestions.map((suggestion, index) => {
+                      const isComplete = suggestion.isComplete;
+                      const hasHouseNumber = suggestion.hasHouseNumber;
+                      const isMainz = suggestion.isMainz;
+                      
+                      return (
+                        <motion.li
+                          key={suggestion.place_id}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.05 }}
+                          className="px-4 py-3 text-white cursor-pointer border-b border-gray-700 last:border-b-0 hover:bg-[#333] transition-colors duration-200 flex items-center space-x-3"
+                          onClick={() => handleSuggestionSelect(suggestion)}
+                        >
+                          <MapPin className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                          <div className="flex-1 min-w-0">
+                            <div className="text-sm font-medium text-white truncate">
+                              {suggestion.structured_formatting?.main_text || suggestion.description}
+                            </div>
+                            <div className="text-xs text-gray-400 truncate">
+                              {suggestion.structured_formatting?.secondary_text || ''}
+                            </div>
                           </div>
-                          <div className="text-xs text-gray-400 truncate">
-                            {suggestion.structured_formatting?.secondary_text || ''}
+                          <div className="flex items-center space-x-1 ml-2">
+                            {isComplete ? (
+                              <span className="text-green-500 text-xs font-medium bg-green-500/20 px-2 py-1 rounded">
+                                ✓ Vollständig
+                              </span>
+                            ) : !isMainz ? (
+                              <span className="text-red-500 text-xs font-medium bg-red-500/20 px-2 py-1 rounded">
+                                ❌ Außerhalb
+                              </span>
+                            ) : !hasHouseNumber ? (
+                              <span className="text-yellow-500 text-xs font-medium bg-yellow-500/20 px-2 py-1 rounded">
+                                ⚠ Hausnummer?
+                              </span>
+                            ) : (
+                              <span className="text-gray-500 text-xs">
+                                ?
+                              </span>
+                            )}
                           </div>
-                        </div>
-                      </motion.li>
-                    ))}
+                        </motion.li>
+                      );
+                    })}
                   </motion.ul>
                 )}
               </AnimatePresence>
