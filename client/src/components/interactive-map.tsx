@@ -548,26 +548,14 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
                   e.target.style.transform = 'scale(1)';
                 }}
                 onKeyPress={(e) => {
-                  if (e.key === 'Enter') {
+                  if (e.key === 'Enter' && addressInput.trim()) {
                     handleAddressSearch();
                   }
                 }}
               />
             </div>
             
-            <Button
-              onClick={handleAddressSearch}
-              disabled={!addressInput.trim()}
-              className="w-full bg-[#189c82] hover:bg-[#148a6e] disabled:bg-gray-400 disabled:text-gray-600 text-white font-bold py-3 px-6 rounded-xl text-sm transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-              style={{ 
-                boxShadow: '0 2px 10px rgba(0, 0, 0, 0.2)',
-                borderRadius: '12px',
-                padding: '12px 24px'
-              }}
-              size="sm"
-            >
-              Verfügbarkeit prüfen
-            </Button>
+
           </div>
         </div>
       </motion.div>

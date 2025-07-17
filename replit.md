@@ -210,6 +210,12 @@ Preferred communication style: Simple, everyday language.
   - Added user location marker with blue styling when GPS location is found
   - Enhanced UX with location-found toast notifications
   - Maintained fallback to Mainz center when location access denied
+✓ Streamlined user interface with button removal (July 17, 2025):
+  - Removed "Verfügbarkeit prüfen" button for cleaner interface
+  - Address search now triggers automatically on Enter key press
+  - Simplified user experience with one-step address input
+  - Implemented custom car wash SVG icon for user location marker
+  - Replaced legacy Places API with modern Geocoding API for better reliability
 ✓ Enhanced map zoom and bounds configuration (July 17, 2025):
   - Increased starting zoom level from 13 to 12 for closer initial view
   - Added Germany bounds restriction to prevent panning outside country borders
