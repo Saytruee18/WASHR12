@@ -179,7 +179,8 @@ export function ProfileDropdown() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -10, scale: 0.95 }}
               transition={{ duration: 0.2 }}
-              className="absolute right-0 top-full mt-2 w-64 bg-card border border-border rounded-2xl shadow-xl z-50"
+              className="absolute right-0 top-full mt-2 w-64 border border-border rounded-2xl shadow-xl z-50"
+              style={{ backgroundColor: '#100c0c' }}
             >
               {/* Profile Header */}
               <div className="p-4 border-b border-border">
@@ -239,7 +240,7 @@ export function ProfileDropdown() {
       {/* Profile Page Modal */}
       {isProfileOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="relative w-full max-w-md max-h-[90vh] overflow-auto bg-card rounded-lg shadow-xl">
+          <div className="relative w-full max-w-md max-h-[90vh] overflow-auto rounded-lg shadow-xl" style={{ backgroundColor: '#100c0c' }}>
             <ProfilePage initialMode={profileMode} />
             <button
               onClick={() => setIsProfileOpen(false)}

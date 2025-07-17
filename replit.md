@@ -168,6 +168,15 @@ Preferred communication style: Simple, everyday language.
   - "Verfügbarkeit prüfen" button with modern styling and hover effects
   - Enhanced soft gradient overlay at top for better text contrast
   - Mobile-first design with bold, clean typography similar to delivery apps
+✓ Complete color scheme update (July 17, 2025):
+  - Updated entire UI to use #100c0c (elegant dark brown-black) replacing gray-900
+  - Changed primary green from #00ff88 to #3cbf5c for better contrast and professionalism
+  - Updated landing page with new German text: "Hallo 👋 Wo dürfen wir dein Auto sauber machen?"
+  - Simplified address placeholder to "Deine Adresse hier eingeben..."
+  - Applied consistent #100c0c backgrounds to dropdown menus, bottom navigation, and side drawer
+  - Updated all service area indicators with proper German translations
+  - Refined button styling with white text on #3cbf5c background
+  - Enhanced loading states and modal dialogs with new color scheme
 ✓ Landing page design optimization and address search functionality (July 17, 2025):
   - Reduced text sizes for better proportions: heading (2xl/3xl), subtitle (sm/base)
   - Made content more compact with smaller max-width (max-w-sm) and reduced spacing

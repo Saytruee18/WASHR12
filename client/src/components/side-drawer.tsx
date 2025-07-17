@@ -64,13 +64,14 @@ export function SideDrawer({ isOpen, onClose, onNavigate }: SideDrawerProps) {
             animate={{ x: 0 }}
             exit={{ x: "-100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="fixed left-0 top-0 h-full w-80 bg-gray-900 shadow-2xl z-50 flex flex-col"
+            className="fixed left-0 top-0 h-full w-80 shadow-2xl z-50 flex flex-col"
+            style={{ backgroundColor: '#100c0c' }}
           >
             {/* Header */}
             <div className="p-6 border-b border-gray-700">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-[#00ff88] to-[#00dd77] rounded-xl flex items-center justify-center">
+                  <div className="w-10 h-10 bg-gradient-to-br from-[#3cbf5c] to-[#2fa04d] rounded-xl flex items-center justify-center">
                     <span className="text-black font-bold text-lg">W</span>
                   </div>
                   <div>
