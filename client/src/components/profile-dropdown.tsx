@@ -8,6 +8,10 @@ import {
   LogOut,
   Mail,
   MoreVertical,
+  Calendar,
+  Receipt,
+  Brush,
+  MessageSquare,
 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -123,26 +127,71 @@ export function ProfileDropdown() {
           } 
         },
         {
-          icon: Mail,
-          label: "Support kontaktieren",
+          icon: Calendar,
+          label: "Meine Buchungen",
+          action: () => { 
+            setProfileMode('profile'); 
+            setIsProfileOpen(true); 
+            setIsOpen(false); 
+          },
+        },
+        {
+          icon: Receipt,
+          label: "Rechnungen",
+          action: () => { 
+            setProfileMode('profile'); 
+            setIsProfileOpen(true); 
+            setIsOpen(false); 
+          },
+        },
+        {
+          icon: Brush,
+          label: "Cleaner werden",
+          action: () => { 
+            setProfileMode('profile'); 
+            setIsProfileOpen(true); 
+            setIsOpen(false); 
+          },
+        },
+        {
+          icon: MessageSquare,
+          label: "Feedback geben",
           action: () => { window.open("mailto:washr.mainz@gmail.com"); setIsOpen(false); },
         },
       ];
     }
 
     return [
-      { 
-        icon: User, 
-        label: "Mein Profil", 
+      {
+        icon: Calendar,
+        label: "Meine Buchungen",
         action: () => { 
           setProfileMode('profile'); 
           setIsProfileOpen(true); 
           setIsOpen(false); 
-        } 
+        },
       },
       {
-        icon: Mail,
-        label: "Support kontaktieren",
+        icon: Receipt,
+        label: "Rechnungen",
+        action: () => { 
+          setProfileMode('profile'); 
+          setIsProfileOpen(true); 
+          setIsOpen(false); 
+        },
+      },
+      {
+        icon: Brush,
+        label: "Cleaner werden",
+        action: () => { 
+          setProfileMode('profile'); 
+          setIsProfileOpen(true); 
+          setIsOpen(false); 
+        },
+      },
+      {
+        icon: MessageSquare,
+        label: "Feedback geben",
         action: () => { window.open("mailto:washr.mainz@gmail.com"); setIsOpen(false); },
       },
       { icon: LogOut, label: "Abmelden", action: handleLogout }
@@ -188,28 +237,38 @@ export function ProfileDropdown() {
               <div className="p-4 border-b border-border">
                 {!isLoggedIn ? (
                   <div className="text-center">
-                    <div className="w-10 h-10 bg-muted rounded-full flex items-center justify-center mx-auto mb-2">
-                      <User className="h-5 w-5 text-muted-foreground" />
+                    <div className="w-12 h-12 bg-[#3cbf5c] rounded-full flex items-center justify-center mx-auto mb-3">
+                      <span className="text-white font-bold text-lg">W</span>
                     </div>
-                    <div className="text-sm text-muted-foreground">
-                      Nicht angemeldet
+                    <div className="font-semibold text-white text-sm mb-1">
+                      WASHK
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Melden Sie sich an für vollständigen Zugriff
+                    <div className="text-xs text-gray-400 mb-2">
+                      Autoreinigungsservice
+                    </div>
+                    <div className="text-sm text-gray-300 mb-1">
+                      Gastnutzer
+                    </div>
+                    <p className="text-xs text-gray-400">
+                      Anmelden, um alle Funktionen zu nutzen
                     </p>
                   </div>
                 ) : (
-                  <div className="flex items-center space-x-3">
-                    <Avatar className="h-10 w-10">
-                      <AvatarFallback className="bg-primary text-primary-foreground font-medium">
-                        {profileData.initials}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <div className="font-medium">{profileData.name}</div>
-                      <div className="text-sm text-muted-foreground">
-                        {profileData.email}
-                      </div>
+                  <div className="text-center">
+                    <div className="w-12 h-12 bg-[#3cbf5c] rounded-full flex items-center justify-center mx-auto mb-3">
+                      <span className="text-white font-bold text-lg">W</span>
+                    </div>
+                    <div className="font-semibold text-white text-sm mb-1">
+                      WASHK
+                    </div>
+                    <div className="text-xs text-gray-400 mb-2">
+                      Autoreinigungsservice
+                    </div>
+                    <div className="text-sm text-gray-300 mb-1">
+                      {profileData.name}
+                    </div>
+                    <div className="text-xs text-gray-400">
+                      {profileData.email}
                     </div>
                   </div>
                 )}

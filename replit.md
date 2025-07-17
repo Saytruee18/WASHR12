@@ -221,6 +221,12 @@ Preferred communication style: Simple, everyday language.
   - Shows just "👋" when user is not authenticated
   - Integrated with AuthContext for real-time authentication status updates
   - Personalized experience without overwhelming guest users
+✓ Redesigned dropdown menu with German branding and navigation (July 17, 2025):
+  - Added WASHK logo with green "W" circle and "Autoreinigungsservice" subtitle
+  - Shows "Gastnutzer" for non-authenticated users with "Anmelden, um alle Funktionen zu nutzen"
+  - Complete German menu items: "Meine Buchungen", "Rechnungen", "Cleaner werden", "Feedback geben"
+  - Consistent branding across both authenticated and guest user states
+  - Professional dropdown design matching the app's dark theme and green accent colors
 ✓ Enhanced map zoom and bounds configuration (July 17, 2025):
   - Increased starting zoom level from 13 to 12 for closer initial view
   - Added Germany bounds restriction to prevent panning outside country borders
