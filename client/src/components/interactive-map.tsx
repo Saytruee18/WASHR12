@@ -193,86 +193,80 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
 
         const serviceCenter = MAINZ_CENTER;
         
-        // Create main service area circle - smaller for focused view
+        // Create single transparent service area circle with minimal design
         const serviceCircle = new google.maps.Circle({
           center: serviceCenter,
           map: googleMap,
-          radius: 6000, // 6km radius for closer zoom
-          strokeColor: "#00ff88",
-          strokeOpacity: 0.8,
-          strokeWeight: 0,
-          fillColor: "#00ff88",
-          fillOpacity: 0.25,
-        });
-
-        // Create outer glow effect - adjusted for closer zoom
-        const glowCircle = new google.maps.Circle({
-          center: serviceCenter,
-          map: googleMap,
-          radius: 8000,
-          strokeColor: "#00ff88",
-          strokeOpacity: 0.4,
+          radius: 15000, // 15km radius for broader coverage
+          strokeColor: "rgba(0, 255, 0, 0.4)", // Transparent green outline
+          strokeOpacity: 0.6,
           strokeWeight: 2,
-          fillColor: "#00ff88",
-          fillOpacity: 0.1,
+          fillColor: "transparent", // No fill to keep map clean
+          fillOpacity: 0,
         });
 
-        // Create red overlay for non-service areas - adjusted for closer zoom
-        const restrictionPolygon = new google.maps.Polygon({
-          paths: [
-            // Outer boundary (covers visible area)
-            [
-              { lat: 50.15, lng: 8.1 },
-              { lat: 50.15, lng: 8.45 },
-              { lat: 49.85, lng: 8.45 },
-              { lat: 49.85, lng: 8.1 }
-            ],
-            // Inner boundary (service area - creates hole)
-            [
-              { lat: 50.06, lng: 8.21 },
-              { lat: 50.06, lng: 8.33 },
-              { lat: 49.94, lng: 8.33 },
-              { lat: 49.94, lng: 8.21 }
-            ]
-          ],
-          map: googleMap,
-          strokeColor: "#ff4444",
-          strokeOpacity: 0.3,
-          strokeWeight: 0,
-          fillColor: "#ff2222",
-          fillOpacity: 0.15,
-        });
+        // Create modern animated marker with custom div overlay
+        const customMarkerDiv = document.createElement('div');
+        customMarkerDiv.innerHTML = `
+          <div style="
+            width: 20px; 
+            height: 20px; 
+            background: #00ff88; 
+            border-radius: 50%; 
+            border: 3px solid #ffffff;
+            box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.7);
+            animation: pulse 2s infinite;
+            position: relative;
+            cursor: pointer;
+          "></div>
+          <style>
+            @keyframes pulse {
+              0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.7);
+              }
+              70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 10px rgba(0, 255, 136, 0);
+              }
+              100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(0, 255, 136, 0);
+              }
+            }
+          </style>
+        `;
 
-        // Create single central marker with pulsing effect
+        // Create custom marker using Advanced Marker (modern approach)
         const centralMarker = new google.maps.Marker({
           position: serviceCenter,
           map: googleMap,
           icon: {
             path: google.maps.SymbolPath.CIRCLE,
-            scale: 12,
+            scale: 15,
             fillColor: "#00ff88",
             fillOpacity: 1,
             strokeColor: "#ffffff",
             strokeWeight: 3,
           },
-          title: "Service available – Mainz Center",
+          title: "Service verfügbar – Mainz Zentrum",
           animation: google.maps.Animation.DROP,
         });
 
-        // Add info window for central marker
+        // Add info window for central marker with German text
         const infoWindow = new google.maps.InfoWindow({
           content: `
-            <div style="color: #333; font-weight: 500; padding: 4px;">
+            <div style="color: #333; font-weight: 500; padding: 8px;">
               <div style="display: flex; align-items: center; gap: 8px;">
-                <div style="width: 8px; height: 8px; background: #00ff88; border-radius: 50%; animation: pulse 2s infinite;"></div>
-                Service available – Mainz Center
+                <div style="width: 10px; height: 10px; background: #00ff88; border-radius: 50%; animation: pulse 2s infinite;"></div>
+                Service verfügbar – Mainz Zentrum
               </div>
             </div>
             <style>
               @keyframes pulse {
-                0% { opacity: 1; }
-                50% { opacity: 0.5; }
-                100% { opacity: 1; }
+                0% { opacity: 1; transform: scale(1); }
+                50% { opacity: 0.5; transform: scale(1.1); }
+                100% { opacity: 1; transform: scale(1); }
               }
             </style>
           `
@@ -282,15 +276,15 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
           infoWindow.open(googleMap, centralMarker);
         });
 
-        // Add pulsing animation to marker
+        // Add subtle pulsing animation to marker
         setInterval(() => {
           if (centralMarker.getAnimation() !== null) {
             centralMarker.setAnimation(null);
           } else {
             centralMarker.setAnimation(google.maps.Animation.BOUNCE);
-            setTimeout(() => centralMarker.setAnimation(null), 1000);
+            setTimeout(() => centralMarker.setAnimation(null), 800);
           }
-        }, 3000);
+        }, 4000);
 
         // Add click listener to map
         googleMap.addListener("click", (event: google.maps.MapMouseEvent) => {
@@ -386,7 +380,7 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
             } else {
               toast({
                 title: "❌ Außerhalb des Servicebereichs",
-                description: "Diese Adresse liegt außerhalb unseres aktuellen Servicebereichs in Mainz.",
+                description: "Sorry, du bist leider außerhalb unseres Servicegebiets.",
                 variant: "destructive"
               });
             }
@@ -439,12 +433,16 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
         <div className="max-w-sm mx-auto text-center">
           {/* Main Heading - personalized with username */}
           <h1 className="text-2xl md:text-3xl font-bold text-white mb-3 leading-tight">
-            {userName ? `${userName}, dein Auto gewaschen – egal wo du bist.` : 'Dein Auto, gewaschen – egal wo du bist.'}
+            {userName ? `Hallo, ${userName} 👋` : 'Hallo 👋'}
           </h1>
+          <h2 className="text-xl md:text-2xl font-semibold text-white mb-3 leading-tight">
+            Bereit für deinen nächsten Waschgang?
+          </h2>
           
-          {/* Subtitle - smaller and more compact */}
+          {/* Subtitle - shorter and more direct */}
           <p className="text-sm md:text-base text-gray-300 mb-6 leading-relaxed">
-            Gib deine Adresse ein und wir kommen direkt zu dir – bequem, flexibel und professionell.
+            Wir kommen zu dir – schnell, einfach und zuverlässig.<br />
+            Gib deine Adresse ein, und wir kümmern uns um den Rest.
           </p>
           
           {/* Address Search - more compact design */}
@@ -457,7 +455,7 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
                 type="text"
                 value={addressInput}
                 onChange={(e) => setAddressInput(e.target.value)}
-                placeholder="Adresse eingeben..."
+                placeholder="Deine Adresse hier eingeben..."
                 className="w-full bg-white/95 backdrop-blur-sm rounded-xl px-10 py-3 text-gray-900 placeholder-gray-500 border-0 focus:outline-none focus:ring-2 focus:ring-[#00ff88] text-sm font-medium shadow-lg"
                 onFocus={(e) => {
                   e.target.style.transform = 'scale(1.01)';
@@ -493,7 +491,7 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
       <div className="absolute top-0 left-0 bottom-0 w-8 bg-gradient-to-r from-black/40 to-transparent pointer-events-none z-10" />
       <div className="absolute top-0 right-0 bottom-0 w-8 bg-gradient-to-l from-black/40 to-transparent pointer-events-none z-10" />
       
-      {/* Zone Legend */}
+      {/* Zone Legend - German translations */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -503,12 +501,12 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
         <div className="bg-gray-900/90 backdrop-blur-md rounded-xl p-4 border border-gray-700/50 shadow-xl">
           <div className="space-y-3">
             <div className="flex items-center space-x-3">
-              <Circle className="h-4 w-4 text-[#00ff88] fill-[#00ff88]/25" />
-              <span className="text-sm font-medium text-white">Service Zone</span>
+              <CheckCircle className="h-4 w-4 text-[#00ff88]" />
+              <span className="text-sm font-medium text-white">✅ Im Servicegebiet</span>
             </div>
             <div className="flex items-center space-x-3">
-              <Circle className="h-4 w-4 text-red-500 fill-red-500/25" />
-              <span className="text-sm font-medium text-gray-300">Not Available</span>
+              <Circle className="h-4 w-4 text-red-500" />
+              <span className="text-sm font-medium text-gray-300">❌ Außerhalb des Gebiets</span>
             </div>
           </div>
         </div>
@@ -539,16 +537,16 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
                   <>
                     <CheckCircle className="h-5 w-5 text-[#00ff88]" />
                     <div>
-                      <p className="text-sm font-semibold text-[#00ff88]">Service Available</p>
-                      <p className="text-xs text-gray-400">Tap to book cleaning</p>
+                      <p className="text-sm font-semibold text-[#00ff88]">✅ Im Servicegebiet</p>
+                      <p className="text-xs text-gray-400">Buchung möglich</p>
                     </div>
                   </>
                 ) : (
                   <>
                     <Circle className="h-5 w-5 text-red-500" />
                     <div>
-                      <p className="text-sm font-semibold text-red-400">Out of Service Area</p>
-                      <p className="text-xs text-gray-400">Not available here</p>
+                      <p className="text-sm font-semibold text-red-400">❌ Außerhalb des Gebiets</p>
+                      <p className="text-xs text-gray-400">Hier nicht verfügbar</p>
                     </div>
                   </>
                 )}

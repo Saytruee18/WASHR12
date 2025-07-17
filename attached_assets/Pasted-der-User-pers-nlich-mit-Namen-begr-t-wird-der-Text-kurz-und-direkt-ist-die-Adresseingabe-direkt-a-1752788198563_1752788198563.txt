@@ -1,0 +1,87 @@
+der User persönlich mit Namen begrüßt wird
+
+der Text kurz und direkt ist
+
+die Adresseingabe direkt auf der Landingpage funktioniert
+
+nur ein transparenter Radius ohne störende Farben auf der Karte sichtbar ist
+
+und der Marker stylisch modernisiert ist
+
+außerdem ist "Service Zone / Not Available" auf Deutsch übersetzt und angepasst
+
+✅ 🔧 Texte für die App (auf Deutsch)
+text
+Kopieren
+Bearbeiten
+Hallo, [Name] 👋  
+Bereit für deinen nächsten Waschgang?
+
+Wir kommen zu dir – schnell, einfach und zuverlässig.  
+Gib deine Adresse ein, und wir kümmern uns um den Rest.
+Platzhalter im Adressfeld:
+
+text
+Kopieren
+Bearbeiten
+Deine Adresse hier eingeben...
+Button:
+
+text
+Kopieren
+Bearbeiten
+Verfügbarkeit prüfen
+Hinweis bei Service außerhalb des Radius:
+
+text
+Kopieren
+Bearbeiten
+Sorry, du bist leider außerhalb unseres Servicegebiets.
+Legende in der App (ersetze den bisherigen Text):
+
+text
+Kopieren
+Bearbeiten
+✅ Im Servicegebiet
+❌ Außerhalb des Gebiets
+🗺️ Karte (Visuelle Änderungen für Replit erklären)
+1. Den roten und grünen Layer entfernen – stattdessen:
+
+Nur eine einzige transparente, runde Umrandung (Linie) um das Zentrum (Mainz)
+
+Farbe: rgba(0, 255, 0, 0.4) für den Kreisrand (leicht transparentes Grün)
+
+Kein Rot mehr verwenden, das stört visuell.
+
+2. Zoom-Level beim Start:
+
+Karte soll automatisch auf den Marker zentrieren
+
+Zoom-Level etwa 13–14, damit nur Mainz + Umgebung sichtbar ist, nicht ganz Deutschland
+
+3. Marker-Stil modernisieren:
+
+Statt dem klassischen Marker-Icon → animierter pulsierender Punkt (z. B. ein div mit border-radius + animation)
+
+Farbe: ein sattes Grün oder Türkis, das hochwertig aussieht
+
+🔧 Was die KI auf Replit machen soll (Erklärung für dein Dev-Team oder Prompt)
+👉 Prompt an deine KI oder Dev:
+
+Bitte entferne die rote und grüne Fläche auf der Karte und ersetze sie durch einen einzigen, leicht transparenten grünen Radius, der nur die Service-Zone abdeckt (z. B. 15 km um Mainz).
+
+Verwende dafür einen einfachen L.circle mit stroke: true, fillOpacity: 0.1 und color: rgba(0, 255, 0, 0.4)
+
+Entferne die "Service Zone / Not Available"-Legende
+
+Stattdessen bitte die deutsche Version verwenden: ✅ Im Servicegebiet / ❌ Außerhalb des Gebiets
+
+Die Karte soll auf den Marker zentriert starten, mit einem Zoom-Level, bei dem nur Mainz und Umgebung sichtbar ist
+
+Der Marker soll durch ein modernes, animiertes Icon ersetzt werden (z. B. pulsierender Kreis)
+
+Auf der Landingpage soll die Adresseingabe sofort sichtbar und funktional sein, über dem Kartenbereich
+
+Der Nutzer soll nach Login mit Namen begrüßt werden ("Hallo, Max 👋")
+
+Der Text soll kurz, direkt und auf Deutsch sein

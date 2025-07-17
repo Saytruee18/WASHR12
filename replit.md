@@ -10,7 +10,15 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (July 2025)
 
-✓ Successfully migrated from Replit Agent to Replit environment
+✓ Successfully migrated from Replit Agent to Replit environment (July 17, 2025)
+✓ Enhanced landing page with personalized greeting and German translations (July 17, 2025):
+  - Personalized greeting: "Hallo, [Name] 👋 Bereit für deinen nächsten Waschgang?"
+  - Updated placeholder text: "Deine Adresse hier eingeben..."
+  - German service area indicators: "✅ Im Servicegebiet / ❌ Außerhalb des Gebiets"
+  - Improved user experience with direct, concise German text
+  - Single transparent green radius without disturbing colors
+  - Modernized marker with pulsing animation and German tooltip
+  - Clean, minimal design focused on service area functionality
 ✓ All API keys properly configured (Stripe, Google Maps)
 ✓ Server running successfully on port 5000
 ✓ Client-server separation maintained with secure practices
