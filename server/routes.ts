@@ -64,6 +64,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Geocoding proxy route for OpenStreetMap
+  app.get("/api/geocode", async (req, res) => {
+    try {
+      const { q } = req.query;
+      
+      if (!q || typeof q !== 'string') {
+        return res.status(400).json({ message: "Query parameter 'q' is required" });
+      }
+
+      const url = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&countrycodes=de&limit=5&q=${encodeURIComponent(q)}`;
+      
+      const response = await fetch(url, {
+        headers: {
+          'User-Agent': 'WASHK App/1.0 (https://washk.app)',
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      const results = await response.json();
+      res.json(results);
+    } catch (error: any) {
+      console.error('Geocoding API error:', error);
+      res.status(500).json({ message: "Error fetching geocoding data: " + error.message });
+    }
+  });
+
   // Wallet routes
   app.get("/api/wallet/balance", async (req, res) => {
     try {

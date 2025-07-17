@@ -50,12 +50,8 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
     }
 
     try {
-      const url = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&countrycodes=de&limit=5&q=${encodeURIComponent(input)}`;
-      const response = await fetch(url, {
-        headers: {
-          'User-Agent': 'WASHK App/1.0 (https://washk.app)',
-        },
-      });
+      const url = `/api/geocode?q=${encodeURIComponent(input)}`;
+      const response = await fetch(url);
       
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
