@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
-import { MapComponent } from "@/components/map-component";
+import { motion, AnimatePresence } from "framer-motion";
+import { InteractiveMap } from "@/components/interactive-map";
 import { BottomNavigation } from "@/components/bottom-navigation";
 import { BookingModal } from "@/components/booking-modal";
 import { WashPackages } from "@/components/wash-packages";
@@ -10,7 +10,8 @@ import { ProfilePage } from "@/components/profile-page";
 import { ProfileDropdown } from "@/components/profile-dropdown";
 import { ServiceAreaWarning } from "@/components/service-area-warning";
 import { useQuery } from "@tanstack/react-query";
-import { Droplets, Circle, Shield, Users, Star } from "lucide-react";
+import { Droplets, Circle, Shield, Users, Star, MapPin, Clock, CheckCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 type Tab = "home" | "booking" | "wallet" | "profile";
 
@@ -65,6 +66,8 @@ export default function Home() {
   const [selectedPackage, setSelectedPackage] = useState<WashPackage | null>(null);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [isServiceWarningOpen, setIsServiceWarningOpen] = useState(false);
+  const [selectedAddress, setSelectedAddress] = useState("");
+  const [isAddressInServiceArea, setIsAddressInServiceArea] = useState(false);
 
   const { data: bookings = [] } = useQuery({
     queryKey: ["/api/bookings"],
@@ -90,125 +93,74 @@ export default function Home() {
     setIsServiceWarningOpen(true);
   };
 
+  const handleLocationSelect = (address: string, isInServiceArea: boolean) => {
+    setSelectedAddress(address);
+    setIsAddressInServiceArea(isInServiceArea);
+    if (!isInServiceArea) {
+      setIsServiceWarningOpen(true);
+    }
+  };
+
+  const handleCreateBooking = () => {
+    if (isAddressInServiceArea && selectedAddress) {
+      setActiveTab("booking");
+    }
+  };
+
   const renderTabContent = () => {
     switch (activeTab) {
       case "home":
         return (
-          <div className="pb-20 safe-area-bottom">
-            {/* Welcome Section - Mobile Optimized */}
-            <div className="p-3 md:p-4 mobile-compact">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-gradient-to-br from-primary via-primary/90 to-primary/80 rounded-[24px] p-6 md:p-8 text-primary-foreground mb-4 md:mb-6 shadow-2xl shadow-primary/20 mobile-card"
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <h2 className="text-2xl font-bold mb-2 tracking-tight">WASHR</h2>
-                    <p className="text-primary-foreground/80 font-light text-lg">
-                      Die Waschanlage, die zu dir kommt.
-                    </p>
-                  </div>
-                  <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center">
-                    <Droplets className="h-8 w-8 text-white" />
-                  </div>
-                </div>
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => setActiveTab("booking")}
-                  className="bg-background text-foreground px-6 md:px-8 py-3 md:py-4 rounded-2xl font-medium hover:bg-muted transition-all shadow-lg text-base md:text-lg touch-target mobile-optimized w-full md:w-auto"
-                >
-                  Jetzt buchen
-                </motion.button>
-              </motion.div>
-            </div>
-
-            {/* Trust Indicators */}
-            <div className="px-4 mb-6">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 rounded-2xl p-4 border border-primary/20"
-              >
-                <div className="flex items-center justify-center space-x-6 text-sm">
-                  <motion.div 
-                    className="flex items-center space-x-2"
-                    whileHover={{ scale: 1.05 }}
-                  >
-                    <span className="text-lg">📍</span>
-                    <span className="font-medium">Lokal aktiv</span>
-                  </motion.div>
-                  <motion.div 
-                    className="flex items-center space-x-2"
-                    whileHover={{ scale: 1.05 }}
-                  >
-                    <span className="text-lg">🛡️</span>
-                    <span className="font-medium">Geprüfte Cleaner</span>
-                  </motion.div>
-                  <motion.div 
-                    className="flex items-center space-x-2"
-                    whileHover={{ scale: 1.05 }}
-                  >
-                    <span className="text-lg">⭐️</span>
-                    <span className="font-medium">4.9/5 Bewertungen</span>
-                  </motion.div>
-                </div>
-              </motion.div>
-            </div>
-
-            {/* Info Cards */}
-            <div className="px-4 mb-6">
-              <div className="space-y-4">
+          <div className="relative h-screen">
+            {/* Full-screen Interactive Map */}
+            <InteractiveMap onLocationSelect={handleLocationSelect} />
+            
+            {/* Floating Action Button */}
+            <AnimatePresence>
+              {selectedAddress && isAddressInServiceArea && (
                 <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.4 }}
-                  whileHover={{ scale: 1.01 }}
-                  className="bg-card rounded-2xl p-6 border border-border/50 hover:border-primary/50 transition-all shadow-lg hover:shadow-xl"
+                  initial={{ opacity: 0, y: 100, scale: 0.8 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 100, scale: 0.8 }}
+                  transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                  className="absolute bottom-28 left-4 right-4 z-30"
                 >
-                  <h4 className="font-bold mb-3 text-lg">WASHR – Deine Autopflege.</h4>
-                  <p className="text-muted-foreground font-light">
-                    Wo du bist. Wann du willst.<br/>
-                    💧 Mobil. Flexibel. Stressfrei.
-                  </p>
+                  <Button
+                    onClick={handleCreateBooking}
+                    size="lg"
+                    className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white font-semibold py-4 px-8 rounded-2xl shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300 text-lg"
+                  >
+                    <div className="flex items-center justify-center space-x-3">
+                      <MapPin className="h-6 w-6" />
+                      <span>Buchung erstellen</span>
+                      <CheckCircle className="h-6 w-6" />
+                    </div>
+                  </Button>
                 </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Service Not Available Message */}
+            <AnimatePresence>
+              {selectedAddress && !isAddressInServiceArea && (
                 <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.5 }}
-                  whileHover={{ scale: 1.01 }}
-                  className="bg-card rounded-2xl p-6 border border-border/50 hover:border-primary/50 transition-all shadow-lg hover:shadow-xl"
+                  initial={{ opacity: 0, y: 100 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 100 }}
+                  className="absolute bottom-28 left-4 right-4 z-30"
                 >
-                  <h4 className="font-bold mb-3 text-lg">Wie funktioniert's?</h4>
-                  <p className="text-muted-foreground font-light">
-                    🧼 Wählen → 📅 Buchen → 🚗 Reinigen lassen → ✅ Fertig
-                  </p>
+                  <div className="bg-red-50 border border-red-200 rounded-2xl p-4 shadow-lg">
+                    <div className="flex items-center space-x-3 text-red-700">
+                      <Circle className="h-5 w-5 text-red-500" />
+                      <div>
+                        <p className="font-medium">Service derzeit nicht verfügbar</p>
+                        <p className="text-sm text-red-600">Dieser Standort liegt außerhalb unseres Servicebereichs in Mainz.</p>
+                      </div>
+                    </div>
+                  </div>
                 </motion.div>
-              </div>
-            </div>
-
-            {/* Map Section */}
-            <div className="px-3 md:px-4 mb-4 md:mb-6 mobile-compact">
-              <h3 className="text-lg md:text-xl font-bold mb-3 md:mb-4 tracking-tight">
-                Wählen Sie Ihren Standort
-              </h3>
-              <div className="rounded-2xl overflow-hidden mobile-card">
-                <MapComponent onLocationOutsideMainz={handleLocationOutsideMainz} />
-              </div>
-            </div>
-
-            {/* Wash Packages */}
-            <div className="px-3 md:px-4 mb-4 md:mb-6 mobile-compact">
-              <h3 className="text-lg md:text-xl font-bold mb-3 md:mb-4 tracking-tight">
-                Wählen Sie Ihr Paket
-              </h3>
-              <WashPackages
-                packages={washPackages}
-                onPackageSelect={handlePackageSelect}
-              />
-            </div>
+              )}
+            </AnimatePresence>
           </div>
         );
 
@@ -296,27 +248,56 @@ export default function Home() {
 
   return (
     <div className="max-w-md mx-auto bg-background min-h-screen relative">
-      {/* Header */}
-      <header className="bg-card/80 backdrop-blur-xl shadow-sm p-3 md:p-4 border-b border-border/50 sticky top-0 z-40 safe-area-top">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2 md:space-x-3">
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center shadow-lg mobile-optimized"
-            >
-              <Droplets className="text-primary-foreground text-base md:text-lg" />
-            </motion.div>
-            <div>
-              <h1 className="text-lg md:text-xl font-bold tracking-tight">WASHR</h1>
-              <p className="text-xs text-muted-foreground font-light hidden md:block">Autowäsche in Mainz</p>
+      {/* Conditional Header - Hidden for home tab */}
+      {activeTab !== "home" && (
+        <header className="bg-card/80 backdrop-blur-xl shadow-sm p-3 md:p-4 border-b border-border/50 sticky top-0 z-40 safe-area-top">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2 md:space-x-3">
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center shadow-lg mobile-optimized"
+              >
+                <Droplets className="text-primary-foreground text-base md:text-lg" />
+              </motion.div>
+              <div>
+                <h1 className="text-lg md:text-xl font-bold tracking-tight">WASHR</h1>
+                <p className="text-xs text-muted-foreground font-light hidden md:block">Autowäsche in Mainz</p>
+              </div>
             </div>
+            <ProfileDropdown />
           </div>
-          <ProfileDropdown />
+        </header>
+      )}
+
+      {/* Floating Header for home tab */}
+      {activeTab === "home" && (
+        <div className="absolute top-4 left-4 right-4 z-50 flex items-center justify-between">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200/50 p-3 flex items-center space-x-3"
+          >
+            <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center">
+              <Droplets className="text-primary-foreground text-sm" />
+            </div>
+            <div>
+              <h1 className="text-lg font-bold text-gray-800">WASHR</h1>
+            </div>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200/50"
+          >
+            <ProfileDropdown />
+          </motion.div>
         </div>
-      </header>
+      )}
 
       {/* Main Content */}
-      <main>{renderTabContent()}</main>
+      <main className={activeTab === "home" ? "h-screen" : ""}>
+        {renderTabContent()}
+      </main>
 
       {/* Bottom Navigation */}
       <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} />

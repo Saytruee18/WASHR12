@@ -1,0 +1,65 @@
+🧼 WASHK – Redesign the Home Screen with Interactive Map
+
+🎯 Goal
+
+Replace the current home screen with a full-screen interactive map that displays the user’s current location and availability zones (green = service available, red = not available).
+
+After selecting or entering an address (using Google Places Autocomplete), the user should be redirected directly to the existing booking flow. All other tabs in the app (Booking, Wallet, Profile) must remain untouched.
+
+⸻
+
+🧩 Key Features to Implement
+ • ✅ Full-screen light-themed map (Google Maps or Leaflet)
+ • ✅ Live user location marker (with permission prompt)
+ • ✅ Search bar to enter address (Google Places API or similar)
+ • ✅ Zoning system:
+ • 🟩 Green areas = mobile car wash available (Mainz area only)
+ • 🟥 Red areas = not available
+ • ✅ Floating action button at the bottom:
+ • “Create a booking”
+ • Visible only if address is inside the green zone
+ • ✅ Keep bottom navigation bar (Home, Book, Wallet, Profile)
+
+⸻
+
+🧠 Optional Enhancements
+ • Show zones similar to Lime or Tier e-scooter apps
+ • If user taps a red zone or enters address outside green zone:
+ • Disable booking button
+ • Show message: "Service currently unavailable in this area."
+
+⸻
+
+🎨 UI Design Notes
+ • Inspired by the attached screenshot (light mode, soft colors)
+ • Modern, premium feel (like Uber, Bolt, Tier)
+ • Rounded buttons, smooth shadows, clean layout
+ • Font recommendation: Poppins, Inter, or SF Pro
+ • Avoid default Google Maps styles – apply custom JSON styling (e.g. pastel or white-based theme)
+ • Keep everything clean and minimal, focused on UX
+
+⸻
+
+⚙️ Technical Notes
+ • Google Maps API key is already available
+ • Address autocomplete should use Google Places API
+ • Green zone (Mainz) must be defined using polygon coordinates
+ • Entire logic should be placed in the landing screen only
+ • Booking logic already exists → you don’t need to build this
+
+⸻
+
+🔁 User Flow (Landing Page)
+ 1. User opens app → Live location is requested and shown
+ 2. Map shows green or red area (depending on user location)
+ 3. User enters or taps address
+ 4. If valid (inside green area) → Button becomes active
+ 5. Tap “Create a booking” → User is redirected to the existing booking page
+
+⸻
+
+✅ Final Notes
+ • Only replace the landing screen
+ • Don’t modify any other pages (like Profile, Wallet, Booking)
+ • Focus on interactive UX and a beautiful, high-quality UI
+ • This is the first screen users see – it should feel amazing!
