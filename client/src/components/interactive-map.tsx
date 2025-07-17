@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, Circle, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 import { Loader } from "@googlemaps/js-api-loader";
 
 interface InteractiveMapProps {
@@ -23,6 +24,17 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
   
   const mapRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  const { user } = useAuth();
+  
+  // Generate dynamic greeting based on auth status
+  const getGreeting = () => {
+    if (user) {
+      // Get user's name from display name or email
+      const name = user.displayName || user.email?.split('@')[0] || 'User';
+      return `${name} 👋`;
+    }
+    return '👋';
+  };
 
   // Simple location check function
   const isPointInServiceArea = useCallback((lat: number, lng: number): boolean => {
@@ -515,9 +527,9 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
         className="absolute top-[5vh] left-0 right-0 z-20 px-4"
       >
         <div className="max-w-[600px] mx-auto text-center">
-          {/* Main Heading - simplified and direct */}
+          {/* Main Heading - dynamic greeting based on auth status */}
           <h1 className="text-2xl md:text-3xl font-bold text-white mb-3 leading-tight">
-            Hallo 👋
+            {user ? getGreeting() : '👋'}
           </h1>
           <h2 className="text-xl md:text-2xl font-semibold text-white mb-6 leading-tight">
             Wo dürfen wir dein Auto sauber machen?

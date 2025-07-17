@@ -216,6 +216,11 @@ Preferred communication style: Simple, everyday language.
   - Simplified user experience with one-step address input
   - Implemented custom car wash SVG icon for user location marker
   - Replaced legacy Places API with modern Geocoding API for better reliability
+✓ Dynamic greeting system based on authentication status (July 17, 2025):
+  - Shows "Username 👋" when user is logged in (displays name from displayName or email)
+  - Shows just "👋" when user is not authenticated
+  - Integrated with AuthContext for real-time authentication status updates
+  - Personalized experience without overwhelming guest users
 ✓ Enhanced map zoom and bounds configuration (July 17, 2025):
   - Increased starting zoom level from 13 to 12 for closer initial view
   - Added Germany bounds restriction to prevent panning outside country borders
