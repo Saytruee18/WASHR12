@@ -14,6 +14,7 @@ import { CleanerForm } from "@/components/cleaner-form";
 import { useQuery } from "@tanstack/react-query";
 import { Droplets, Circle, Shield, Users, Star, MapPin, Clock, CheckCircle, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 
 type Tab = "home" | "booking" | "wallet" | "profile";
 
@@ -64,6 +65,7 @@ const washPackages: WashPackage[] = [
 ];
 
 export default function Home() {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<Tab>("home");
   const [selectedPackage, setSelectedPackage] = useState<WashPackage | null>(null);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
@@ -126,7 +128,7 @@ export default function Home() {
         return (
           <div className="relative h-screen">
             {/* Full-screen Interactive Map */}
-            <InteractiveMap onLocationSelect={handleLocationSelect} />
+            <InteractiveMap onLocationSelect={handleLocationSelect} userName={user?.displayName || user?.email?.split('@')[0]} />
             
             {/* Floating Action Button */}
             <AnimatePresence>

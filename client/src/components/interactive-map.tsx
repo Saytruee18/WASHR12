@@ -7,11 +7,12 @@ import { Loader } from "@googlemaps/js-api-loader";
 
 interface InteractiveMapProps {
   onLocationSelect: (address: string, isInServiceArea: boolean) => void;
+  userName?: string;
 }
 
 const MAINZ_CENTER = { lat: 50.0012, lng: 8.2711 };
 
-export function InteractiveMap({ onLocationSelect }: InteractiveMapProps) {
+export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapProps) {
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [selectedAddress, setSelectedAddress] = useState("");
   const [isInServiceArea, setIsInServiceArea] = useState(false);
@@ -436,9 +437,9 @@ export function InteractiveMap({ onLocationSelect }: InteractiveMapProps) {
         className="absolute top-16 left-0 right-0 z-20 px-4"
       >
         <div className="max-w-sm mx-auto text-center">
-          {/* Main Heading - smaller and more proportional */}
+          {/* Main Heading - personalized with username */}
           <h1 className="text-2xl md:text-3xl font-bold text-white mb-3 leading-tight">
-            Dein Auto, gewaschen – wo du bist.
+            {userName ? `${userName}, dein Auto gewaschen – egal wo du bist.` : 'Dein Auto, gewaschen – egal wo du bist.'}
           </h1>
           
           {/* Subtitle - smaller and more compact */}

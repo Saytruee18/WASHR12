@@ -171,6 +171,12 @@ Preferred communication style: Simple, everyday language.
   - Proper error handling for invalid addresses and search failures
   - Button disabled state when no address is entered for better UX
   - Smaller, more touch-friendly input and button sizes for mobile optimization
+✓ Personalized landing page with username integration (July 17, 2025):
+  - Added userName prop to InteractiveMap component for personalization
+  - Updated heading to include user's name: "{userName}, dein Auto gewaschen – egal wo du bist."
+  - Integrated with AuthContext to pass user's displayName or email-derived name
+  - Falls back to generic text when user is not logged in
+  - Enhanced user experience with personalized greeting on landing page
 
 ## System Architecture
 
