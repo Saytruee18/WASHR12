@@ -209,12 +209,13 @@ Preferred communication style: Simple, everyday language.
   - Added professional German error messages for invalid addresses
   - Improved UX with real-time address validation and user-friendly feedback
 ✓ Optimized German address search API (July 17, 2025):
-  - Increased API limit to 15 results for comprehensive address coverage
-  - Added server-side filtering to only show addresses with streets/roads
+  - Implemented Mainz-focused search with bounding box (8.215,50.000,8.300,49.960) for local priority
+  - Added two-tier search strategy: Mainz first (up to 4 results), then Germany-wide fallback
+  - Server-side filtering to only show addresses with streets/roads
   - Enhanced address formatting to prioritize street + house number display
-  - Implemented intelligent sorting: complete addresses first, then by house number availability
+  - Intelligent sorting: Mainz complete addresses first, then Mainz streets, then Germany-wide
   - Increased minimum character requirement to 4 for better search accuracy
-  - Enhanced fallback addresses with complete street and house number combinations
+  - Maximum 4 suggestions displayed for optimal user experience
 ✓ Enhanced map experience with optimized zoom and location features (July 17, 2025):
   - Increased default zoom level to 16 for street-level detail on app start
   - Added automatic user location detection with navigator.geolocation

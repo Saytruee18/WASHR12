@@ -92,14 +92,20 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
           };
         });
         
-        // Sort suggestions: prioritize complete addresses (with house numbers) first
+        // Sort suggestions: Mainz streets with house numbers first, then Mainz streets, then others
         osmSuggestions.sort((a, b) => {
+          // Mainz addresses with house numbers get highest priority
           if (a.isComplete && !b.isComplete) return -1;
           if (!a.isComplete && b.isComplete) return 1;
-          if (a.hasHouseNumber && !b.hasHouseNumber) return -1;
-          if (!a.hasHouseNumber && b.hasHouseNumber) return 1;
+          
+          // Among same completion level, prioritize Mainz
           if (a.isMainz && !b.isMainz) return -1;
           if (!a.isMainz && b.isMainz) return 1;
+          
+          // Among same city, prioritize those with house numbers
+          if (a.hasHouseNumber && !b.hasHouseNumber) return -1;
+          if (!a.hasHouseNumber && b.hasHouseNumber) return 1;
+          
           return 0;
         });
         
