@@ -208,6 +208,9 @@ export function EnhancedBookingFlow({ selectedPackage, onComplete, onCancel }: E
     onComplete(bookingData);
   };
 
+  // Add handleComplete function alias for backward compatibility
+  const handleComplete = handleSubmit;
+
   const canProceed = () => {
     switch (currentStep) {
       case 1:

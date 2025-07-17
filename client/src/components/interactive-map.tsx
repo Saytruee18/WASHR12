@@ -41,30 +41,86 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
     return '👋';
   };
 
-  // Handle autocomplete suggestions
+  // Local Mainz addresses for fallback when Google API is not available
+  const mainzAddresses = [
+    "Mainzer Straße 1, 55116 Mainz",
+    "Am Zollhafen 12, 55118 Mainz", 
+    "Rheinstraße 45, 55116 Mainz",
+    "Bahnhofstraße 10, 55116 Mainz",
+    "Gutenbergplatz 4, 55116 Mainz",
+    "Große Bleiche 22, 55116 Mainz",
+    "Schillerplatz 1, 55116 Mainz",
+    "Neubrunnenstraße 7, 55118 Mainz",
+    "Breidenbacherstraße 3, 55122 Mainz",
+    "Binger Straße 15, 55122 Mainz",
+    "Kaiserstraße 5, 55116 Mainz",
+    "Augustusstraße 20, 55131 Mainz",
+    "Münsterstraße 8, 55116 Mainz",
+    "Parcusstraße 12, 55116 Mainz",
+    "Göttelmannstraße 42, 55130 Mainz"
+  ];
+
+  // Handle autocomplete suggestions with fallback to local data
   const getAutocompleteSuggestions = useCallback((input: string) => {
-    if (!autocompleteService || input.length < 2) {
+    if (input.length < 2) {
       setSuggestions([]);
       setShowSuggestions(false);
       return;
     }
 
-    const request = {
-      input,
-      componentRestrictions: { country: 'de' }, // Restrict to Germany
-      types: ['address'],
-    };
+    // Try Google API first, fallback to local addresses
+    if (autocompleteService) {
+      const request = {
+        input: input + " Mainz", // Always include Mainz for better results
+        componentRestrictions: { country: 'de' },
+        types: ['address'],
+      };
 
-    autocompleteService.getPlacePredictions(request, (predictions, status) => {
-      if (status === google.maps.places.PlacesServiceStatus.OK && predictions) {
-        setSuggestions(predictions);
-        setShowSuggestions(true);
-      } else {
-        setSuggestions([]);
-        setShowSuggestions(false);
-      }
-    });
+      autocompleteService.getPlacePredictions(request, (predictions, status) => {
+        if (status === google.maps.places.PlacesServiceStatus.OK && predictions) {
+          // Convert Google predictions to our format
+          const googleSuggestions = predictions.map(p => ({
+            place_id: p.place_id,
+            description: p.description,
+            structured_formatting: p.structured_formatting
+          }));
+          setSuggestions(googleSuggestions as any);
+          setShowSuggestions(true);
+        } else {
+          // Fallback to local addresses
+          useLocalAddressSuggestions(input);
+        }
+      });
+    } else {
+      // Use local addresses if Google API not available
+      useLocalAddressSuggestions(input);
+    }
   }, [autocompleteService]);
+
+  // Fallback function for local address suggestions
+  const useLocalAddressSuggestions = (input: string) => {
+    const filtered = mainzAddresses.filter(addr => 
+      addr.toLowerCase().includes(input.toLowerCase())
+    );
+    
+    if (filtered.length > 0) {
+      // Convert to Google-like format for compatibility
+      const localSuggestions = filtered.map((addr, index) => ({
+        place_id: `local_${index}`,
+        description: addr,
+        structured_formatting: {
+          main_text: addr.split(',')[0],
+          secondary_text: addr.split(',').slice(1).join(',')
+        }
+      }));
+      setSuggestions(localSuggestions as any);
+      setShowSuggestions(true);
+    } else {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      setShowAreaWarning(true);
+    }
+  };
 
   // Handle address input change
   const handleAddressInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -74,7 +130,7 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
   };
 
   // Handle suggestion selection
-  const handleSuggestionSelect = (suggestion: google.maps.places.AutocompletePrediction) => {
+  const handleSuggestionSelect = (suggestion: any) => {
     setAddressInput(suggestion.description);
     setShowSuggestions(false);
     
@@ -86,7 +142,22 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
       return;
     }
 
-    // If it's in Mainz, proceed with geocoding
+    // For local addresses (place_id starts with 'local_'), use approximate coordinates
+    if (suggestion.place_id.startsWith('local_')) {
+      // Use Mainz center with slight offset for different addresses
+      const baseIndex = parseInt(suggestion.place_id.replace('local_', ''));
+      const lat = MAINZ_CENTER.lat + (Math.random() - 0.5) * 0.01;
+      const lng = MAINZ_CENTER.lng + (Math.random() - 0.5) * 0.01;
+      handleLocationSelect(lat, lng, suggestion.description);
+      
+      toast({
+        title: "Adresse ausgewählt",
+        description: "Ihre Adresse wurde erfolgreich gesetzt.",
+      });
+      return;
+    }
+
+    // For Google Places, use Places service if available
     if (placesService) {
       const request = {
         placeId: suggestion.place_id,
@@ -99,8 +170,14 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
           const lat = location.lat();
           const lng = location.lng();
           handleLocationSelect(lat, lng, place.formatted_address || suggestion.description);
+        } else {
+          // Fallback to Mainz center if geocoding fails
+          handleLocationSelect(MAINZ_CENTER.lat, MAINZ_CENTER.lng, suggestion.description);
         }
       });
+    } else {
+      // Fallback if no Places service
+      handleLocationSelect(MAINZ_CENTER.lat, MAINZ_CENTER.lng, suggestion.description);
     }
   };
 

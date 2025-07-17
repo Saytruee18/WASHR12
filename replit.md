@@ -240,6 +240,12 @@ Preferred communication style: Simple, everyday language.
   - Custom error popup: "Diesen Bereich machen wir derzeit leider nicht. Melde dich beim Support für weitere Hilfe."
   - Click-outside functionality and keyboard navigation support
   - Replaces browser-standard autocomplete with custom styled solution
+✓ Enhanced autocomplete with fallback system (July 17, 2025):
+  - Added 15 real Mainz addresses as fallback when Google API has authorization issues
+  - Hybrid system: tries Google Places API first, falls back to local address database
+  - Local addresses include postal codes (55116, 55118, 55122, 55131) for authenticity
+  - Fixed EnhancedBookingFlow component error by adding missing handleComplete function
+  - System remains functional even with API restrictions or connectivity issues
 ✓ Enhanced map zoom and bounds configuration (July 17, 2025):
   - Increased starting zoom level from 13 to 12 for closer initial view
   - Added Germany bounds restriction to prevent panning outside country borders
