@@ -246,6 +246,14 @@ Preferred communication style: Simple, everyday language.
   - Local addresses include postal codes (55116, 55118, 55122, 55131) for authenticity
   - Fixed EnhancedBookingFlow component error by adding missing handleComplete function
   - System remains functional even with API restrictions or connectivity issues
+✓ OpenStreetMap Nominatim API integration (July 17, 2025):
+  - Replaced Google Places API with free OpenStreetMap Nominatim API for address autocomplete
+  - Implemented proper User-Agent headers and error handling for reliable API access
+  - Live address search for entire Germany with restriction to country code 'de'
+  - Accurate city validation using OpenStreetMap address details (city, town, village, municipality)
+  - Real coordinates from OpenStreetMap data for precise map positioning
+  - Fallback to local Mainz addresses when Nominatim API is not accessible
+  - No API keys required - completely free and open source solution
 ✓ Enhanced map zoom and bounds configuration (July 17, 2025):
   - Increased starting zoom level from 13 to 12 for closer initial view
   - Added Germany bounds restriction to prevent panning outside country borders

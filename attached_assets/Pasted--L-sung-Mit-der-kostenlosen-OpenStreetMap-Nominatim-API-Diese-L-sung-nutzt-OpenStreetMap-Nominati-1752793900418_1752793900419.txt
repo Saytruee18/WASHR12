@@ -1,0 +1,154 @@
+✅ Lösung: Mit der kostenlosen OpenStreetMap-Nominatim API
+Diese Lösung nutzt OpenStreetMap (Nominatim) als kostenlose Autovervollständigung – ganz ohne Google.
+
+🧠 Was passiert technisch?
+User tippt z. B. „Bahnhofstraße 10“
+
+JS fragt bei Nominatim nach passenden Adressen (in ganz Deutschland)
+
+Vorschläge werden schön gestylt angezeigt
+
+Wenn der User auswählt:
+
+Ist Stadt = Mainz → OK ✅
+
+Ist Stadt ≠ Mainz → ❌ zeige Pop-up: "Diesen Bereich machen wir derzeit leider nicht."
+
+✅ Komplett funktionierender Code (HTML + CSS + JS)
+html
+Kopieren
+Bearbeiten
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Adresse eingeben</title>
+  <style>
+    body {
+      background-color: #121212;
+      color: white;
+      font-family: sans-serif;
+      padding: 2rem;
+    }
+
+    .input-wrapper {
+      position: relative;
+      max-width: 400px;
+      margin: auto;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 0.8rem;
+      border: none;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      background-color: #1e1e1e;
+      color: white;
+    }
+
+    .suggestions {
+      position: absolute;
+      width: 100%;
+      background-color: #1e1e1e;
+      border-radius: 0.5rem;
+      margin-top: 0.3rem;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+      z-index: 10;
+    }
+
+    .suggestion-item {
+      padding: 0.7rem 1rem;
+      cursor: pointer;
+      border-bottom: 1px solid #333;
+    }
+
+    .suggestion-item:hover {
+      background-color: #333;
+    }
+
+    .popup {
+      display: none;
+      margin-top: 1rem;
+      background-color: #ff4d4d;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      font-size: 0.95rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="input-wrapper">
+    <input type="text" id="addressInput" placeholder="Deine Adresse eingeben...">
+    <div id="suggestions" class="suggestions"></div>
+    <div id="popup" class="popup">
+      ❗ Diesen Bereich machen wir derzeit leider nicht.<br>
+      Melde dich beim Support für weitere Hilfe.
+    </div>
+  </div>
+
+  <script>
+    const addressInput = document.getElementById("addressInput");
+    const suggestionsContainer = document.getElementById("suggestions");
+    const popup = document.getElementById("popup");
+
+    let currentSuggestions = [];
+
+    addressInput.addEventListener("input", async () => {
+      const input = addressInput.value.trim();
+
+      suggestionsContainer.innerHTML = "";
+      popup.style.display = "none";
+
+      if (input.length < 3) return;
+
+      const url = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&countrycodes=de&limit=5&q=${encodeURIComponent(input)}`;
+      const response = await fetch(url);
+      const results = await response.json();
+
+      currentSuggestions = results;
+
+      results.forEach(place => {
+        const div = document.createElement("div");
+        div.classList.add("suggestion-item");
+        div.textContent = place.display_name;
+        div.onclick = () => selectAddress(place);
+        suggestionsContainer.appendChild(div);
+      });
+    });
+
+    function selectAddress(place) {
+      addressInput.value = place.display_name;
+      suggestionsContainer.innerHTML = "";
+
+      const city = place.address.city || place.address.town || place.address.village || "";
+      
+      if (city.toLowerCase() !== "mainz") {
+        popup.style.display = "block";
+      } else {
+        popup.style.display = "none";
+        // Optional: weiterleiten, speichern, etc.
+        alert("Adresse in Mainz akzeptiert ✅");
+      }
+    }
+
+    addressInput.addEventListener("blur", () => {
+      setTimeout(() => {
+        suggestionsContainer.innerHTML = "";
+      }, 200);
+    });
+  </script>
+
+</body>
+</html>
+✅ Vorteile dieser Lösung:
+Live-Suche für ganz Deutschland
+
+Vorschläge mit OpenStreetMap – kostenlos & ohne API-Key
+
+Styling vollständig anpassbar
+
+Nur Mainz-Adressen erlaubt
+

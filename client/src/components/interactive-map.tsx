@@ -41,70 +41,78 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
     return '👋';
   };
 
-  // Local Mainz addresses for fallback when Google API is not available
-  const mainzAddresses = [
-    "Mainzer Straße 1, 55116 Mainz",
-    "Am Zollhafen 12, 55118 Mainz", 
-    "Rheinstraße 45, 55116 Mainz",
-    "Bahnhofstraße 10, 55116 Mainz",
-    "Gutenbergplatz 4, 55116 Mainz",
-    "Große Bleiche 22, 55116 Mainz",
-    "Schillerplatz 1, 55116 Mainz",
-    "Neubrunnenstraße 7, 55118 Mainz",
-    "Breidenbacherstraße 3, 55122 Mainz",
-    "Binger Straße 15, 55122 Mainz",
-    "Kaiserstraße 5, 55116 Mainz",
-    "Augustusstraße 20, 55131 Mainz",
-    "Münsterstraße 8, 55116 Mainz",
-    "Parcusstraße 12, 55116 Mainz",
-    "Göttelmannstraße 42, 55130 Mainz"
-  ];
-
-  // Handle autocomplete suggestions with fallback to local data
-  const getAutocompleteSuggestions = useCallback((input: string) => {
-    if (input.length < 2) {
+  // OpenStreetMap Nominatim API for address suggestions
+  const getAutocompleteSuggestions = useCallback(async (input: string) => {
+    if (input.length < 3) {
       setSuggestions([]);
       setShowSuggestions(false);
       return;
     }
 
-    // Try Google API first, fallback to local addresses
-    if (autocompleteService) {
-      const request = {
-        input: input + " Mainz", // Always include Mainz for better results
-        componentRestrictions: { country: 'de' },
-        types: ['address'],
-      };
-
-      autocompleteService.getPlacePredictions(request, (predictions, status) => {
-        if (status === google.maps.places.PlacesServiceStatus.OK && predictions) {
-          // Convert Google predictions to our format
-          const googleSuggestions = predictions.map(p => ({
-            place_id: p.place_id,
-            description: p.description,
-            structured_formatting: p.structured_formatting
-          }));
-          setSuggestions(googleSuggestions as any);
-          setShowSuggestions(true);
-        } else {
-          // Fallback to local addresses
-          useLocalAddressSuggestions(input);
-        }
+    try {
+      const url = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&countrycodes=de&limit=5&q=${encodeURIComponent(input)}`;
+      const response = await fetch(url, {
+        headers: {
+          'User-Agent': 'WASHK App/1.0 (https://washk.app)',
+        },
       });
-    } else {
-      // Use local addresses if Google API not available
-      useLocalAddressSuggestions(input);
-    }
-  }, [autocompleteService]);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      const results = await response.json();
 
-  // Fallback function for local address suggestions
-  const useLocalAddressSuggestions = (input: string) => {
+      if (results.length > 0) {
+        // Convert OpenStreetMap results to our format
+        const osmSuggestions = results.map((place: any, index: number) => ({
+          place_id: place.place_id || `osm_${index}`,
+          description: place.display_name,
+          structured_formatting: {
+            main_text: place.display_name.split(',')[0],
+            secondary_text: place.display_name.split(',').slice(1).join(',')
+          },
+          osmData: place // Store original OSM data for validation
+        }));
+        setSuggestions(osmSuggestions as any);
+        setShowSuggestions(true);
+      } else {
+        setSuggestions([]);
+        setShowSuggestions(false);
+      }
+    } catch (error) {
+      console.error('OpenStreetMap API error:', error);
+      // Fallback to local Mainz addresses when API fails
+      useLocalMainzAddresses(input);
+    }
+  }, []);
+
+  // Fallback local Mainz addresses when OpenStreetMap API is not available
+  const useLocalMainzAddresses = (input: string) => {
+    const mainzAddresses = [
+      "Mainzer Straße 1, 55116 Mainz",
+      "Am Zollhafen 12, 55118 Mainz", 
+      "Rheinstraße 45, 55116 Mainz",
+      "Bahnhofstraße 10, 55116 Mainz",
+      "Gutenbergplatz 4, 55116 Mainz",
+      "Große Bleiche 22, 55116 Mainz",
+      "Schillerplatz 1, 55116 Mainz",
+      "Neubrunnenstraße 7, 55118 Mainz",
+      "Breidenbacherstraße 3, 55122 Mainz",
+      "Binger Straße 15, 55122 Mainz",
+      "Kaiserstraße 5, 55116 Mainz",
+      "Augustusstraße 20, 55131 Mainz",
+      "Münsterstraße 8, 55116 Mainz",
+      "Parcusstraße 12, 55116 Mainz",
+      "Göttelmannstraße 42, 55130 Mainz"
+    ];
+
     const filtered = mainzAddresses.filter(addr => 
       addr.toLowerCase().includes(input.toLowerCase())
     );
     
     if (filtered.length > 0) {
-      // Convert to Google-like format for compatibility
+      // Convert to compatible format
       const localSuggestions = filtered.map((addr, index) => ({
         place_id: `local_${index}`,
         description: addr,
@@ -118,7 +126,6 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
     } else {
       setSuggestions([]);
       setShowSuggestions(false);
-      setShowAreaWarning(true);
     }
   };
 
@@ -134,15 +141,34 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
     setAddressInput(suggestion.description);
     setShowSuggestions(false);
     
-    // Check if address is in Mainz
-    const isMainzAddress = suggestion.description.toLowerCase().includes('mainz');
-    
-    if (!isMainzAddress) {
-      setShowAreaWarning(true);
+    // For OpenStreetMap results, check the city from address details
+    if (suggestion.osmData) {
+      const address = suggestion.osmData.address || {};
+      const city = address.city || address.town || address.village || address.municipality || '';
+      
+      if (city.toLowerCase() !== 'mainz') {
+        setShowAreaWarning(true);
+        return;
+      }
+
+      // Use coordinates from OpenStreetMap
+      const lat = parseFloat(suggestion.osmData.lat);
+      const lng = parseFloat(suggestion.osmData.lon);
+      
+      if (lat && lng) {
+        handleLocationSelect(lat, lng, suggestion.description);
+        toast({
+          title: "Adresse ausgewählt",
+          description: "Ihre Adresse wurde erfolgreich gesetzt.",
+        });
+      } else {
+        // Fallback to Mainz center
+        handleLocationSelect(MAINZ_CENTER.lat, MAINZ_CENTER.lng, suggestion.description);
+      }
       return;
     }
 
-    // For local addresses (place_id starts with 'local_'), use approximate coordinates
+    // For local addresses (place_id starts with 'local_'), these are all Mainz addresses
     if (suggestion.place_id.startsWith('local_')) {
       // Use Mainz center with slight offset for different addresses
       const baseIndex = parseInt(suggestion.place_id.replace('local_', ''));
@@ -157,28 +183,15 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
       return;
     }
 
-    // For Google Places, use Places service if available
-    if (placesService) {
-      const request = {
-        placeId: suggestion.place_id,
-        fields: ['geometry', 'formatted_address']
-      };
-
-      placesService.getDetails(request, (place, status) => {
-        if (status === google.maps.places.PlacesServiceStatus.OK && place?.geometry?.location) {
-          const location = place.geometry.location;
-          const lat = location.lat();
-          const lng = location.lng();
-          handleLocationSelect(lat, lng, place.formatted_address || suggestion.description);
-        } else {
-          // Fallback to Mainz center if geocoding fails
-          handleLocationSelect(MAINZ_CENTER.lat, MAINZ_CENTER.lng, suggestion.description);
-        }
-      });
-    } else {
-      // Fallback if no Places service
-      handleLocationSelect(MAINZ_CENTER.lat, MAINZ_CENTER.lng, suggestion.description);
+    // Fallback check if no OSM data
+    const isMainzAddress = suggestion.description.toLowerCase().includes('mainz');
+    if (!isMainzAddress) {
+      setShowAreaWarning(true);
+      return;
     }
+
+    // Use Mainz center as fallback
+    handleLocationSelect(MAINZ_CENTER.lat, MAINZ_CENTER.lng, suggestion.description);
   };
 
   // Handle click outside to close suggestions
