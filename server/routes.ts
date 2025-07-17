@@ -73,7 +73,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Query parameter 'q' is required" });
       }
 
-      const url = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&countrycodes=de&limit=5&q=${encodeURIComponent(q)}`;
+      const url = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&countrycodes=de&limit=15&q=${encodeURIComponent(q)}`;
       
       const response = await fetch(url, {
         headers: {
@@ -86,7 +86,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const results = await response.json();
-      res.json(results);
+      
+      // Filter results to only include addresses with streets (roads)
+      // Include both addresses with and without house numbers to allow progressive search
+      const filteredResults = results.filter(place => {
+        return place.address && place.address.road;  // Must have at least a street/road
+      });
+      
+      res.json(filteredResults);
     } catch (error: any) {
       console.error('Geocoding API error:', error);
       res.status(500).json({ message: "Error fetching geocoding data: " + error.message });

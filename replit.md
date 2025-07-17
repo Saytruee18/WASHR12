@@ -204,10 +204,17 @@ Preferred communication style: Simple, everyday language.
 ✓ Enhanced address validation system (July 17, 2025):
   - Fixed CORS issues by implementing backend proxy for OpenStreetMap geocoding API
   - Added comprehensive house number validation for German addresses
-  - Enhanced address suggestions with visual indicators (✓ Vollständig, ❌ Außerhalb, ⚠ Hausnummer?)
+  - Enhanced address suggestions with visual indicators (✓ Vollständig, ❌ Außerhalb, 🏠 Hausnummer?, 🛣️ Straße?)
   - Implemented strict validation requiring both Mainz location AND house number
   - Added professional German error messages for invalid addresses
   - Improved UX with real-time address validation and user-friendly feedback
+✓ Optimized German address search API (July 17, 2025):
+  - Increased API limit to 15 results for comprehensive address coverage
+  - Added server-side filtering to only show addresses with streets/roads
+  - Enhanced address formatting to prioritize street + house number display
+  - Implemented intelligent sorting: complete addresses first, then by house number availability
+  - Increased minimum character requirement to 4 for better search accuracy
+  - Enhanced fallback addresses with complete street and house number combinations
 ✓ Enhanced map experience with optimized zoom and location features (July 17, 2025):
   - Increased default zoom level to 16 for street-level detail on app start
   - Added automatic user location detection with navigator.geolocation

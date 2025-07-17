@@ -43,7 +43,7 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
 
   // Enhanced OpenStreetMap Nominatim API for address suggestions with house number validation
   const getAutocompleteSuggestions = useCallback(async (input: string) => {
-    if (input.length < 3) {
+    if (input.length < 4) {  // Require at least 4 characters for better results
       setSuggestions([]);
       setShowSuggestions(false);
       return;
@@ -65,19 +65,42 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
           const address = place.address || {};
           const city = address.city || address.town || address.village || address.municipality || '';
           const houseNumber = address.house_number || '';
+          const road = address.road || '';
+          
+          // Better formatting: prioritize street + house number for main text
+          let mainText = road;
+          if (houseNumber) {
+            mainText = `${road} ${houseNumber}`;
+          }
+          
+          // Secondary text: remaining address parts
+          const addressParts = [city, address.postcode, address.state].filter(Boolean);
+          const secondaryText = addressParts.join(', ');
           
           return {
             place_id: place.place_id || `osm_${index}`,
             description: place.display_name,
             structured_formatting: {
-              main_text: place.display_name.split(',')[0],
-              secondary_text: place.display_name.split(',').slice(1).join(',')
+              main_text: mainText || place.display_name.split(',')[0],
+              secondary_text: secondaryText || place.display_name.split(',').slice(1).join(',')
             },
             osmData: place, // Store original OSM data for validation
             isMainz: city.toLowerCase() === 'mainz',
             hasHouseNumber: !!houseNumber,
-            isComplete: city.toLowerCase() === 'mainz' && !!houseNumber
+            hasRoad: !!road,
+            isComplete: city.toLowerCase() === 'mainz' && !!houseNumber && !!road
           };
+        });
+        
+        // Sort suggestions: prioritize complete addresses (with house numbers) first
+        osmSuggestions.sort((a, b) => {
+          if (a.isComplete && !b.isComplete) return -1;
+          if (!a.isComplete && b.isComplete) return 1;
+          if (a.hasHouseNumber && !b.hasHouseNumber) return -1;
+          if (!a.hasHouseNumber && b.hasHouseNumber) return 1;
+          if (a.isMainz && !b.isMainz) return -1;
+          if (!a.isMainz && b.isMainz) return 1;
+          return 0;
         });
         
         setSuggestions(osmSuggestions as any);
@@ -93,24 +116,29 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
     }
   }, []);
 
-  // Fallback local Mainz addresses when OpenStreetMap API is not available
+  // Enhanced fallback local Mainz addresses with complete street and house number data
   const useLocalMainzAddresses = (input: string) => {
     const mainzAddresses = [
-      "Mainzer Straße 1, 55116 Mainz",
-      "Am Zollhafen 12, 55118 Mainz", 
+      "Bahnhofstraße 1, 55116 Mainz",
+      "Bahnhofstraße 15, 55116 Mainz", 
+      "Rheinstraße 12, 55116 Mainz",
       "Rheinstraße 45, 55116 Mainz",
-      "Bahnhofstraße 10, 55116 Mainz",
       "Gutenbergplatz 4, 55116 Mainz",
       "Große Bleiche 22, 55116 Mainz",
+      "Große Bleiche 60, 55116 Mainz",
       "Schillerplatz 1, 55116 Mainz",
       "Neubrunnenstraße 7, 55118 Mainz",
       "Breidenbacherstraße 3, 55122 Mainz",
       "Binger Straße 15, 55122 Mainz",
+      "Binger Straße 34, 55122 Mainz",
       "Kaiserstraße 5, 55116 Mainz",
+      "Kaiserstraße 23, 55116 Mainz",
       "Augustusstraße 20, 55131 Mainz",
       "Münsterstraße 8, 55116 Mainz",
       "Parcusstraße 12, 55116 Mainz",
-      "Göttelmannstraße 42, 55130 Mainz"
+      "Göttelmannstraße 42, 55130 Mainz",
+      "Am Zollhafen 12, 55118 Mainz",
+      "Am Zollhafen 25, 55118 Mainz"
     ];
 
     const filtered = mainzAddresses.filter(addr => 
@@ -816,20 +844,24 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
                           </div>
                           <div className="flex items-center space-x-1 ml-2">
                             {isComplete ? (
-                              <span className="text-green-500 text-xs font-medium bg-green-500/20 px-2 py-1 rounded">
+                              <span className="text-green-500 text-xs font-medium bg-green-500/20 px-2 py-1 rounded flex items-center gap-1">
                                 ✓ Vollständig
                               </span>
                             ) : !isMainz ? (
-                              <span className="text-red-500 text-xs font-medium bg-red-500/20 px-2 py-1 rounded">
+                              <span className="text-red-500 text-xs font-medium bg-red-500/20 px-2 py-1 rounded flex items-center gap-1">
                                 ❌ Außerhalb
                               </span>
-                            ) : !hasHouseNumber ? (
-                              <span className="text-yellow-500 text-xs font-medium bg-yellow-500/20 px-2 py-1 rounded">
-                                ⚠ Hausnummer?
+                            ) : !suggestion.hasHouseNumber ? (
+                              <span className="text-yellow-500 text-xs font-medium bg-yellow-500/20 px-2 py-1 rounded flex items-center gap-1">
+                                🏠 Hausnummer?
+                              </span>
+                            ) : !suggestion.hasRoad ? (
+                              <span className="text-orange-500 text-xs font-medium bg-orange-500/20 px-2 py-1 rounded flex items-center gap-1">
+                                🛣️ Straße?
                               </span>
                             ) : (
                               <span className="text-gray-500 text-xs">
-                                ?
+                                📍
                               </span>
                             )}
                           </div>
