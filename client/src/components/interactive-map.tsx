@@ -198,7 +198,7 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
           center: serviceCenter,
           map: googleMap,
           radius: 15000, // 15km radius for broader coverage
-          strokeColor: "rgba(0, 255, 0, 0.4)", // Transparent green outline
+          strokeColor: "#3cbf5c", // Main green color
           strokeOpacity: 0.6,
           strokeWeight: 2,
           fillColor: "transparent", // No fill to keep map clean
@@ -244,7 +244,7 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
           icon: {
             path: google.maps.SymbolPath.CIRCLE,
             scale: 15,
-            fillColor: "#00ff88",
+            fillColor: "#3cbf5c",
             fillOpacity: 1,
             strokeColor: "#ffffff",
             strokeWeight: 3,
@@ -258,7 +258,7 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
           content: `
             <div style="color: #333; font-weight: 500; padding: 8px;">
               <div style="display: flex; align-items: center; gap: 8px;">
-                <div style="width: 10px; height: 10px; background: #00ff88; border-radius: 50%; animation: pulse 2s infinite;"></div>
+                <div style="width: 10px; height: 10px; background: #3cbf5c; border-radius: 50%; animation: pulse 2s infinite;"></div>
                 Service verfügbar – Mainz Zentrum
               </div>
             </div>
@@ -420,29 +420,28 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
         style={{ minHeight: '100vh' }}
       />
 
-      {/* Top Dark Gradient Mask - Soft overlay for contrast */}
-      <div className="absolute top-0 left-0 right-0 h-96 bg-gradient-to-b from-black/80 via-black/50 to-transparent pointer-events-none z-10" />
+      {/* Top Dark Gradient Mask - Compact overlay with custom color */}
+      <div className="absolute top-0 left-0 right-0 h-[30vh] bg-gradient-to-b from-[#100c0c]/95 via-[#100c0c]/60 to-transparent pointer-events-none z-10" />
 
-      {/* Landing Page Content */}
+      {/* Landing Page Content - More compact layout */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
-        className="absolute top-16 left-0 right-0 z-20 px-4"
+        className="absolute top-[5vh] left-0 right-0 z-20 px-4"
       >
-        <div className="max-w-sm mx-auto text-center">
-          {/* Main Heading - personalized with username */}
+        <div className="max-w-[600px] mx-auto text-center">
+          {/* Main Heading - simplified and direct */}
           <h1 className="text-2xl md:text-3xl font-bold text-white mb-3 leading-tight">
-            {userName ? `Hallo, ${userName} 👋` : 'Hallo 👋'}
+            Hallo 👋
           </h1>
-          <h2 className="text-xl md:text-2xl font-semibold text-white mb-3 leading-tight">
-            Bereit für deinen nächsten Waschgang?
+          <h2 className="text-xl md:text-2xl font-semibold text-white mb-6 leading-tight">
+            Wo dürfen wir dein Auto sauber machen?
           </h2>
           
-          {/* Subtitle - shorter and more direct */}
+          {/* Subtitle - very short and direct */}
           <p className="text-sm md:text-base text-gray-300 mb-6 leading-relaxed">
-            Wir kommen zu dir – schnell, einfach und zuverlässig.<br />
-            Gib deine Adresse ein, und wir kümmern uns um den Rest.
+            Adresse eingeben – wir kommen vorbei.
           </p>
           
           {/* Address Search - more compact design */}
@@ -456,7 +455,7 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
                 value={addressInput}
                 onChange={(e) => setAddressInput(e.target.value)}
                 placeholder="Deine Adresse hier eingeben..."
-                className="w-full bg-white/95 backdrop-blur-sm rounded-xl px-10 py-3 text-gray-900 placeholder-gray-500 border-0 focus:outline-none focus:ring-2 focus:ring-[#00ff88] text-sm font-medium shadow-lg"
+                className="w-full bg-white/95 backdrop-blur-sm rounded-xl px-10 py-3 text-gray-900 placeholder-gray-500 border-0 focus:outline-none focus:ring-2 focus:ring-[#3cbf5c] text-sm font-medium shadow-lg"
                 onFocus={(e) => {
                   e.target.style.transform = 'scale(1.01)';
                   e.target.style.transition = 'transform 0.2s ease';
@@ -475,7 +474,12 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
             <Button
               onClick={handleAddressSearch}
               disabled={!addressInput.trim()}
-              className="w-full bg-[#00ff88] hover:bg-[#00dd77] disabled:bg-gray-400 disabled:text-gray-600 text-black font-semibold py-3 px-6 rounded-xl text-sm shadow-lg transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+              className="w-full bg-[#3cbf5c] hover:bg-[#2fa04d] disabled:bg-gray-400 disabled:text-gray-600 text-white font-bold py-3 px-6 rounded-xl text-sm transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+              style={{ 
+                boxShadow: '0 2px 10px rgba(0, 0, 0, 0.2)',
+                borderRadius: '12px',
+                padding: '12px 24px'
+              }}
               size="sm"
             >
               Verfügbarkeit prüfen
@@ -484,27 +488,30 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
         </div>
       </motion.div>
 
-      {/* Bottom Dark Gradient Mask */}
-      <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-black/60 via-black/30 to-transparent pointer-events-none z-10" />
+      {/* Bottom Dark Gradient Mask with new color */}
+      <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-[#100c0c]/60 via-[#100c0c]/30 to-transparent pointer-events-none z-10" />
 
-      {/* Side Gradient Masks */}
-      <div className="absolute top-0 left-0 bottom-0 w-8 bg-gradient-to-r from-black/40 to-transparent pointer-events-none z-10" />
-      <div className="absolute top-0 right-0 bottom-0 w-8 bg-gradient-to-l from-black/40 to-transparent pointer-events-none z-10" />
+      {/* Side Gradient Masks with new color */}
+      <div className="absolute top-0 left-0 bottom-0 w-8 bg-gradient-to-r from-[#100c0c]/40 to-transparent pointer-events-none z-10" />
+      <div className="absolute top-0 right-0 bottom-0 w-8 bg-gradient-to-l from-[#100c0c]/40 to-transparent pointer-events-none z-10" />
       
-      {/* Zone Legend - German translations */}
+      {/* Zone Legend - German translations with new color */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1 }}
         className="absolute bottom-24 left-6 z-20"
       >
-        <div className="bg-gray-900/90 backdrop-blur-md rounded-xl p-4 border border-gray-700/50 shadow-xl">
-          <div className="space-y-3">
-            <div className="flex items-center space-x-3">
-              <CheckCircle className="h-4 w-4 text-[#00ff88]" />
-              <span className="text-sm font-medium text-white">✅ Im Servicegebiet</span>
+        <div 
+          className="backdrop-blur-md rounded-lg p-3 border border-gray-700/50 shadow-xl text-sm"
+          style={{ backgroundColor: '#100c0c', color: '#fff' }}
+        >
+          <div className="space-y-2">
+            <div className="flex items-center space-x-2">
+              <CheckCircle className="h-4 w-4 text-[#3cbf5c]" />
+              <span className="text-sm font-medium">✅ Im Servicegebiet</span>
             </div>
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-2">
               <Circle className="h-4 w-4 text-red-500" />
               <span className="text-sm font-medium text-gray-300">❌ Außerhalb des Gebiets</span>
             </div>
@@ -514,9 +521,9 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
 
       {/* Loading State */}
       {!isMapLoaded && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/90 z-50">
+        <div className="absolute inset-0 flex items-center justify-center z-50" style={{ backgroundColor: '#100c0c' }}>
           <div className="text-center text-white">
-            <div className="w-8 h-8 border-2 border-[#00ff88] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+            <div className="w-8 h-8 border-2 border-[#3cbf5c] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
             <p className="text-lg font-semibold">Loading Map...</p>
           </div>
         </div>
@@ -531,13 +538,16 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
             exit={{ opacity: 0, scale: 0.8 }}
             className="absolute bottom-6 right-6 z-20"
           >
-            <div className="bg-gray-900/95 backdrop-blur-md rounded-2xl p-4 border border-gray-700/50 shadow-2xl">
+            <div 
+              className="backdrop-blur-md rounded-2xl p-4 border border-gray-700/50 shadow-2xl"
+              style={{ backgroundColor: '#100c0c' }}
+            >
               <div className="flex items-center space-x-3">
                 {isInServiceArea ? (
                   <>
-                    <CheckCircle className="h-5 w-5 text-[#00ff88]" />
+                    <CheckCircle className="h-5 w-5 text-[#3cbf5c]" />
                     <div>
-                      <p className="text-sm font-semibold text-[#00ff88]">✅ Im Servicegebiet</p>
+                      <p className="text-sm font-semibold text-[#3cbf5c]">✅ Im Servicegebiet</p>
                       <p className="text-xs text-gray-400">Buchung möglich</p>
                     </div>
                   </>
@@ -567,7 +577,7 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
           >
             <Button
               onClick={() => onLocationSelect(selectedAddress, isInServiceArea)}
-              className="bg-[#00ff88] hover:bg-[#00dd77] text-black rounded-full p-4 shadow-2xl"
+              className="bg-[#3cbf5c] hover:bg-[#2fa04d] text-white rounded-full p-4 shadow-2xl"
               size="lg"
             >
               <MapPin className="h-6 w-6" />
