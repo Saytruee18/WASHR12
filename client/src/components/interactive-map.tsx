@@ -16,6 +16,9 @@ export function InteractiveMap({ onLocationSelect }: InteractiveMapProps) {
   const [selectedAddress, setSelectedAddress] = useState("");
   const [isInServiceArea, setIsInServiceArea] = useState(false);
   const [isMapLoaded, setIsMapLoaded] = useState(false);
+  const [addressInput, setAddressInput] = useState("");
+  const [autocompleteService, setAutocompleteService] = useState<google.maps.places.AutocompleteService | null>(null);
+  const [placesService, setPlacesService] = useState<google.maps.places.PlacesService | null>(null);
   
   const mapRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
@@ -308,6 +311,12 @@ export function InteractiveMap({ onLocationSelect }: InteractiveMapProps) {
         setMap(googleMap);
         setIsMapLoaded(true);
 
+        // Initialize Places services for address search
+        const autocomplete = new google.maps.places.AutocompleteService();
+        const places = new google.maps.places.PlacesService(googleMap);
+        setAutocompleteService(autocomplete);
+        setPlacesService(places);
+
       } catch (error) {
         console.error("Error loading Google Maps:", error);
         toast({
@@ -320,6 +329,84 @@ export function InteractiveMap({ onLocationSelect }: InteractiveMapProps) {
 
     initMap();
   }, [isPointInServiceArea, onLocationSelect, toast]);
+
+  // Handle address search
+  const handleAddressSearch = useCallback(async () => {
+    if (!addressInput.trim() || !placesService) {
+      toast({
+        title: "Bitte geben Sie eine Adresse ein",
+        description: "Um die Verfügbarkeit zu prüfen, benötigen wir eine gültige Adresse.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      // Use Places API to find the location
+      const request = {
+        query: addressInput,
+        fields: ['name', 'geometry', 'formatted_address']
+      };
+
+      placesService.findPlaceFromQuery(request, (results, status) => {
+        if (status === google.maps.places.PlacesServiceStatus.OK && results && results[0]) {
+          const place = results[0];
+          const location = place.geometry?.location;
+          
+          if (location) {
+            const lat = location.lat();
+            const lng = location.lng();
+            
+            // Check if location is in service area
+            const inServiceArea = isPointInServiceArea(lat, lng);
+            
+            // Update map view
+            if (map) {
+              map.setCenter({ lat, lng });
+              map.setZoom(15);
+              
+              // Add marker for searched location
+              new google.maps.Marker({
+                position: { lat, lng },
+                map: map,
+                title: place.formatted_address || addressInput
+              });
+            }
+            
+            setSelectedAddress(place.formatted_address || addressInput);
+            setIsInServiceArea(inServiceArea);
+            
+            if (inServiceArea) {
+              toast({
+                title: "✅ Service verfügbar!",
+                description: "Wir können zu dieser Adresse kommen. Buchung ist möglich.",
+              });
+              onLocationSelect(place.formatted_address || addressInput, true);
+            } else {
+              toast({
+                title: "❌ Außerhalb des Servicebereichs",
+                description: "Diese Adresse liegt außerhalb unseres aktuellen Servicebereichs in Mainz.",
+                variant: "destructive"
+              });
+            }
+          }
+        } else {
+          toast({
+            title: "Adresse nicht gefunden",
+            description: "Bitte überprüfen Sie die Eingabe und versuchen Sie es erneut.",
+            variant: "destructive"
+          });
+        }
+      });
+    } catch (error) {
+      console.error('Address search error:', error);
+      toast({
+        title: "Suchfehler",
+        description: "Es gab ein Problem bei der Adresssuche. Bitte versuchen Sie es erneut.",
+        variant: "destructive"
+      });
+    }
+  }, [addressInput, placesService, map, isPointInServiceArea, onLocationSelect, toast]);
 
   // Handle location selection
   const handleLocationSelect = useCallback((lat: number, lng: number, address: string) => {
@@ -346,42 +433,51 @@ export function InteractiveMap({ onLocationSelect }: InteractiveMapProps) {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
-        className="absolute top-20 left-0 right-0 z-20 px-6"
+        className="absolute top-16 left-0 right-0 z-20 px-4"
       >
-        <div className="max-w-md mx-auto text-center">
-          {/* Main Heading */}
-          <h1 className="text-3xl md:text-4xl font-bold text-white mb-4 leading-tight">
+        <div className="max-w-sm mx-auto text-center">
+          {/* Main Heading - smaller and more proportional */}
+          <h1 className="text-2xl md:text-3xl font-bold text-white mb-3 leading-tight">
             Dein Auto, gewaschen – wo du bist.
           </h1>
           
-          {/* Subtitle */}
-          <p className="text-base md:text-lg text-gray-300 mb-8 leading-relaxed">
+          {/* Subtitle - smaller and more compact */}
+          <p className="text-sm md:text-base text-gray-300 mb-6 leading-relaxed">
             Gib deine Adresse ein und wir kommen direkt zu dir – bequem, flexibel und professionell.
           </p>
           
-          {/* Address Search */}
-          <div className="space-y-4">
+          {/* Address Search - more compact design */}
+          <div className="space-y-3">
             <div className="relative">
-              <div className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10">
-                <MapPin className="h-5 w-5 text-gray-400" />
+              <div className="absolute left-3 top-1/2 transform -translate-y-1/2 z-10">
+                <MapPin className="h-4 w-4 text-gray-400" />
               </div>
               <input
                 type="text"
+                value={addressInput}
+                onChange={(e) => setAddressInput(e.target.value)}
                 placeholder="Adresse eingeben..."
-                className="w-full bg-white/95 backdrop-blur-sm rounded-2xl px-12 py-4 text-gray-900 placeholder-gray-500 border-0 focus:outline-none focus:ring-2 focus:ring-[#00ff88] text-base font-medium shadow-xl"
+                className="w-full bg-white/95 backdrop-blur-sm rounded-xl px-10 py-3 text-gray-900 placeholder-gray-500 border-0 focus:outline-none focus:ring-2 focus:ring-[#00ff88] text-sm font-medium shadow-lg"
                 onFocus={(e) => {
-                  e.target.style.transform = 'scale(1.02)';
+                  e.target.style.transform = 'scale(1.01)';
                   e.target.style.transition = 'transform 0.2s ease';
                 }}
                 onBlur={(e) => {
                   e.target.style.transform = 'scale(1)';
                 }}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    handleAddressSearch();
+                  }
+                }}
               />
             </div>
             
             <Button
-              className="w-full bg-[#00ff88] hover:bg-[#00dd77] text-black font-semibold py-4 px-8 rounded-2xl text-base shadow-xl transition-all duration-200 hover:scale-105 active:scale-95"
-              size="lg"
+              onClick={handleAddressSearch}
+              disabled={!addressInput.trim()}
+              className="w-full bg-[#00ff88] hover:bg-[#00dd77] disabled:bg-gray-400 disabled:text-gray-600 text-black font-semibold py-3 px-6 rounded-xl text-sm shadow-lg transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+              size="sm"
             >
               Verfügbarkeit prüfen
             </Button>
