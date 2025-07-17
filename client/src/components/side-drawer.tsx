@@ -15,27 +15,27 @@ export function SideDrawer({ isOpen, onClose, onNavigate }: SideDrawerProps) {
   const menuItems = [
     {
       icon: FileText,
-      label: "My Bookings",
+      label: "Meine Buchungen",
       action: () => onNavigate("booking")
     },
     {
       icon: Receipt,
-      label: "Invoices",
+      label: "Rechnungen",
       action: () => onNavigate("wallet")
     },
     {
       icon: Brush,
-      label: "Become a Cleaner",
+      label: "Cleaner werden",
       action: () => onNavigate("cleaner")
     },
     {
       icon: MessageSquare,
-      label: "Give Feedback",
+      label: "Feedback geben",
       action: () => window.open("mailto:washr.mainz@gmail.com?subject=Feedback", "_blank")
     },
     {
       icon: HelpCircle,
-      label: "Help & Support",
+      label: "Hilfe & Support",
       action: () => window.open("mailto:washr.mainz@gmail.com?subject=Support", "_blank")
     }
   ];
@@ -76,7 +76,7 @@ export function SideDrawer({ isOpen, onClose, onNavigate }: SideDrawerProps) {
                   </div>
                   <div>
                     <h2 className="text-xl font-bold text-white">WASHK</h2>
-                    <p className="text-sm text-gray-400">Car Cleaning Service</p>
+                    <p className="text-sm text-gray-400">Autoreinigungsservice</p>
                   </div>
                 </div>
                 <Button
@@ -93,12 +93,12 @@ export function SideDrawer({ isOpen, onClose, onNavigate }: SideDrawerProps) {
               {user ? (
                 <div className="bg-gray-800 rounded-xl p-3">
                   <p className="font-medium text-white">{user.email}</p>
-                  <p className="text-sm text-gray-400">Verified Customer</p>
+                  <p className="text-sm text-gray-400">Verifizierter Kunde</p>
                 </div>
               ) : (
                 <div className="bg-gray-800 rounded-xl p-3">
-                  <p className="font-medium text-white">Guest User</p>
-                  <p className="text-sm text-gray-400">Sign in to access all features</p>
+                  <p className="font-medium text-white">Gastnutzer</p>
+                  <p className="text-sm text-gray-400">Anmelden, um alle Funktionen zu nutzen</p>
                 </div>
               )}
             </div>
