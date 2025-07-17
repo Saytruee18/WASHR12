@@ -64,25 +64,25 @@ export function SideDrawer({ isOpen, onClose, onNavigate }: SideDrawerProps) {
             animate={{ x: 0 }}
             exit={{ x: "-100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="fixed left-0 top-0 h-full w-80 bg-white shadow-2xl z-50 flex flex-col"
+            className="fixed left-0 top-0 h-full w-80 bg-gray-900 shadow-2xl z-50 flex flex-col"
           >
             {/* Header */}
-            <div className="p-6 border-b border-gray-100">
+            <div className="p-6 border-b border-gray-700">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-[#2dd36f] to-[#26b865] rounded-xl flex items-center justify-center">
-                    <span className="text-white font-bold text-lg">W</span>
+                  <div className="w-10 h-10 bg-gradient-to-br from-[#00ff88] to-[#00dd77] rounded-xl flex items-center justify-center">
+                    <span className="text-black font-bold text-lg">W</span>
                   </div>
                   <div>
-                    <h2 className="text-xl font-bold text-gray-800">WASHR</h2>
-                    <p className="text-sm text-gray-500">Car Cleaning Service</p>
+                    <h2 className="text-xl font-bold text-white">WASHR</h2>
+                    <p className="text-sm text-gray-400">Car Cleaning Service</p>
                   </div>
                 </div>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={onClose}
-                  className="rounded-full w-8 h-8 p-0 hover:bg-gray-100"
+                  className="rounded-full w-8 h-8 p-0 hover:bg-gray-800 text-gray-400 hover:text-white"
                 >
                   <X className="h-4 w-4" />
                 </Button>
@@ -90,14 +90,14 @@ export function SideDrawer({ isOpen, onClose, onNavigate }: SideDrawerProps) {
 
               {/* User Info */}
               {user ? (
-                <div className="bg-gray-50 rounded-xl p-3">
-                  <p className="font-medium text-gray-800">{user.email}</p>
-                  <p className="text-sm text-gray-500">Verified Customer</p>
+                <div className="bg-gray-800 rounded-xl p-3">
+                  <p className="font-medium text-white">{user.email}</p>
+                  <p className="text-sm text-gray-400">Verified Customer</p>
                 </div>
               ) : (
-                <div className="bg-gray-50 rounded-xl p-3">
-                  <p className="font-medium text-gray-800">Guest User</p>
-                  <p className="text-sm text-gray-500">Sign in to access all features</p>
+                <div className="bg-gray-800 rounded-xl p-3">
+                  <p className="font-medium text-white">Guest User</p>
+                  <p className="text-sm text-gray-400">Sign in to access all features</p>
                 </div>
               )}
             </div>
@@ -114,21 +114,21 @@ export function SideDrawer({ isOpen, onClose, onNavigate }: SideDrawerProps) {
                     item.action();
                     onClose();
                   }}
-                  className="w-full flex items-center space-x-4 px-6 py-4 text-left hover:bg-gray-50 transition-colors"
+                  className="w-full flex items-center space-x-4 px-6 py-4 text-left hover:bg-gray-800 transition-colors"
                 >
-                  <item.icon className="h-5 w-5 text-gray-600" />
-                  <span className="font-medium text-gray-800">{item.label}</span>
+                  <item.icon className="h-5 w-5 text-gray-400" />
+                  <span className="font-medium text-white">{item.label}</span>
                 </motion.button>
               ))}
             </div>
 
             {/* Footer */}
-            <div className="p-6 border-t border-gray-100">
+            <div className="p-6 border-t border-gray-700">
               {user && (
                 <Button
                   onClick={handleLogout}
                   variant="outline"
-                  className="w-full justify-start text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300"
+                  className="w-full justify-start text-red-400 border-red-500/50 hover:bg-red-500/10 hover:border-red-500 bg-transparent"
                 >
                   <LogOut className="h-4 w-4 mr-3" />
                   Logout

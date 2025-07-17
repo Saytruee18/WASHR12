@@ -1,0 +1,15 @@
+The entire homepage of the app should be redesigned to look modern and professional. The goal is a high-quality dark mode style that feels clean and polished.
+
+The map should appear in dark mode. All unnecessary elements should be removed. Street names, district names, parks, and smaller towns should be completely hidden. Only major cities like Mainz, Wiesbaden, Frankfurt, Darmstadt, and Offenbach should remain visible.
+
+The green service zone in Mainz should no longer be displayed as a square. Instead, it should have a soft, organic shape – for example, a rounded area with a subtle glow or blurred edges. This zone represents where the service is currently available. The area should appear in a bright green color that contrasts clearly with the dark background. Optionally, a gentle pulsing effect can be added to draw attention.
+
+Areas outside of the zone should be slightly darkened or overlaid with a subtle red mask. The red should not be too dominant – just enough to indicate that the service is not available there.
+
+Only one single marker should be visible, placed in the center of the service zone above Mainz. This marker can use the app’s logo or a symbol. When tapping or clicking the marker, a small tooltip should appear saying: “Service available – Mainz Center”.
+
+The top menu bar should also be redesigned. The current dropdown menu should be removed. The login or profile button should be clearly visible on the right-hand side. The app logo can be smaller and aligned to the left. The word “Enter” should be removed or replaced.
+
+In general, the app should follow a matching color scheme like in the second screenshot – mostly dark tones with turquoise or green accents. A subtle top mask (e.g. gradient or dark bar) can be added to make the UI feel layered and integrated, instead of elements floating directly over the map.
+
+The goal is a clean, user-friendly design in the style of modern apps like Uber or Bolt. All visible elements should be clear, minimal, and functional.

@@ -141,7 +141,7 @@ export default function Home() {
                   <Button
                     onClick={handleCreateBooking}
                     size="lg"
-                    className="w-full bg-gradient-to-r from-[#2dd36f] to-[#26b865] hover:from-[#26b865] hover:to-[#2dd36f] text-white font-semibold py-6 px-8 rounded-2xl shadow-xl shadow-[#2dd36f]/25 hover:shadow-2xl hover:shadow-[#2dd36f]/40 transition-all duration-300 text-lg border-2 border-white/20"
+                    className="w-full bg-gradient-to-r from-[#00ff88] to-[#00dd77] hover:from-[#00dd77] hover:to-[#00ff88] text-black font-bold py-6 px-8 rounded-2xl shadow-xl shadow-[#00ff88]/25 hover:shadow-2xl hover:shadow-[#00ff88]/40 transition-all duration-300 text-lg border-2 border-black/10"
                   >
                     <div className="flex items-center justify-center space-x-3">
                       <MapPin className="h-6 w-6" />
@@ -162,12 +162,12 @@ export default function Home() {
                   exit={{ opacity: 0, y: 100 }}
                   className="absolute bottom-28 left-4 right-4 z-30"
                 >
-                  <div className="bg-white/95 backdrop-blur-md border-2 border-red-200 rounded-2xl p-6 shadow-xl">
-                    <div className="flex items-center space-x-3 text-red-700">
+                  <div className="bg-gray-900/95 backdrop-blur-md border-2 border-red-500/50 rounded-2xl p-6 shadow-xl">
+                    <div className="flex items-center space-x-3 text-red-400">
                       <Circle className="h-6 w-6 text-red-500 flex-shrink-0" />
                       <div>
-                        <p className="font-semibold text-lg">Unfortunately, we do not serve this area yet.</p>
-                        <p className="text-sm text-red-600 mt-1">Please select an address within the green service zone in Mainz.</p>
+                        <p className="font-semibold text-lg text-white">Unfortunately, we do not serve this area yet.</p>
+                        <p className="text-sm text-red-400 mt-1">Please select an address within the green service zone in Mainz.</p>
                       </div>
                     </div>
                   </div>
@@ -292,24 +292,24 @@ export default function Home() {
           >
             <Button
               onClick={() => setIsDrawerOpen(true)}
-              className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200/50 p-3 hover:bg-white/100 transition-all"
+              className="bg-gray-900/95 backdrop-blur-md rounded-2xl shadow-2xl border border-gray-700/50 p-3 hover:bg-gray-800/95 transition-all text-gray-400 hover:text-white"
               size="sm"
             >
-              <Menu className="h-5 w-5 text-gray-700" />
+              <Menu className="h-5 w-5" />
             </Button>
-            <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200/50 p-3 flex items-center space-x-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-[#2dd36f] to-[#26b865] rounded-xl flex items-center justify-center">
-                <Droplets className="text-white text-sm" />
+            <div className="bg-gray-900/95 backdrop-blur-md rounded-2xl shadow-2xl border border-gray-700/50 p-3 flex items-center space-x-3">
+              <div className="w-8 h-8 bg-gradient-to-br from-[#00ff88] to-[#00dd77] rounded-xl flex items-center justify-center">
+                <Droplets className="text-black text-sm" />
               </div>
               <div>
-                <h1 className="text-lg font-bold text-gray-800">WASHR</h1>
+                <h1 className="text-lg font-bold text-white">WASHR</h1>
               </div>
             </div>
           </motion.div>
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200/50"
+            className="bg-gray-900/95 backdrop-blur-md rounded-2xl shadow-2xl border border-gray-700/50"
           >
             <ProfileDropdown />
           </motion.div>
