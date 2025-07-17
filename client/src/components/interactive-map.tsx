@@ -337,7 +337,55 @@ export function InteractiveMap({ onLocationSelect }: InteractiveMapProps) {
       />
 
       {/* Top Dark Gradient Mask */}
-      <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-black/80 via-black/40 to-transparent pointer-events-none z-10" />
+      <div className="absolute top-0 left-0 right-0 h-96 bg-gradient-to-b from-black/70 via-black/40 to-transparent pointer-events-none z-10" />
+
+      {/* Landing Page Content */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="absolute top-20 left-0 right-0 z-20 px-6"
+      >
+        <div className="max-w-md mx-auto text-center">
+          {/* Main Heading */}
+          <h1 className="text-3xl md:text-4xl font-bold text-white mb-4 leading-tight">
+            Dein Auto, gewaschen – wo du bist.
+          </h1>
+          
+          {/* Subtitle */}
+          <p className="text-base md:text-lg text-gray-300 mb-8 leading-relaxed">
+            Gib deine Adresse ein und wir kommen direkt zu dir – bequem, flexibel und professionell.
+          </p>
+          
+          {/* Address Search */}
+          <div className="space-y-4">
+            <div className="relative">
+              <div className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10">
+                <MapPin className="h-5 w-5 text-gray-400" />
+              </div>
+              <input
+                type="text"
+                placeholder="Adresse eingeben …"
+                className="w-full bg-white/95 backdrop-blur-sm rounded-2xl px-12 py-4 text-gray-900 placeholder-gray-500 border-0 focus:outline-none focus:ring-2 focus:ring-[#00ff88] text-base font-medium shadow-xl"
+                onFocus={(e) => {
+                  e.target.style.transform = 'scale(1.02)';
+                  e.target.style.transition = 'transform 0.2s ease';
+                }}
+                onBlur={(e) => {
+                  e.target.style.transform = 'scale(1)';
+                }}
+              />
+            </div>
+            
+            <Button
+              className="w-full bg-[#00ff88] hover:bg-[#00dd77] text-black font-semibold py-4 px-8 rounded-2xl text-base shadow-xl transition-all duration-200 hover:scale-105 active:scale-95"
+              size="lg"
+            >
+              Verfügbarkeit prüfen
+            </Button>
+          </div>
+        </div>
+      </motion.div>
 
       {/* Bottom Dark Gradient Mask */}
       <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-black/60 via-black/30 to-transparent pointer-events-none z-10" />
