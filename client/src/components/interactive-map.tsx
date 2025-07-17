@@ -77,41 +77,26 @@ export function InteractiveMap({ onLocationSelect }: InteractiveMapProps) {
 
         if (!mapRef.current) return;
 
-        // Custom light map style
+        // Custom modern light map style - clean and minimal
         const lightMapStyle = [
           {
             "featureType": "all",
-            "elementType": "geometry.fill",
+            "elementType": "labels.text.fill",
             "stylers": [
               {
-                "weight": "2.00"
+                "color": "#7c7c7c"
               }
             ]
           },
           {
             "featureType": "all",
-            "elementType": "geometry.stroke",
+            "elementType": "labels.text.stroke",
             "stylers": [
               {
-                "color": "#9c9c9c"
-              }
-            ]
-          },
-          {
-            "featureType": "all",
-            "elementType": "labels.text",
-            "stylers": [
+                "color": "#ffffff"
+              },
               {
-                "visibility": "on"
-              }
-            ]
-          },
-          {
-            "featureType": "landscape",
-            "elementType": "all",
-            "stylers": [
-              {
-                "color": "#f2f2f2"
+                "weight": 2
               }
             ]
           },
@@ -120,16 +105,7 @@ export function InteractiveMap({ onLocationSelect }: InteractiveMapProps) {
             "elementType": "geometry.fill",
             "stylers": [
               {
-                "color": "#ffffff"
-              }
-            ]
-          },
-          {
-            "featureType": "landscape.man_made",
-            "elementType": "geometry.fill",
-            "stylers": [
-              {
-                "color": "#ffffff"
+                "color": "#f8f8f8"
               }
             ]
           },
@@ -138,24 +114,12 @@ export function InteractiveMap({ onLocationSelect }: InteractiveMapProps) {
             "elementType": "all",
             "stylers": [
               {
-                "visibility": "off"
+                "visibility": "simplified"
               }
             ]
           },
           {
-            "featureType": "road",
-            "elementType": "all",
-            "stylers": [
-              {
-                "saturation": -100
-              },
-              {
-                "lightness": 45
-              }
-            ]
-          },
-          {
-            "featureType": "road",
+            "featureType": "poi",
             "elementType": "geometry.fill",
             "stylers": [
               {
@@ -164,17 +128,38 @@ export function InteractiveMap({ onLocationSelect }: InteractiveMapProps) {
             ]
           },
           {
-            "featureType": "road",
+            "featureType": "poi",
             "elementType": "labels.text.fill",
             "stylers": [
               {
-                "color": "#7b7b7b"
+                "color": "#999999"
               }
             ]
           },
           {
             "featureType": "road",
-            "elementType": "labels.text.stroke",
+            "elementType": "geometry.fill",
+            "stylers": [
+              {
+                "color": "#ffffff"
+              }
+            ]
+          },
+          {
+            "featureType": "road",
+            "elementType": "geometry.stroke",
+            "stylers": [
+              {
+                "color": "#e6e6e6"
+              },
+              {
+                "weight": 1
+              }
+            ]
+          },
+          {
+            "featureType": "road.highway",
+            "elementType": "geometry.fill",
             "stylers": [
               {
                 "color": "#ffffff"
@@ -183,19 +168,13 @@ export function InteractiveMap({ onLocationSelect }: InteractiveMapProps) {
           },
           {
             "featureType": "road.highway",
-            "elementType": "all",
+            "elementType": "geometry.stroke",
             "stylers": [
               {
-                "visibility": "simplified"
-              }
-            ]
-          },
-          {
-            "featureType": "road.arterial",
-            "elementType": "labels.icon",
-            "stylers": [
+                "color": "#d6d6d6"
+              },
               {
-                "visibility": "off"
+                "weight": 1.5
               }
             ]
           },
@@ -204,19 +183,7 @@ export function InteractiveMap({ onLocationSelect }: InteractiveMapProps) {
             "elementType": "all",
             "stylers": [
               {
-                "visibility": "off"
-              }
-            ]
-          },
-          {
-            "featureType": "water",
-            "elementType": "all",
-            "stylers": [
-              {
-                "color": "#46bcec"
-              },
-              {
-                "visibility": "on"
+                "visibility": "simplified"
               }
             ]
           },
@@ -225,7 +192,7 @@ export function InteractiveMap({ onLocationSelect }: InteractiveMapProps) {
             "elementType": "geometry.fill",
             "stylers": [
               {
-                "color": "#c8d7d4"
+                "color": "#e3f2fd"
               }
             ]
           },
@@ -234,16 +201,7 @@ export function InteractiveMap({ onLocationSelect }: InteractiveMapProps) {
             "elementType": "labels.text.fill",
             "stylers": [
               {
-                "color": "#070707"
-              }
-            ]
-          },
-          {
-            "featureType": "water",
-            "elementType": "labels.text.stroke",
-            "stylers": [
-              {
-                "color": "#ffffff"
+                "color": "#9e9e9e"
               }
             ]
           }
@@ -252,23 +210,33 @@ export function InteractiveMap({ onLocationSelect }: InteractiveMapProps) {
         const googleMap = new Map(mapRef.current, {
           center: MAINZ_CENTER,
           zoom: 13,
+          minZoom: 11,
+          maxZoom: 16,
           styles: lightMapStyle,
           disableDefaultUI: true,
           zoomControl: true,
           zoomControlOptions: {
             position: google.maps.ControlPosition.RIGHT_BOTTOM
           },
-          gestureHandling: "greedy"
+          gestureHandling: "greedy",
+          restriction: {
+            latLngBounds: {
+              north: 50.1,
+              south: 49.9,
+              east: 8.4,
+              west: 8.1
+            }
+          }
         });
 
-        // Create service area polygon
+        // Create service area polygon with modern styling
         const polygon = new google.maps.Polygon({
           paths: MAINZ_SERVICE_AREA,
-          strokeColor: "#10b981",
-          strokeOpacity: 0.8,
-          strokeWeight: 2,
-          fillColor: "#10b981",
-          fillOpacity: 0.2,
+          strokeColor: "#2dd36f",
+          strokeOpacity: 0.9,
+          strokeWeight: 3,
+          fillColor: "#2dd36f",
+          fillOpacity: 0.15,
         });
 
         polygon.setMap(googleMap);
@@ -443,28 +411,31 @@ export function InteractiveMap({ onLocationSelect }: InteractiveMapProps) {
         )}
       </AnimatePresence>
       
-      {/* Search Bar Overlay */}
+      {/* Top Gradient Overlay */}
+      <div className="absolute top-0 left-0 right-0 h-20 bg-gradient-to-b from-white/40 to-transparent pointer-events-none z-10" />
+
+      {/* Search Bar Overlay - Centered */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
-        className="absolute top-4 left-4 right-4 z-20"
+        className="absolute top-6 left-1/2 transform -translate-x-1/2 z-20 w-80 max-w-[calc(100vw-2rem)]"
       >
-        <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200/50 p-4">
+        <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-gray-200/50 p-4">
           <div className="flex items-center space-x-3 mb-3">
-            <Search className="h-5 w-5 text-gray-500" />
+            <Search className="h-5 w-5 text-gray-500 flex-shrink-0" />
             <Input
               ref={searchInputRef}
-              placeholder="Adresse eingeben..."
+              placeholder="Enter the address we should come to..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              className="border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-gray-800 placeholder:text-gray-500"
+              className="border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-gray-800 placeholder:text-gray-500 font-medium"
             />
             <Button
               onClick={handleGetCurrentLocation}
               disabled={isLoading}
               size="sm"
-              className="bg-primary hover:bg-primary/90 text-white rounded-xl px-3 py-2"
+              className="bg-[#2dd36f] hover:bg-[#26b865] text-white rounded-xl px-3 py-2 flex-shrink-0"
             >
               {isLoading ? (
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -485,14 +456,14 @@ export function InteractiveMap({ onLocationSelect }: InteractiveMapProps) {
               >
                 {isInServiceArea ? (
                   <>
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span className="text-green-700 font-medium">Service verfügbar</span>
-                    <Check className="h-4 w-4 text-green-500" />
+                    <div className="w-2 h-2 bg-[#2dd36f] rounded-full animate-pulse"></div>
+                    <span className="text-[#2dd36f] font-semibold">Service Available</span>
+                    <Check className="h-4 w-4 text-[#2dd36f]" />
                   </>
                 ) : (
                   <>
                     <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                    <span className="text-red-700 font-medium">Service nicht verfügbar</span>
+                    <span className="text-red-700 font-semibold">Outside Service Zone</span>
                     <AlertCircle className="h-4 w-4 text-red-500" />
                   </>
                 )}
@@ -501,6 +472,9 @@ export function InteractiveMap({ onLocationSelect }: InteractiveMapProps) {
           </AnimatePresence>
         </div>
       </motion.div>
+
+      {/* Bottom Gradient Overlay */}
+      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white/20 to-transparent pointer-events-none z-10" />
       
       {/* Zone Legend */}
       <motion.div

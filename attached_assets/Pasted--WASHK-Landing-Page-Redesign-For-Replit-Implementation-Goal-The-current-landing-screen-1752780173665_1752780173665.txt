@@ -1,0 +1,92 @@
+🧼 WASHK Landing Page Redesign (For Replit Implementation)
+
+🎯 Goal:
+
+The current landing screen is too crowded and unstructured. We want to completely redesign it to be modern, minimalistic, and user-friendly, with a strong focus on map interaction, clarity, and service availability zones (similar to Tier or Lime apps).
+
+⸻
+
+🧭 1. Replace Existing Landing Page with Fullscreen Map
+ • Remove current landing screen.
+ • Display a fullscreen light-mode map as the new main screen.
+ • Center the map around Mainz, Germany (fixed region, zoom locked).
+ • Map design should be custom-styled (not default Google Maps look) – use a soft color palette and high readability.
+
+⸻
+
+📍 2. Address Input (Floating Search Bar)
+ • Place a rounded search bar at the top-center of the map.
+ • Placeholder text: “Enter the address we should come to…”
+ • This bar uses the Google Places API (already available).
+ • When the user enters an address, a “Create Booking” button appears at the bottom.
+
+⸻
+
+🗺 3. Service Zone Overlay
+ • Add green polygon areas for available cleaning zones (e.g. Mainz only).
+ • Areas outside of the green polygon appear slightly greyed out or blurred.
+ • Show a green label: “Service Available” inside the zone and a red one: “Outside Service Zone” when outside.
+ • Think Tier or Lime-style zoning system – live visibility of where service is possible.
+
+⸻
+
+🧊 4. UI Enhancements
+ • Add a light blur/gradient mask at the top and bottom of the screen to reduce visual clutter.
+ • Keep the bottom navbar (Startseite, Buchen, Wallet, Profil) – but clean up icons and spacing (use simple line icons like Feather or Fluent).
+
+⸻
+
+☰ 5. Side Drawer Menu (Improved)
+ • Replace current top dropdown with a left slide-out drawer menu (animated).
+ • Opens when user taps a menu icon (☰) on top left.
+ • Drawer slides in from the left, background dims with semi-transparent black (rgba(0,0,0,0.3)).
+
+Drawer Menu Items (Icons + Text):
+ • 📄 My Bookings
+ • 🧾 Invoices
+ • 🧼 Become a Cleaner
+ • 📢 Give Feedback
+ • ❓ Help & Support
+ • 🔓 Logout
+
+Important: The drawer should look like a full-height block, not a floating box.
+
+⸻
+
+🎨 Design Rules (Style Guide)
+ • Font: Inter, SF Pro or Poppins
+ • Main Colors:
+ • Primary: #2dd36f (WASHK green)
+ • Background: #ffffff
+ • UI gray: #f4f4f4
+ • Buttons: Rounded (border-radius: 16px), strong call-to-action color
+ • Spacing: Use padding and white space to avoid a cramped UI
+ • Logo: Place smaller, top-left only – it should not overlap any input fields
+
+⸻
+
+🎁 Optional Additions (Bonus)
+ • Animate zone highlight when user enters service area (e.g. green glow or soft pulse)
+ • If address is outside the zone → show message: “Unfortunately, we do not serve this area yet.”
+ • Make sure users are taken directly to booking screen after entering the address (booking logic already exists)
+
+⸻
+
+👨‍💻 Developer Notes
+ • Booking system is already implemented → don’t change it
+ • Google Maps API is active and ready
+ • Add zone overlay using GeoJSON or Polygon coordinates (for Mainz)
+ • Gradient masks can be placed with a div.gradient-overlay on top using CSS: position: absolute;
+top: 0;
+width: 100%;
+height: 60px;
+background: linear-gradient(to bottom, white 40%, transparent);
+pointer-events: none;
+
+✅ Summary
+
+This update will:
+ • Clean up and modernize the UI
+ • Make service zones immediately visible
+ • Create a smooth, Uber-like booking flow
+ • Help the app feel professional and scalable

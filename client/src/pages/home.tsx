@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { InteractiveMap } from "@/components/interactive-map";
+import { SideDrawer } from "@/components/side-drawer";
 import { BottomNavigation } from "@/components/bottom-navigation";
 import { BookingModal } from "@/components/booking-modal";
 import { WashPackages } from "@/components/wash-packages";
@@ -9,8 +10,9 @@ import { VoucherManagement } from "@/components/voucher-management";
 import { ProfilePage } from "@/components/profile-page";
 import { ProfileDropdown } from "@/components/profile-dropdown";
 import { ServiceAreaWarning } from "@/components/service-area-warning";
+import { CleanerForm } from "@/components/cleaner-form";
 import { useQuery } from "@tanstack/react-query";
-import { Droplets, Circle, Shield, Users, Star, MapPin, Clock, CheckCircle } from "lucide-react";
+import { Droplets, Circle, Shield, Users, Star, MapPin, Clock, CheckCircle, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 type Tab = "home" | "booking" | "wallet" | "profile";
@@ -68,6 +70,7 @@ export default function Home() {
   const [isServiceWarningOpen, setIsServiceWarningOpen] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState("");
   const [isAddressInServiceArea, setIsAddressInServiceArea] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const { data: bookings = [] } = useQuery({
     queryKey: ["/api/bookings"],
@@ -107,6 +110,16 @@ export default function Home() {
     }
   };
 
+  const handleDrawerNavigate = (section: string) => {
+    if (section === "cleaner") {
+      // Handle cleaner form - could open a modal or navigate to a page
+      setActiveTab("profile"); // For now, navigate to profile where cleaner form exists
+    } else {
+      setActiveTab(section as Tab);
+    }
+    setIsDrawerOpen(false);
+  };
+
   const renderTabContent = () => {
     switch (activeTab) {
       case "home":
@@ -128,11 +141,11 @@ export default function Home() {
                   <Button
                     onClick={handleCreateBooking}
                     size="lg"
-                    className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white font-semibold py-4 px-8 rounded-2xl shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300 text-lg"
+                    className="w-full bg-gradient-to-r from-[#2dd36f] to-[#26b865] hover:from-[#26b865] hover:to-[#2dd36f] text-white font-semibold py-6 px-8 rounded-2xl shadow-xl shadow-[#2dd36f]/25 hover:shadow-2xl hover:shadow-[#2dd36f]/40 transition-all duration-300 text-lg border-2 border-white/20"
                   >
                     <div className="flex items-center justify-center space-x-3">
                       <MapPin className="h-6 w-6" />
-                      <span>Buchung erstellen</span>
+                      <span>Create Booking</span>
                       <CheckCircle className="h-6 w-6" />
                     </div>
                   </Button>
@@ -149,12 +162,12 @@ export default function Home() {
                   exit={{ opacity: 0, y: 100 }}
                   className="absolute bottom-28 left-4 right-4 z-30"
                 >
-                  <div className="bg-red-50 border border-red-200 rounded-2xl p-4 shadow-lg">
+                  <div className="bg-white/95 backdrop-blur-md border-2 border-red-200 rounded-2xl p-6 shadow-xl">
                     <div className="flex items-center space-x-3 text-red-700">
-                      <Circle className="h-5 w-5 text-red-500" />
+                      <Circle className="h-6 w-6 text-red-500 flex-shrink-0" />
                       <div>
-                        <p className="font-medium">Service derzeit nicht verfügbar</p>
-                        <p className="text-sm text-red-600">Dieser Standort liegt außerhalb unseres Servicebereichs in Mainz.</p>
+                        <p className="font-semibold text-lg">Unfortunately, we do not serve this area yet.</p>
+                        <p className="text-sm text-red-600 mt-1">Please select an address within the green service zone in Mainz.</p>
                       </div>
                     </div>
                   </div>
@@ -275,13 +288,22 @@ export default function Home() {
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200/50 p-3 flex items-center space-x-3"
+            className="flex items-center space-x-3"
           >
-            <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center">
-              <Droplets className="text-primary-foreground text-sm" />
-            </div>
-            <div>
-              <h1 className="text-lg font-bold text-gray-800">WASHR</h1>
+            <Button
+              onClick={() => setIsDrawerOpen(true)}
+              className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200/50 p-3 hover:bg-white/100 transition-all"
+              size="sm"
+            >
+              <Menu className="h-5 w-5 text-gray-700" />
+            </Button>
+            <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200/50 p-3 flex items-center space-x-3">
+              <div className="w-8 h-8 bg-gradient-to-br from-[#2dd36f] to-[#26b865] rounded-xl flex items-center justify-center">
+                <Droplets className="text-white text-sm" />
+              </div>
+              <div>
+                <h1 className="text-lg font-bold text-gray-800">WASHR</h1>
+              </div>
             </div>
           </motion.div>
           <motion.div
@@ -301,6 +323,13 @@ export default function Home() {
 
       {/* Bottom Navigation */}
       <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+
+      {/* Side Drawer */}
+      <SideDrawer 
+        isOpen={isDrawerOpen} 
+        onClose={() => setIsDrawerOpen(false)}
+        onNavigate={handleDrawerNavigate}
+      />
 
       {/* Modals */}
       {isBookingModalOpen && selectedPackage && (
