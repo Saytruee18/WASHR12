@@ -21,8 +21,13 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
   const [addressInput, setAddressInput] = useState("");
   const [autocompleteService, setAutocompleteService] = useState<google.maps.places.AutocompleteService | null>(null);
   const [placesService, setPlacesService] = useState<google.maps.places.PlacesService | null>(null);
+  const [suggestions, setSuggestions] = useState<google.maps.places.AutocompletePrediction[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [showAreaWarning, setShowAreaWarning] = useState(false);
   
   const mapRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const suggestionsRef = useRef<HTMLUListElement>(null);
   const { toast } = useToast();
   const { user } = useAuth();
   
@@ -35,6 +40,82 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
     }
     return '👋';
   };
+
+  // Handle autocomplete suggestions
+  const getAutocompleteSuggestions = useCallback((input: string) => {
+    if (!autocompleteService || input.length < 2) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+
+    const request = {
+      input,
+      componentRestrictions: { country: 'de' }, // Restrict to Germany
+      types: ['address'],
+    };
+
+    autocompleteService.getPlacePredictions(request, (predictions, status) => {
+      if (status === google.maps.places.PlacesServiceStatus.OK && predictions) {
+        setSuggestions(predictions);
+        setShowSuggestions(true);
+      } else {
+        setSuggestions([]);
+        setShowSuggestions(false);
+      }
+    });
+  }, [autocompleteService]);
+
+  // Handle address input change
+  const handleAddressInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setAddressInput(value);
+    getAutocompleteSuggestions(value);
+  };
+
+  // Handle suggestion selection
+  const handleSuggestionSelect = (suggestion: google.maps.places.AutocompletePrediction) => {
+    setAddressInput(suggestion.description);
+    setShowSuggestions(false);
+    
+    // Check if address is in Mainz
+    const isMainzAddress = suggestion.description.toLowerCase().includes('mainz');
+    
+    if (!isMainzAddress) {
+      setShowAreaWarning(true);
+      return;
+    }
+
+    // If it's in Mainz, proceed with geocoding
+    if (placesService) {
+      const request = {
+        placeId: suggestion.place_id,
+        fields: ['geometry', 'formatted_address']
+      };
+
+      placesService.getDetails(request, (place, status) => {
+        if (status === google.maps.places.PlacesServiceStatus.OK && place?.geometry?.location) {
+          const location = place.geometry.location;
+          const lat = location.lat();
+          const lng = location.lng();
+          handleLocationSelect(lat, lng, place.formatted_address || suggestion.description);
+        }
+      });
+    }
+  };
+
+  // Handle click outside to close suggestions
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (suggestionsRef.current && !suggestionsRef.current.contains(event.target as Node) &&
+          inputRef.current && !inputRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Simple location check function
   const isPointInServiceArea = useCallback((lat: number, lng: number): boolean => {
@@ -540,34 +621,76 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
             Adresse eingeben – wir kommen vorbei.
           </p>
           
-          {/* Address Search - more compact design */}
+          {/* Address Search with Custom Autocomplete */}
           <div className="space-y-3">
             <div className="relative">
               <div className="absolute left-3 top-1/2 transform -translate-y-1/2 z-10">
                 <MapPin className="h-4 w-4 text-gray-400" />
               </div>
               <input
+                ref={inputRef}
                 type="text"
                 value={addressInput}
-                onChange={(e) => setAddressInput(e.target.value)}
+                onChange={handleAddressInputChange}
                 placeholder="Deine Adresse hier eingeben..."
                 className="w-full bg-white/95 backdrop-blur-sm rounded-xl px-10 py-3 text-gray-900 placeholder-gray-500 border-0 focus:outline-none focus:ring-2 focus:ring-[#3cbf5c] text-sm font-medium shadow-lg"
                 onFocus={(e) => {
                   e.target.style.transform = 'scale(1.01)';
                   e.target.style.transition = 'transform 0.2s ease';
+                  if (suggestions.length > 0) {
+                    setShowSuggestions(true);
+                  }
                 }}
                 onBlur={(e) => {
                   e.target.style.transform = 'scale(1)';
                 }}
                 onKeyPress={(e) => {
                   if (e.key === 'Enter' && addressInput.trim()) {
+                    setShowSuggestions(false);
                     handleAddressSearch();
                   }
                 }}
               />
+              
+              {/* Custom Autocomplete Suggestions */}
+              <AnimatePresence>
+                {showSuggestions && suggestions.length > 0 && (
+                  <motion.ul
+                    ref={suggestionsRef}
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute top-full left-0 right-0 mt-2 bg-[#1e1e1e] border border-gray-600 rounded-xl shadow-2xl overflow-hidden z-50 max-h-64 overflow-y-auto"
+                    style={{
+                      backgroundColor: '#1e1e1e',
+                      boxShadow: '0 10px 25px rgba(0,0,0,0.3)',
+                    }}
+                  >
+                    {suggestions.map((suggestion, index) => (
+                      <motion.li
+                        key={suggestion.place_id}
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.05 }}
+                        className="px-4 py-3 text-white cursor-pointer border-b border-gray-700 last:border-b-0 hover:bg-[#333] transition-colors duration-200 flex items-center space-x-3"
+                        onClick={() => handleSuggestionSelect(suggestion)}
+                      >
+                        <MapPin className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm font-medium text-white truncate">
+                            {suggestion.structured_formatting?.main_text || suggestion.description}
+                          </div>
+                          <div className="text-xs text-gray-400 truncate">
+                            {suggestion.structured_formatting?.secondary_text || ''}
+                          </div>
+                        </div>
+                      </motion.li>
+                    ))}
+                  </motion.ul>
+                )}
+              </AnimatePresence>
             </div>
-            
-
           </div>
         </div>
       </motion.div>
@@ -602,6 +725,45 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
           </div>
         </div>
       </motion.div>
+
+      {/* Area Warning Modal */}
+      <AnimatePresence>
+        {showAreaWarning && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => setShowAreaWarning(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-[#100c0c] border border-gray-600 rounded-2xl p-6 max-w-sm w-full shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="text-center">
+                <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-3xl">❗</span>
+                </div>
+                <h3 className="text-lg font-semibold text-white mb-3">
+                  Diesen Bereich machen wir derzeit leider nicht.
+                </h3>
+                <p className="text-gray-300 text-sm mb-6">
+                  Melde dich beim Support für weitere Hilfe.
+                </p>
+                <Button
+                  onClick={() => setShowAreaWarning(false)}
+                  className="w-full bg-[#3cbf5c] hover:bg-[#2fa04d] text-white"
+                >
+                  Verstanden
+                </Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Loading State */}
       {!isMapLoaded && (
