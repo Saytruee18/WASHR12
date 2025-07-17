@@ -10,7 +10,7 @@ interface InteractiveMapProps {
   userName?: string;
 }
 
-const MAINZ_CENTER = { lat: 50.0012, lng: 8.2711 };
+const MAINZ_CENTER = { lat: 49.9929, lng: 8.2473 }; // Updated Mainz coordinates for better centering
 
 export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapProps) {
   const [map, setMap] = useState<google.maps.Map | null>(null);
@@ -26,9 +26,9 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
 
   // Simple location check function
   const isPointInServiceArea = useCallback((lat: number, lng: number): boolean => {
-    // Simple circular area check around Mainz center
-    const centerLat = 50.0012;
-    const centerLng = 8.2711;
+    // Simple circular area check around updated Mainz center
+    const centerLat = 49.9929;
+    const centerLng = 8.2473;
     const radius = 0.08; // Approximate radius in degrees
     
     const distance = Math.sqrt(
@@ -181,7 +181,7 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
 
         const googleMap = new Map(mapRef.current, {
           center: MAINZ_CENTER, // Mainz as central position
-          zoom: 12, // Higher zoom level to start closer to marker
+          zoom: 16, // Close zoom level for street-level detail
           minZoom: 7, // Prevent zooming out beyond Germany view
           maxZoom: 18, // Allow detailed zoom
           restriction: {
@@ -315,6 +315,53 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
 
         setMap(googleMap);
         setIsMapLoaded(true);
+
+        // Try to get user's current location and center map on it
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              const userLocation = {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude
+              };
+              
+              // Check if user is within Germany bounds before centering
+              if (germanyBounds.contains(userLocation)) {
+                googleMap.setCenter(userLocation);
+                googleMap.setZoom(16);
+                
+                // Add user location marker
+                new google.maps.Marker({
+                  position: userLocation,
+                  map: googleMap,
+                  icon: {
+                    path: google.maps.SymbolPath.CIRCLE,
+                    scale: 8,
+                    fillColor: "#4285f4",
+                    fillOpacity: 1,
+                    strokeColor: "#ffffff",
+                    strokeWeight: 2,
+                  },
+                  title: "Ihr Standort",
+                });
+                
+                toast({
+                  title: "📍 Standort gefunden",
+                  description: "Karte wurde auf Ihren aktuellen Standort zentriert.",
+                });
+              }
+            },
+            (error) => {
+              console.log("Location access denied or unavailable:", error.message);
+              // Keep default Mainz center - no error message needed
+            },
+            {
+              enableHighAccuracy: true,
+              timeout: 5000,
+              maximumAge: 0
+            }
+          );
+        }
 
         // Initialize Places services for address search
         const autocomplete = new google.maps.places.AutocompleteService();
