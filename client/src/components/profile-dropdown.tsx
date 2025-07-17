@@ -7,6 +7,7 @@ import {
   LogIn,
   LogOut,
   Mail,
+  MoreVertical,
 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -157,7 +158,7 @@ export function ProfileDropdown() {
           variant="ghost"
           size="sm"
           onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center space-x-2 hover:bg-muted/50 transition-colors"
+          className="flex items-center space-x-2 hover:bg-transparent transition-colors bg-transparent"
         >
           <Avatar className="h-8 w-8">
             <AvatarFallback className="bg-primary text-primary-foreground text-sm font-medium">
@@ -165,10 +166,11 @@ export function ProfileDropdown() {
             </AvatarFallback>
           </Avatar>
           <motion.div
-            animate={{ rotate: isOpen ? 180 : 0 }}
+            animate={{ rotate: isOpen ? 90 : 0 }}
             transition={{ duration: 0.2 }}
+            className="bg-transparent"
           >
-            <ChevronDown className="h-4 w-4" />
+            <MoreVertical className="h-4 w-4" />
           </motion.div>
         </Button>
 

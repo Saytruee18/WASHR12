@@ -474,7 +474,7 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
             <Button
               onClick={handleAddressSearch}
               disabled={!addressInput.trim()}
-              className="w-full bg-[#3cbf5c] hover:bg-[#2fa04d] disabled:bg-gray-400 disabled:text-gray-600 text-white font-bold py-3 px-6 rounded-xl text-sm transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+              className="w-full bg-[#189c82] hover:bg-[#148a6e] disabled:bg-gray-400 disabled:text-gray-600 text-white font-bold py-3 px-6 rounded-xl text-sm transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
               style={{ 
                 boxShadow: '0 2px 10px rgba(0, 0, 0, 0.2)',
                 borderRadius: '12px',
