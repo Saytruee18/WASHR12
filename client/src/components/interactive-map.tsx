@@ -171,7 +171,9 @@ export function InteractiveMap({ onLocationSelect }: InteractiveMapProps) {
 
         const googleMap = new Map(mapRef.current, {
           center: MAINZ_CENTER,
-          zoom: 11,
+          zoom: 13, // Closer zoom to focus on service area
+          minZoom: 8, // Prevent zooming out too far (stay within Germany)
+          maxZoom: 18, // Allow detailed zoom
           styles: darkMapStyle,
           disableDefaultUI: true,
           zoomControl: false,
@@ -187,11 +189,11 @@ export function InteractiveMap({ onLocationSelect }: InteractiveMapProps) {
 
         const serviceCenter = MAINZ_CENTER;
         
-        // Create main service area circle
+        // Create main service area circle - smaller for focused view
         const serviceCircle = new google.maps.Circle({
           center: serviceCenter,
           map: googleMap,
-          radius: 8000, // 8km radius for organic shape
+          radius: 6000, // 6km radius for closer zoom
           strokeColor: "#00ff88",
           strokeOpacity: 0.8,
           strokeWeight: 0,
@@ -199,11 +201,11 @@ export function InteractiveMap({ onLocationSelect }: InteractiveMapProps) {
           fillOpacity: 0.25,
         });
 
-        // Create outer glow effect
+        // Create outer glow effect - adjusted for closer zoom
         const glowCircle = new google.maps.Circle({
           center: serviceCenter,
           map: googleMap,
-          radius: 10000,
+          radius: 8000,
           strokeColor: "#00ff88",
           strokeOpacity: 0.4,
           strokeWeight: 2,
@@ -211,22 +213,22 @@ export function InteractiveMap({ onLocationSelect }: InteractiveMapProps) {
           fillOpacity: 0.1,
         });
 
-        // Create red overlay for non-service areas
+        // Create red overlay for non-service areas - adjusted for closer zoom
         const restrictionPolygon = new google.maps.Polygon({
           paths: [
-            // Outer boundary (covers entire map)
+            // Outer boundary (covers visible area)
             [
-              { lat: 50.3, lng: 8.0 },
-              { lat: 50.3, lng: 8.6 },
-              { lat: 49.7, lng: 8.6 },
-              { lat: 49.7, lng: 8.0 }
+              { lat: 50.15, lng: 8.1 },
+              { lat: 50.15, lng: 8.45 },
+              { lat: 49.85, lng: 8.45 },
+              { lat: 49.85, lng: 8.1 }
             ],
             // Inner boundary (service area - creates hole)
             [
-              { lat: 50.08, lng: 8.19 },
-              { lat: 50.08, lng: 8.35 },
-              { lat: 49.92, lng: 8.35 },
-              { lat: 49.92, lng: 8.19 }
+              { lat: 50.06, lng: 8.21 },
+              { lat: 50.06, lng: 8.33 },
+              { lat: 49.94, lng: 8.33 },
+              { lat: 49.94, lng: 8.21 }
             ]
           ],
           map: googleMap,
@@ -336,8 +338,8 @@ export function InteractiveMap({ onLocationSelect }: InteractiveMapProps) {
         style={{ minHeight: '100vh' }}
       />
 
-      {/* Top Dark Gradient Mask */}
-      <div className="absolute top-0 left-0 right-0 h-96 bg-gradient-to-b from-black/70 via-black/40 to-transparent pointer-events-none z-10" />
+      {/* Top Dark Gradient Mask - Soft overlay for contrast */}
+      <div className="absolute top-0 left-0 right-0 h-96 bg-gradient-to-b from-black/80 via-black/50 to-transparent pointer-events-none z-10" />
 
       {/* Landing Page Content */}
       <motion.div
@@ -349,12 +351,12 @@ export function InteractiveMap({ onLocationSelect }: InteractiveMapProps) {
         <div className="max-w-md mx-auto text-center">
           {/* Main Heading */}
           <h1 className="text-3xl md:text-4xl font-bold text-white mb-4 leading-tight">
-            Dein Auto, gewaschen – wo du bist.
+            Your Car, Washed Wherever You Are.
           </h1>
           
           {/* Subtitle */}
           <p className="text-base md:text-lg text-gray-300 mb-8 leading-relaxed">
-            Gib deine Adresse ein und wir kommen direkt zu dir – bequem, flexibel und professionell.
+            Enter your address and get a premium mobile car wash at your doorstep.
           </p>
           
           {/* Address Search */}
@@ -365,7 +367,7 @@ export function InteractiveMap({ onLocationSelect }: InteractiveMapProps) {
               </div>
               <input
                 type="text"
-                placeholder="Adresse eingeben …"
+                placeholder="Enter your location..."
                 className="w-full bg-white/95 backdrop-blur-sm rounded-2xl px-12 py-4 text-gray-900 placeholder-gray-500 border-0 focus:outline-none focus:ring-2 focus:ring-[#00ff88] text-base font-medium shadow-xl"
                 onFocus={(e) => {
                   e.target.style.transform = 'scale(1.02)';
@@ -381,7 +383,7 @@ export function InteractiveMap({ onLocationSelect }: InteractiveMapProps) {
               className="w-full bg-[#00ff88] hover:bg-[#00dd77] text-black font-semibold py-4 px-8 rounded-2xl text-base shadow-xl transition-all duration-200 hover:scale-105 active:scale-95"
               size="lg"
             >
-              Verfügbarkeit prüfen
+              Check Availability
             </Button>
           </div>
         </div>
