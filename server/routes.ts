@@ -73,8 +73,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Query parameter 'q' is required" });
       }
 
-      // First search: Mainz-focused with bounding box (West, North, East, South)
-      const mainzUrl = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&countrycodes=de&limit=10&viewbox=8.215,50.000,8.300,49.960&bounded=1&q=${encodeURIComponent(q)}`;
+      // Optimized Mainz-focused search with bounding box only (faster performance)
+      const mainzUrl = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&countrycodes=de&limit=5&viewbox=8.215,50.000,8.300,49.960&bounded=1&q=${encodeURIComponent(q)}`;
       
       const mainzResponse = await fetch(mainzUrl, {
         headers: {
@@ -88,40 +88,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const mainzResults = await mainzResponse.json();
       
-      // Filter Mainz results to only include addresses with streets (roads)
-      const mainzStreets = mainzResults.filter(place => {
-        return place.address && place.address.road;
-      });
+      // Filter and limit to max 4 street results for optimal performance
+      const filteredResults = mainzResults
+        .filter(place => place.address && place.address.road)
+        .slice(0, 4);
       
-      let finalResults = mainzStreets.slice(0, 4); // Take up to 4 Mainz results
-      
-      // If we have fewer than 4 results, search Germany-wide for additional streets
-      if (finalResults.length < 4) {
-        const germanyUrl = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&countrycodes=de&limit=10&q=${encodeURIComponent(q)}`;
-        
-        const germanyResponse = await fetch(germanyUrl, {
-          headers: {
-            'User-Agent': 'WASHK App/1.0 (https://washk.app)',
-          },
-        });
-        
-        if (germanyResponse.ok) {
-          const germanyResults = await germanyResponse.json();
-          
-          // Filter Germany results for streets, excluding those already in Mainz results
-          const germanyStreets = germanyResults.filter(place => {
-            return place.address && 
-                   place.address.road && 
-                   !mainzStreets.some(mainzPlace => mainzPlace.place_id === place.place_id);
-          });
-          
-          // Add Germany results to fill up to 4 total
-          const remainingSlots = 4 - finalResults.length;
-          finalResults = [...finalResults, ...germanyStreets.slice(0, remainingSlots)];
-        }
-      }
-      
-      res.json(finalResults);
+      res.json(filteredResults);
     } catch (error: any) {
       console.error('Geocoding API error:', error);
       res.status(500).json({ message: "Error fetching geocoding data: " + error.message });

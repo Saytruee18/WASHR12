@@ -41,9 +41,9 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
     return '👋';
   };
 
-  // Enhanced OpenStreetMap Nominatim API for address suggestions with house number validation
+  // Debounced OpenStreetMap Nominatim API for address suggestions with house number validation
   const getAutocompleteSuggestions = useCallback(async (input: string) => {
-    if (input.length < 4) {  // Require at least 4 characters for better results
+    if (input.length < 3) {  // Minimum 3 characters for search
       setSuggestions([]);
       setShowSuggestions(false);
       return;
@@ -169,12 +169,33 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
     }
   };
 
-  // Handle address input change
+  // Debounce timer for search optimization
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Handle address input change with debouncing
   const handleAddressInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setAddressInput(value);
-    getAutocompleteSuggestions(value);
+    
+    // Clear previous debounce timer
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+    
+    // Set new debounce timer - wait 300ms before triggering search
+    debounceTimerRef.current = setTimeout(() => {
+      getAutocompleteSuggestions(value);
+    }, 300);
   };
+
+  // Cleanup debounce timer on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, []);
 
   // Enhanced suggestion selection with strict validation
   const handleSuggestionSelect = (suggestion: any) => {
