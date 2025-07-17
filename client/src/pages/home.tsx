@@ -293,7 +293,7 @@ export default function Home() {
           >
             <Button
               onClick={() => setIsDrawerOpen(true)}
-              className="bg-gray-900/80 backdrop-blur-md rounded-2xl shadow-2xl border border-gray-700/30 p-4 hover:bg-gray-800/80 transition-all text-gray-300 hover:text-white"
+              className="bg-transparent backdrop-blur-md rounded-2xl shadow-2xl border border-transparent p-4 hover:bg-transparent transition-all text-gray-300 hover:text-white"
               size="sm"
             >
               <Menu className="h-6 w-6" />
