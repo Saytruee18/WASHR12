@@ -328,21 +328,36 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
               // Check if user is within Germany bounds before centering
               if (germanyBounds.contains(userLocation)) {
                 googleMap.setCenter(userLocation);
-                googleMap.setZoom(16);
+                googleMap.setZoom(17); // Street-level zoom for precise location
                 
-                // Add user location marker
+                // Create custom car wash icon for user location
+                const carWashIcon = {
+                  url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+                    <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="20" cy="20" r="18" fill="#3cbf5c" stroke="#ffffff" stroke-width="3"/>
+                      <g transform="translate(20,20)">
+                        <!-- Car icon -->
+                        <path d="M-8,-4 L-6,-8 L6,-8 L8,-4 L8,4 L6,4 L6,2 L-6,2 L-6,4 L-8,4 Z" fill="white"/>
+                        <circle cx="-5" cy="1" r="1.5" fill="#3cbf5c"/>
+                        <circle cx="5" cy="1" r="1.5" fill="#3cbf5c"/>
+                        <!-- Water drops -->
+                        <circle cx="-2" cy="-12" r="1" fill="#4285f4" opacity="0.8"/>
+                        <circle cx="2" cy="-14" r="1" fill="#4285f4" opacity="0.6"/>
+                        <circle cx="0" cy="-16" r="1" fill="#4285f4" opacity="0.9"/>
+                      </g>
+                    </svg>
+                  `),
+                  scaledSize: new google.maps.Size(40, 40),
+                  anchor: new google.maps.Point(20, 40)
+                };
+
+                // Add user location marker with custom car wash icon
                 new google.maps.Marker({
                   position: userLocation,
                   map: googleMap,
-                  icon: {
-                    path: google.maps.SymbolPath.CIRCLE,
-                    scale: 8,
-                    fillColor: "#4285f4",
-                    fillOpacity: 1,
-                    strokeColor: "#ffffff",
-                    strokeWeight: 2,
-                  },
-                  title: "Ihr Standort",
+                  icon: carWashIcon,
+                  title: "Ihr Standort - Autowaschservice verfügbar",
+                  animation: google.maps.Animation.DROP,
                 });
                 
                 toast({
@@ -363,11 +378,14 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
           );
         }
 
-        // Initialize Places services for address search
-        const autocomplete = new google.maps.places.AutocompleteService();
-        const places = new google.maps.places.PlacesService(googleMap);
-        setAutocompleteService(autocomplete);
-        setPlacesService(places);
+        // Initialize modern Places services - avoiding legacy APIs
+        try {
+          const { PlacesService } = await loader.importLibrary("places");
+          const places = new PlacesService(googleMap);
+          setPlacesService(places);
+        } catch (error) {
+          console.log("Places API not available, using fallback geocoding");
+        }
 
       } catch (error) {
         console.error("Error loading Google Maps:", error);
@@ -382,9 +400,9 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
     initMap();
   }, [isPointInServiceArea, onLocationSelect, toast]);
 
-  // Handle address search
+  // Handle address search using Geocoding API (more reliable)
   const handleAddressSearch = useCallback(async () => {
-    if (!addressInput.trim() || !placesService) {
+    if (!addressInput.trim()) {
       toast({
         title: "Bitte geben Sie eine Adresse ein",
         description: "Um die Verfügbarkeit zu prüfen, benötigen wir eine gültige Adresse.",
@@ -394,18 +412,19 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
     }
 
     try {
-      // Use Places API to find the location
-      const request = {
-        query: addressInput,
-        fields: ['name', 'geometry', 'formatted_address']
-      };
-
-      placesService.findPlaceFromQuery(request, (results, status) => {
-        if (status === google.maps.places.PlacesServiceStatus.OK && results && results[0]) {
-          const place = results[0];
-          const location = place.geometry?.location;
-          
-          if (location) {
+      // Use Geocoding API instead of legacy Places API
+      const geocoder = new google.maps.Geocoder();
+      
+      geocoder.geocode(
+        { 
+          address: addressInput,
+          region: "DE" // Restrict to Germany
+        },
+        (results, status) => {
+          if (status === google.maps.GeocoderStatus.OK && results && results[0]) {
+            const result = results[0];
+            const location = result.geometry.location;
+            
             const lat = location.lat();
             const lng = location.lng();
             
@@ -415,17 +434,25 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
             // Update map view
             if (map) {
               map.setCenter({ lat, lng });
-              map.setZoom(15);
+              map.setZoom(17); // Street-level zoom
               
               // Add marker for searched location
               new google.maps.Marker({
                 position: { lat, lng },
                 map: map,
-                title: place.formatted_address || addressInput
+                title: result.formatted_address,
+                icon: {
+                  path: google.maps.SymbolPath.CIRCLE,
+                  scale: 12,
+                  fillColor: inServiceArea ? "#3cbf5c" : "#ff4444",
+                  fillOpacity: 1,
+                  strokeColor: "#ffffff",
+                  strokeWeight: 2,
+                }
               });
             }
             
-            setSelectedAddress(place.formatted_address || addressInput);
+            setSelectedAddress(result.formatted_address);
             setIsInServiceArea(inServiceArea);
             
             if (inServiceArea) {
@@ -433,7 +460,7 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
                 title: "✅ Service verfügbar!",
                 description: "Wir können zu dieser Adresse kommen. Buchung ist möglich.",
               });
-              onLocationSelect(place.formatted_address || addressInput, true);
+              onLocationSelect(result.formatted_address, true);
             } else {
               toast({
                 title: "❌ Außerhalb des Servicebereichs",
@@ -441,15 +468,15 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
                 variant: "destructive"
               });
             }
+          } else {
+            toast({
+              title: "Adresse nicht gefunden",
+              description: "Bitte überprüfen Sie die Eingabe und versuchen Sie es erneut.",
+              variant: "destructive"
+            });
           }
-        } else {
-          toast({
-            title: "Adresse nicht gefunden",
-            description: "Bitte überprüfen Sie die Eingabe und versuchen Sie es erneut.",
-            variant: "destructive"
-          });
         }
-      });
+      );
     } catch (error) {
       console.error('Address search error:', error);
       toast({
@@ -458,7 +485,7 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
         variant: "destructive"
       });
     }
-  }, [addressInput, placesService, map, isPointInServiceArea, onLocationSelect, toast]);
+  }, [addressInput, map, isPointInServiceArea, onLocationSelect, toast]);
 
   // Handle location selection
   const handleLocationSelect = useCallback((lat: number, lng: number, address: string) => {
