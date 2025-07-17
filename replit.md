@@ -154,10 +154,10 @@ Preferred communication style: Simple, everyday language.
   - Updated map zoom to focus on service area (zoom 13) instead of showing all Germany
   - Set minimum zoom limit (8) to prevent viewing outside Germany
   - Adjusted service area circles for closer, more focused view
-  - Replaced German text with English: "Your Car, Washed Wherever You Are"
-  - Added professional subtitle: "Enter your address and get a premium mobile car wash at your doorstep"
-  - Centered address search with "Enter your location..." placeholder
-  - "Check Availability" button with modern styling and hover effects
+  - Updated German text: "Dein Auto, gewaschen – wo du bist."
+  - Added professional subtitle: "Gib deine Adresse ein und wir kommen direkt zu dir – bequem, flexibel und professionell."
+  - Centered address search with "Adresse eingeben..." placeholder
+  - "Verfügbarkeit prüfen" button with modern styling and hover effects
   - Enhanced soft gradient overlay at top for better text contrast
   - Mobile-first design with bold, clean typography similar to delivery apps
 

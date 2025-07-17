@@ -351,12 +351,12 @@ export function InteractiveMap({ onLocationSelect }: InteractiveMapProps) {
         <div className="max-w-md mx-auto text-center">
           {/* Main Heading */}
           <h1 className="text-3xl md:text-4xl font-bold text-white mb-4 leading-tight">
-            Your Car, Washed Wherever You Are.
+            Dein Auto, gewaschen – wo du bist.
           </h1>
           
           {/* Subtitle */}
           <p className="text-base md:text-lg text-gray-300 mb-8 leading-relaxed">
-            Enter your address and get a premium mobile car wash at your doorstep.
+            Gib deine Adresse ein und wir kommen direkt zu dir – bequem, flexibel und professionell.
           </p>
           
           {/* Address Search */}
@@ -367,7 +367,7 @@ export function InteractiveMap({ onLocationSelect }: InteractiveMapProps) {
               </div>
               <input
                 type="text"
-                placeholder="Enter your location..."
+                placeholder="Adresse eingeben..."
                 className="w-full bg-white/95 backdrop-blur-sm rounded-2xl px-12 py-4 text-gray-900 placeholder-gray-500 border-0 focus:outline-none focus:ring-2 focus:ring-[#00ff88] text-base font-medium shadow-xl"
                 onFocus={(e) => {
                   e.target.style.transform = 'scale(1.02)';
@@ -383,7 +383,7 @@ export function InteractiveMap({ onLocationSelect }: InteractiveMapProps) {
               className="w-full bg-[#00ff88] hover:bg-[#00dd77] text-black font-semibold py-4 px-8 rounded-2xl text-base shadow-xl transition-all duration-200 hover:scale-105 active:scale-95"
               size="lg"
             >
-              Check Availability
+              Verfügbarkeit prüfen
             </Button>
           </div>
         </div>
