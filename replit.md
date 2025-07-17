@@ -201,6 +201,12 @@ Preferred communication style: Simple, everyday language.
   - Maintained Firebase configuration for existing project compatibility
   - Applied new color scheme: #100c0c backgrounds, #3cbf5c buttons, #189c82 availability button
   - Modern dropdown icon (MoreVertical) with transparent background implemented
+✓ Enhanced map zoom and bounds configuration (July 17, 2025):
+  - Increased starting zoom level from 13 to 12 for closer initial view
+  - Added Germany bounds restriction to prevent panning outside country borders
+  - Set minimum zoom to 7 to maintain Germany-focused view
+  - Maintained Mainz center position for optimal service area visibility
+  - Improved user experience with focused geographic constraints
 
 ## System Architecture
 

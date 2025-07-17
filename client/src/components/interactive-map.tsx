@@ -173,11 +173,21 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
           }
         ];
 
+        // Define Germany bounds to restrict map view
+        const germanyBounds = new google.maps.LatLngBounds(
+          new google.maps.LatLng(47.2701, 5.8663), // Southwest corner of Germany
+          new google.maps.LatLng(55.0584, 15.0419)  // Northeast corner of Germany
+        );
+
         const googleMap = new Map(mapRef.current, {
-          center: MAINZ_CENTER,
-          zoom: 13, // Closer zoom to focus on service area
-          minZoom: 8, // Prevent zooming out too far (stay within Germany)
+          center: MAINZ_CENTER, // Mainz as central position
+          zoom: 12, // Higher zoom level to start closer to marker
+          minZoom: 7, // Prevent zooming out beyond Germany view
           maxZoom: 18, // Allow detailed zoom
+          restriction: {
+            latLngBounds: germanyBounds, // Restrict panning to Germany
+            strictBounds: false, // Allow some flexibility at edges
+          },
           styles: darkMapStyle,
           disableDefaultUI: true,
           zoomControl: false,
