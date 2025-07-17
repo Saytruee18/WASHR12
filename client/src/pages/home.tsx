@@ -284,34 +284,18 @@ export default function Home() {
 
       {/* Floating Header for home tab */}
       {activeTab === "home" && (
-        <div className="absolute top-4 left-4 right-4 z-50 flex items-center justify-between">
+        <div className="absolute top-6 left-6 z-50">
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="flex items-center space-x-3"
           >
             <Button
               onClick={() => setIsDrawerOpen(true)}
-              className="bg-gray-900/95 backdrop-blur-md rounded-2xl shadow-2xl border border-gray-700/50 p-3 hover:bg-gray-800/95 transition-all text-gray-400 hover:text-white"
+              className="bg-gray-900/80 backdrop-blur-md rounded-2xl shadow-2xl border border-gray-700/30 p-4 hover:bg-gray-800/80 transition-all text-gray-300 hover:text-white"
               size="sm"
             >
-              <Menu className="h-5 w-5" />
+              <Menu className="h-6 w-6" />
             </Button>
-            <div className="bg-gray-900/95 backdrop-blur-md rounded-2xl shadow-2xl border border-gray-700/50 p-3 flex items-center space-x-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-[#00ff88] to-[#00dd77] rounded-xl flex items-center justify-center">
-                <Droplets className="text-black text-sm" />
-              </div>
-              <div>
-                <h1 className="text-lg font-bold text-white">WASHR</h1>
-              </div>
-            </div>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-gray-900/95 backdrop-blur-md rounded-2xl shadow-2xl border border-gray-700/50"
-          >
-            <ProfileDropdown />
           </motion.div>
         </div>
       )}
