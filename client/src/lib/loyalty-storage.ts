@@ -14,13 +14,13 @@ export interface UserProgress {
   availableRewards: string[];
 }
 
-const LOYALTY_STORAGE_KEY = 'washr_loyalty';
+const LOYALTY_STORAGE_KEY = 'washk_loyalty';
 
 export const loyaltyTiers: LoyaltyTier[] = [
   {
     level: 1,
     bookingsRequired: 2,
-    reward: 'WASHR Duftbaum',
+    reward: 'WASHK Duftbaum',
     description: 'Noch %d Buchungen bis zu deinem kostenlosen Duftbaum!',
     icon: '🌿'
   },

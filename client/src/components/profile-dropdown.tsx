@@ -64,8 +64,8 @@ export function ProfileDropdown() {
         await logout(); // This will immediately update the AuthContext state
       } else {
         // Fallback localStorage logout (shouldn't be needed with new context)
-        localStorage.removeItem('washr_logged_in');
-        localStorage.removeItem('washr_user_email');
+        localStorage.removeItem('washk_logged_in');
+        localStorage.removeItem('washk_user_email');
       }
       
       toast({

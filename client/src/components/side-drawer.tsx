@@ -75,7 +75,7 @@ export function SideDrawer({ isOpen, onClose, onNavigate }: SideDrawerProps) {
                     <span className="text-black font-bold text-lg">W</span>
                   </div>
                   <div>
-                    <h2 className="text-xl font-bold text-white">WASHR</h2>
+                    <h2 className="text-xl font-bold text-white">WASHK</h2>
                     <p className="text-sm text-gray-400">Car Cleaning Service</p>
                   </div>
                 </div>

@@ -190,10 +190,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const lastName = firstName.split(' ').slice(1).join(' ') || '';
       const displayName = firstName;
       
-      localStorage.setItem('washr_logged_in', 'true');
-      localStorage.setItem('washr_user_email', email);
-      localStorage.setItem('washr_user_firstName', firstName);
-      localStorage.setItem('washr_user_lastName', lastName);
+      localStorage.setItem('washk_logged_in', 'true');
+      localStorage.setItem('washk_user_email', email);
+      localStorage.setItem('washk_user_firstName', firstName);
+      localStorage.setItem('washk_user_lastName', lastName);
       
       // Merge guest bookings immediately
       const guestBookings = parseInt(localStorage.getItem('guestBookings') || '0');
@@ -270,10 +270,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Fallback to localStorage with immediate state update
       const displayName = `${firstName} ${lastName}`;
       
-      localStorage.setItem('washr_logged_in', 'true');
-      localStorage.setItem('washr_user_email', email);
-      localStorage.setItem('washr_user_firstName', firstName);
-      localStorage.setItem('washr_user_lastName', lastName);
+      localStorage.setItem('washk_logged_in', 'true');
+      localStorage.setItem('washk_user_email', email);
+      localStorage.setItem('washk_user_firstName', firstName);
+      localStorage.setItem('washk_user_lastName', lastName);
       
       // Merge guest bookings immediately
       const guestBookings = parseInt(localStorage.getItem('guestBookings') || '0');
@@ -360,10 +360,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = async () => {
     if (!isFirebaseConfigured || !auth) {
       // Fallback localStorage logout with immediate state update
-      localStorage.removeItem('washr_logged_in');
-      localStorage.removeItem('washr_user_email');
-      localStorage.removeItem('washr_user_firstName');
-      localStorage.removeItem('washr_user_lastName');
+      localStorage.removeItem('washk_logged_in');
+      localStorage.removeItem('washk_user_email');
+      localStorage.removeItem('washk_user_firstName');
+      localStorage.removeItem('washk_user_lastName');
       localStorage.removeItem('userBookings');
       
       // Reset state immediately
@@ -405,10 +405,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } as UserData;
       
       // Store in localStorage for demo
-      localStorage.setItem('washr_logged_in', 'true');
-      localStorage.setItem('washr_user_email', 'demo@google.com');
-      localStorage.setItem('washr_user_firstName', 'Google');
-      localStorage.setItem('washr_user_lastName', 'User');
+      localStorage.setItem('washk_logged_in', 'true');
+      localStorage.setItem('washk_user_email', 'demo@google.com');
+      localStorage.setItem('washk_user_firstName', 'Google');
+      localStorage.setItem('washk_user_lastName', 'User');
       
       // Merge guest bookings
       const guestBookings = parseInt(localStorage.getItem('guestBookings') || '0');
@@ -484,10 +484,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } as UserData;
       
       // Store in localStorage for demo
-      localStorage.setItem('washr_logged_in', 'true');
-      localStorage.setItem('washr_user_email', 'demo@facebook.com');
-      localStorage.setItem('washr_user_firstName', 'Facebook');
-      localStorage.setItem('washr_user_lastName', 'User');
+      localStorage.setItem('washk_logged_in', 'true');
+      localStorage.setItem('washk_user_email', 'demo@facebook.com');
+      localStorage.setItem('washk_user_firstName', 'Facebook');
+      localStorage.setItem('washk_user_lastName', 'User');
       
       // Merge guest bookings
       const guestBookings = parseInt(localStorage.getItem('guestBookings') || '0');
@@ -566,11 +566,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     if (!isFirebaseConfigured || !auth) {
       // Check localStorage for existing login
-      const savedLogin = localStorage.getItem('washr_logged_in');
+      const savedLogin = localStorage.getItem('washk_logged_in');
       if (savedLogin === 'true') {
-        const email = localStorage.getItem('washr_user_email') || '';
-        const firstName = localStorage.getItem('washr_user_firstName') || '';
-        const lastName = localStorage.getItem('washr_user_lastName') || '';
+        const email = localStorage.getItem('washk_user_email') || '';
+        const firstName = localStorage.getItem('washk_user_firstName') || '';
+        const lastName = localStorage.getItem('washk_user_lastName') || '';
         const userBookings = parseInt(localStorage.getItem('userBookings') || '0');
         
         const mockUser = {

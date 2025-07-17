@@ -275,7 +275,7 @@ export default function Home() {
                 <Droplets className="text-primary-foreground text-base md:text-lg" />
               </motion.div>
               <div>
-                <h1 className="text-lg md:text-xl font-bold tracking-tight">WASHR</h1>
+                <h1 className="text-lg md:text-xl font-bold tracking-tight">WASHK</h1>
                 <p className="text-xs text-muted-foreground font-light hidden md:block">Autowäsche in Mainz</p>
               </div>
             </div>

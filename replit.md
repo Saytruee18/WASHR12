@@ -1,8 +1,8 @@
-# WASHR - Car Cleaning Service Web App
+# WASHK - Car Cleaning Service Web App
 
 ## Overview
 
-WASHR is a full-stack Uber-like car cleaning service web application designed specifically for Mainz, Germany. The app features a modern dark mode interface with professional styling, providing users with a mobile-first experience for booking car cleaning services with real-time location selection, compliant service packages, and integrated payment processing.
+WASHK is a full-stack Uber-like car cleaning service web application designed specifically for Mainz, Germany. The app features a modern dark mode interface with professional styling, providing users with a mobile-first experience for booking car cleaning services with real-time location selection, compliant service packages, and integrated payment processing.
 
 ## User Preferences
 
@@ -194,6 +194,13 @@ Preferred communication style: Simple, everyday language.
   - Integrated with AuthContext to pass user's displayName or email-derived name
   - Falls back to generic text when user is not logged in
   - Enhanced user experience with personalized greeting on landing page
+✓ Complete rebranding from WASHR to WASHK (July 17, 2025):
+  - Updated entire application branding from WASHR to WASHK across all components
+  - Changed side drawer branding, splash screen, and UI elements
+  - Updated localStorage keys from "washr_" to "washk_" for consistency
+  - Maintained Firebase configuration for existing project compatibility
+  - Applied new color scheme: #100c0c backgrounds, #3cbf5c buttons, #189c82 availability button
+  - Modern dropdown icon (MoreVertical) with transparent background implemented
 
 ## System Architecture
 

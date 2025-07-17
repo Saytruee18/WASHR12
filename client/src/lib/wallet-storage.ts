@@ -8,7 +8,7 @@ export interface WalletTransaction {
   stripePaymentIntentId?: string;
 }
 
-const STORAGE_KEY = 'washr_wallet';
+const STORAGE_KEY = 'washk_wallet';
 
 export const walletStorage = {
   getTransactions(): WalletTransaction[] {

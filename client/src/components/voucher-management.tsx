@@ -52,7 +52,7 @@ export function VoucherManagement() {
     },
     onSuccess: (data) => {
       // Here you would typically redirect to Stripe checkout or handle payment
-      const voucherCode = `WASHR${Date.now().toString(36).toUpperCase()}`;
+      const voucherCode = `WASHK${Date.now().toString(36).toUpperCase()}`;
       toast({
         title: "Gutschein erstellt",
         description: `Gutschein-Code: ${voucherCode}`,
@@ -79,10 +79,10 @@ export function VoucherManagement() {
   };
 
   const handleShareVoucher = (code: string) => {
-    const shareText = `Ich schenke dir einen ${selectedAmount}€ WASHR Gutschein! Code: ${code}`;
+    const shareText = `Ich schenke dir einen ${selectedAmount}€ WASHK Gutschein! Code: ${code}`;
     if (navigator.share) {
       navigator.share({
-        title: "WASHR Gutschein",
+        title: "WASHK Gutschein",
         text: shareText,
         url: window.location.origin,
       });

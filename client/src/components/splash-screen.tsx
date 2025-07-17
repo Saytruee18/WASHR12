@@ -44,7 +44,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
               transition={{ delay: 0.2 }}
               className="text-6xl font-bold text-white tracking-wider"
             >
-              WASHR
+              WASHK
             </motion.h1>
             <motion.div
               initial={{ scaleX: 0 }}

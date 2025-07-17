@@ -18,8 +18,8 @@ export interface UserBookingData {
   availableRewards: string[];
 }
 
-const AUTH_STORAGE_KEY = 'washr_user';
-const USER_DATA_KEY = 'washr_user_data';
+const AUTH_STORAGE_KEY = 'washk_user';
+const USER_DATA_KEY = 'washk_user_data';
 
 export const authStorage = {
   isLoggedIn(): boolean {

@@ -128,7 +128,7 @@ export function CleanerForm() {
           >
             <div className="text-center mb-8">
               <Play className="mx-auto h-16 w-16 text-primary mb-4" />
-              <h3 className="text-2xl font-bold mb-2">Willkommen bei WASHR!</h3>
+              <h3 className="text-2xl font-bold mb-2">Willkommen bei WASHK!</h3>
               <p className="text-muted-foreground">Starte hier mit einem kurzen Einführungsvideo</p>
             </div>
 

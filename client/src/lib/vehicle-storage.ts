@@ -9,7 +9,7 @@ export interface SavedVehicle {
   createdAt: Date;
 }
 
-const STORAGE_KEY = 'washr_vehicles';
+const STORAGE_KEY = 'washk_vehicles';
 
 export const vehicleStorage = {
   getVehicles(): SavedVehicle[] {

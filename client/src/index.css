@@ -26,13 +26,13 @@
   --ring: hsl(168, 76%, 42%);
   --radius: 1rem;
   
-  /* Custom WASHR colors */
-  --washr-primary: hsl(168, 76%, 42%);
-  --washr-primary-light: hsl(168, 76%, 52%);
-  --washr-secondary: hsl(0, 0%, 15%);
-  --washr-success: hsl(142, 71%, 45%);
-  --washr-warning: hsl(38, 92%, 50%);
-  --washr-error: hsl(0, 84.2%, 60.2%);
+  /* Custom WASHK colors */
+  --washk-primary: hsl(168, 76%, 42%);
+  --washk-primary-light: hsl(168, 76%, 52%);
+  --washk-secondary: hsl(0, 0%, 15%);
+  --washk-success: hsl(142, 71%, 45%);
+  --washk-warning: hsl(38, 92%, 50%);
+  --washk-error: hsl(0, 84.2%, 60.2%);
 }
 
 .dark {
