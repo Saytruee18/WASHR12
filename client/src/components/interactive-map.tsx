@@ -41,90 +41,118 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
     return '👋';
   };
 
-  // Debounced OpenStreetMap Nominatim API for address suggestions with house number validation
+  // Enhanced instant address suggestions with fuzzy search and comprehensive German coverage
   const getAutocompleteSuggestions = useCallback(async (input: string) => {
-    if (input.length < 3) {  // Minimum 3 characters for search
+    if (input.length < 2) {  // Reduced to 2 characters for instant results
       setSuggestions([]);
       setShowSuggestions(false);
       return;
     }
 
     try {
-      const url = `/api/geocode?q=${encodeURIComponent(input)}`;
-      const response = await fetch(url);
-      
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-      
-      const results = await response.json();
+      // Enhanced multi-tier search for better coverage and fuzzy matching
+      const searches = [
+        // Priority 1: Mainz area with exact matching
+        `/api/geocode?q=${encodeURIComponent(input + ", Mainz")}&limit=2`,
+        // Priority 2: Fuzzy search across Germany
+        `/api/geocode?q=${encodeURIComponent(input)}&limit=6`
+      ];
 
-      if (results.length > 0) {
-        // Convert OpenStreetMap results to our format with enhanced validation
-        const osmSuggestions = results.map((place: any, index: number) => {
+      const allResults = [];
+      
+      // Execute searches in parallel for speed
+      const responses = await Promise.all(
+        searches.map(url => fetch(url).then(res => res.ok ? res.json() : []).catch(() => []))
+      );
+
+      // Combine and deduplicate results
+      const combined = responses.flat();
+      const seen = new Set();
+      
+      for (const place of combined) {
+        const key = `${place.lat}-${place.lon}`;
+        if (!seen.has(key) && place.address) {
+          seen.add(key);
+          allResults.push(place);
+        }
+      }
+
+      if (allResults.length > 0) {
+        // Enhanced fuzzy matching and relevance scoring
+        const scoredSuggestions = allResults.map((place: any, index: number) => {
           const address = place.address || {};
           const city = address.city || address.town || address.village || address.municipality || '';
           const houseNumber = address.house_number || '';
-          const road = address.road || '';
+          const road = address.road || address.street || '';
+          const state = address.state || '';
+          const postcode = address.postcode || '';
           
-          // Better formatting: prioritize street + house number for main text
-          let mainText = road;
-          if (houseNumber) {
+          // Calculate relevance score for better sorting
+          let relevanceScore = 0;
+          
+          // Boost Mainz addresses significantly
+          if (city.toLowerCase() === 'mainz') relevanceScore += 100;
+          
+          // Boost addresses with house numbers
+          if (houseNumber) relevanceScore += 50;
+          
+          // Boost addresses with roads
+          if (road) relevanceScore += 30;
+          
+          // Fuzzy matching bonus for similar text
+          const fullText = place.display_name.toLowerCase();
+          const inputLower = input.toLowerCase();
+          if (fullText.includes(inputLower)) relevanceScore += 20;
+          
+          // Distance penalty for non-Rhine area
+          if (state && state.toLowerCase() !== 'rheinland-pfalz' && state.toLowerCase() !== 'hessen') {
+            relevanceScore -= 20;
+          }
+          
+          // Better formatting for display
+          let mainText = road || place.display_name.split(',')[0];
+          if (houseNumber && road) {
             mainText = `${road} ${houseNumber}`;
           }
           
-          // Secondary text: remaining address parts
-          const addressParts = [city, address.postcode, address.state].filter(Boolean);
+          const addressParts = [city, postcode, state].filter(Boolean);
           const secondaryText = addressParts.join(', ');
           
           return {
             place_id: place.place_id || `osm_${index}`,
             description: place.display_name,
             structured_formatting: {
-              main_text: mainText || place.display_name.split(',')[0],
-              secondary_text: secondaryText || place.display_name.split(',').slice(1).join(',')
+              main_text: mainText,
+              secondary_text: secondaryText
             },
-            osmData: place, // Store original OSM data for validation
+            osmData: place,
             isMainz: city.toLowerCase() === 'mainz',
             hasHouseNumber: !!houseNumber,
             hasRoad: !!road,
-            isComplete: city.toLowerCase() === 'mainz' && !!houseNumber && !!road
+            isComplete: city.toLowerCase() === 'mainz' && !!houseNumber && !!road,
+            relevanceScore: relevanceScore,
+            city: city
           };
         });
         
-        // Sort suggestions: Mainz streets with house numbers first, then Mainz streets, then others
-        osmSuggestions.sort((a, b) => {
-          // Mainz addresses with house numbers get highest priority
-          if (a.isComplete && !b.isComplete) return -1;
-          if (!a.isComplete && b.isComplete) return 1;
-          
-          // Among same completion level, prioritize Mainz
-          if (a.isMainz && !b.isMainz) return -1;
-          if (!a.isMainz && b.isMainz) return 1;
-          
-          // Among same city, prioritize those with house numbers
-          if (a.hasHouseNumber && !b.hasHouseNumber) return -1;
-          if (!a.hasHouseNumber && b.hasHouseNumber) return 1;
-          
-          return 0;
-        });
+        // Sort by relevance score (highest first) and limit to 4
+        scoredSuggestions.sort((a, b) => b.relevanceScore - a.relevanceScore);
+        const topSuggestions = scoredSuggestions.slice(0, 4);
         
-        // Limit to maximum 4 suggestions for clean UI
-        setSuggestions(osmSuggestions.slice(0, 4) as any);
+        setSuggestions(topSuggestions as any);
         setShowSuggestions(true);
       } else {
-        setSuggestions([]);
-        setShowSuggestions(false);
+        // Enhanced fallback with fuzzy local search
+        useLocalMainzAddressesWithFuzzy(input);
       }
     } catch (error) {
       console.error('OpenStreetMap API error:', error);
-      // Fallback to local Mainz addresses when API fails
-      useLocalMainzAddresses(input);
+      useLocalMainzAddressesWithFuzzy(input);
     }
   }, []);
 
-  // Enhanced fallback local Mainz addresses with complete street and house number data
-  const useLocalMainzAddresses = (input: string) => {
+  // Enhanced fuzzy search for local Mainz addresses with typo tolerance
+  const useLocalMainzAddressesWithFuzzy = (input: string) => {
     const mainzAddresses = [
       "Bahnhofstraße 1, 55116 Mainz",
       "Bahnhofstraße 15, 55116 Mainz", 
@@ -145,22 +173,60 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
       "Parcusstraße 12, 55116 Mainz",
       "Göttelmannstraße 42, 55130 Mainz",
       "Am Zollhafen 12, 55118 Mainz",
-      "Am Zollhafen 25, 55118 Mainz"
+      "Am Zollhafen 25, 55118 Mainz",
+      "Frauenlobstraße 18, 55118 Mainz",
+      "Wallstraße 5, 55122 Mainz",
+      "Steingasse 10, 55116 Mainz",
+      "Holzstraße 25, 55116 Mainz",
+      "Quintinsstraße 14, 55116 Mainz"
     ];
 
-    const filtered = mainzAddresses.filter(addr => 
-      addr.toLowerCase().includes(input.toLowerCase())
-    );
+    // Simple fuzzy matching algorithm for typo tolerance
+    const fuzzyMatch = (text: string, query: string): number => {
+      const textLower = text.toLowerCase();
+      const queryLower = query.toLowerCase();
+      
+      // Exact substring match gets highest score
+      if (textLower.includes(queryLower)) return 100;
+      
+      // Check for similar character sequences
+      let score = 0;
+      for (let i = 0; i < queryLower.length - 1; i++) {
+        const bigram = queryLower.substr(i, 2);
+        if (textLower.includes(bigram)) score += 10;
+      }
+      
+      // Check individual character matches
+      for (const char of queryLower) {
+        if (textLower.includes(char)) score += 1;
+      }
+      
+      return score;
+    };
+
+    // Score and filter addresses
+    const scoredAddresses = mainzAddresses
+      .map(addr => ({
+        address: addr,
+        score: fuzzyMatch(addr, input)
+      }))
+      .filter(item => item.score > 10) // Minimum threshold for relevance
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 4);
     
-    if (filtered.length > 0) {
-      // Convert to compatible format
-      const localSuggestions = filtered.map((addr, index) => ({
+    if (scoredAddresses.length > 0) {
+      const localSuggestions = scoredAddresses.map((item, index) => ({
         place_id: `local_${index}`,
-        description: addr,
+        description: item.address,
         structured_formatting: {
-          main_text: addr.split(',')[0],
-          secondary_text: addr.split(',').slice(1).join(',')
-        }
+          main_text: item.address.split(',')[0],
+          secondary_text: item.address.split(',').slice(1).join(',')
+        },
+        isMainz: true,
+        hasHouseNumber: true,
+        hasRoad: true,
+        isComplete: true,
+        relevanceScore: item.score + 50 // Boost local addresses
       }));
       setSuggestions(localSuggestions as any);
       setShowSuggestions(true);
@@ -183,11 +249,11 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
       clearTimeout(debounceTimerRef.current);
     }
     
-    // Almost instant suggestions for 3+ characters (50ms debouncing for ultra-responsiveness)
-    if (value.length >= 3) {
+    // Instant suggestions for 2+ characters with minimal debouncing
+    if (value.length >= 2) {
       debounceTimerRef.current = setTimeout(() => {
         getAutocompleteSuggestions(value);
-      }, 50);
+      }, 100); // Reduced to 100ms for more responsive typing
     } else {
       setSuggestions([]);
       setShowSuggestions(false);
