@@ -70,7 +70,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   let lastApiCall = 0;
   const API_DELAY = 1000; // 1 second between API calls
 
-  // Rate-limited geocoding with extended German coverage
+  // Dynamic geocoding with complete input text processing
   app.get("/api/geocode", async (req, res) => {
     try {
       const { q } = req.query;
@@ -79,27 +79,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Query parameter 'q' is required" });
       }
 
+      // Process complete input text - no character limitations
+      const searchQuery = q.trim();
+      
       // Check cache first for instant response
-      const cacheKey = q.toLowerCase().trim();
+      const cacheKey = searchQuery.toLowerCase();
       const cached = geocodeCache.get(cacheKey);
       if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
         return res.json(cached.data);
       }
 
-      // Rate limiting: ensure minimum delay between API calls
+      // Reduced rate limiting for better responsiveness
       const now = Date.now();
       const timeSinceLastCall = now - lastApiCall;
-      if (timeSinceLastCall < API_DELAY) {
+      if (timeSinceLastCall < 500) { // Reduced from 1000ms to 500ms
         // Return empty array if too many requests
         return res.json([]);
       }
       lastApiCall = now;
 
-      // Optimized API call with longer timeout and better error handling
+      // Enhanced API call with complete input text processing
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 4000); // Increased timeout for complex queries
       
-      const url = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&countrycodes=de&limit=4&q=${encodeURIComponent(q)}`;
+      // Use complete search query without modifications
+      const url = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&countrycodes=de&limit=8&q=${encodeURIComponent(searchQuery)}`;
       
       try {
         const response = await fetch(url, {
@@ -122,11 +126,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
         
         const results = await response.json();
-        const filteredResults = results
-          .filter(place => place.address && (place.address.road || place.address.amenity || place.address.city))
-          .slice(0, 4);
         
-        // Cache the result for longer duration
+        // Enhanced filtering for better results with complete text processing
+        const filteredResults = results
+          .filter(place => {
+            if (!place.address) return false;
+            
+            // Accept any place with roads, amenities, or cities
+            return place.address.road || place.address.amenity || place.address.city || 
+                   place.address.town || place.address.village || place.address.suburb;
+          })
+          .slice(0, 6); // Increased limit for better coverage
+
+        // Cache the result for optimal performance
         geocodeCache.set(cacheKey, {
           data: filteredResults,
           timestamp: Date.now()

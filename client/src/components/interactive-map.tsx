@@ -42,21 +42,22 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
     return '👋';
   };
 
-  // Instant German address autocomplete - completely rebuilt for perfection
+  // Dynamic German address autocomplete with complete input processing
   const getGermanAutocompleteSuggestions = useCallback(async (input: string) => {
-    if (input.length < 2) {
+    if (input.length < 1) {
       setSuggestions([]);
       setShowSuggestions(false);
       return;
     }
 
     try {
-      // Use only single, optimized API call for speed
-      const url = `/api/geocode?q=${encodeURIComponent(input)}&limit=4`;
+      // Process complete input text without modifications
+      const completeInput = input.trim();
+      const url = `/api/geocode?q=${encodeURIComponent(completeInput)}`;
       
-      // Set short timeout for faster response
+      // Set appropriate timeout for complete text processing
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 4000); // Increased timeout for complex queries
       
       const response = await fetch(url, { signal: controller.signal });
       clearTimeout(timeoutId);
@@ -222,15 +223,15 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
       clearTimeout(debounceTimerRef.current);
     }
     
-    // Show instant local suggestions for all German cities
-    if (value.length >= 2) {
-      // Always show comprehensive German suggestions immediately
+    // Use complete input text for dynamic search - start from first character
+    if (value.length >= 1) {
+      // Always show comprehensive German suggestions immediately using complete input
       useGermanAddressDatabase(value);
       
-      // Enhance with API suggestions but don't override local ones
+      // Enhance with API suggestions using complete input text without debouncing
       debounceTimerRef.current = setTimeout(() => {
         getGermanAutocompleteSuggestions(value);
-      }, 50); // Ultra-fast for instant updates
+      }, 100); // Reduced debounce for faster response
     } else {
       setSuggestions([]);
       setShowSuggestions(false);
