@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { Loader } from "@googlemaps/js-api-loader";
+import { AddressConfirmationModal } from "./address-confirmation-modal";
 
 interface InteractiveMapProps {
   onLocationSelect: (address: string, isInServiceArea: boolean) => void;
@@ -25,6 +26,8 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showAreaWarning, setShowAreaWarning] = useState(false);
   const [showHouseNumberPrompt, setShowHouseNumberPrompt] = useState(false);
+  const [showAddressConfirmation, setShowAddressConfirmation] = useState(false);
+  const [pendingAddress, setPendingAddress] = useState("");
   
   const mapRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -135,33 +138,44 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
     };
   }, []);
 
-  // Handle suggestion selection with house number validation
+  // Handle suggestion selection with address confirmation modal
   const handleSuggestionSelect = (suggestion: any) => {
-    setAddressInput(suggestion.description);
     setShowSuggestions(false);
     
-    // Check if address is complete (has house number)
-    if (!suggestion.hasHouseNumber || !suggestion.isComplete) {
-      // For incomplete addresses, still proceed to booking but trigger house number focus
-      if (suggestion.osmData) {
-        const lat = parseFloat(suggestion.osmData.lat);
-        const lng = parseFloat(suggestion.osmData.lon);
-        if (lat && lng) {
-          // Pass incomplete address data to trigger house number focus
-          handleLocationSelect(lat, lng, suggestion.description, true); // true = needs house number
-        }
-      }
-      return;
-    }
+    // Show address confirmation modal
+    setPendingAddress(suggestion.description);
+    setShowAddressConfirmation(true);
+  };
+
+  // Handle address confirmation
+  const handleAddressConfirm = (finalAddress: string) => {
+    setAddressInput(finalAddress);
+    setShowAddressConfirmation(false);
     
-    // If complete, proceed with address search normally
-    if (suggestion.osmData) {
-      const lat = parseFloat(suggestion.osmData.lat);
-      const lng = parseFloat(suggestion.osmData.lon);
+    // Find the original suggestion data for the confirmed address
+    const matchingSuggestion = suggestions.find(s => 
+      s.description.toLowerCase().includes(finalAddress.toLowerCase()) ||
+      finalAddress.toLowerCase().includes(s.description.toLowerCase())
+    );
+    
+    if (matchingSuggestion && matchingSuggestion.osmData) {
+      const lat = parseFloat(matchingSuggestion.osmData.lat);
+      const lng = parseFloat(matchingSuggestion.osmData.lon);
       if (lat && lng) {
-        handleLocationSelect(lat, lng, suggestion.description, false); // false = complete address
+        // Check if needs house number
+        const needsHouseNumber = !matchingSuggestion.hasHouseNumber || !matchingSuggestion.isComplete;
+        handleLocationSelect(lat, lng, finalAddress, needsHouseNumber);
       }
+    } else {
+      // No matching suggestion found, trigger manual address search
+      handleAddressSearch(finalAddress);
     }
+  };
+
+  // Handle address confirmation cancel
+  const handleAddressCancel = () => {
+    setShowAddressConfirmation(false);
+    setPendingAddress("");
   };
 
   // Service area check function
@@ -797,7 +811,9 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
                     onKeyPress={(e) => {
                       if (e.key === 'Enter' && addressInput.trim()) {
                         setShowSuggestions(false);
-                        handleAddressSearch();
+                        // Show address confirmation modal for manual entry
+                        setPendingAddress(addressInput);
+                        setShowAddressConfirmation(true);
                       }
                     }}
                   />
@@ -1128,6 +1144,14 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Address Confirmation Modal */}
+      <AddressConfirmationModal
+        isOpen={showAddressConfirmation}
+        initialAddress={pendingAddress}
+        onConfirm={handleAddressConfirm}
+        onCancel={handleAddressCancel}
+      />
     </div>
   );
 }
