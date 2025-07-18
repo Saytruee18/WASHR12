@@ -64,11 +64,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Simple in-memory cache for geocoding results
+  // Enhanced caching with rate limiting protection
   const geocodeCache = new Map<string, any>();
-  const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+  const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes
+  let lastApiCall = 0;
+  const API_DELAY = 1000; // 1 second between API calls
 
-  // Ultra-fast geocoding with aggressive caching and timeouts
+  // Rate-limited geocoding with extended German coverage
   app.get("/api/geocode", async (req, res) => {
     try {
       const { q } = req.query;
@@ -84,9 +86,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json(cached.data);
       }
 
-      // Single optimized API call with short timeout
+      // Rate limiting: ensure minimum delay between API calls
+      const now = Date.now();
+      const timeSinceLastCall = now - lastApiCall;
+      if (timeSinceLastCall < API_DELAY) {
+        // Return empty array if too many requests
+        return res.json([]);
+      }
+      lastApiCall = now;
+
+      // Optimized API call with longer timeout and better error handling
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 2000); // 2 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
       
       const url = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&countrycodes=de&limit=4&q=${encodeURIComponent(q)}`;
       
@@ -94,11 +105,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const response = await fetch(url, {
           signal: controller.signal,
           headers: {
-            'User-Agent': 'WASHK App/1.0 (https://washk.app)',
+            'User-Agent': 'WASHK App/1.0 (contact@washk.app)',
           },
         });
         
         clearTimeout(timeoutId);
+        
+        if (response.status === 429) {
+          // Rate limited - cache empty result briefly and return empty
+          geocodeCache.set(cacheKey, { data: [], timestamp: Date.now() });
+          return res.json([]);
+        }
         
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}`);
@@ -106,10 +123,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         const results = await response.json();
         const filteredResults = results
-          .filter(place => place.address && (place.address.road || place.address.amenity))
+          .filter(place => place.address && (place.address.road || place.address.amenity || place.address.city))
           .slice(0, 4);
         
-        // Cache the result
+        // Cache the result for longer duration
         geocodeCache.set(cacheKey, {
           data: filteredResults,
           timestamp: Date.now()
@@ -119,13 +136,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } catch (fetchError: any) {
         clearTimeout(timeoutId);
         
-        // Return empty array on timeout/error instead of 500
-        console.log(`Geocoding timeout/error for "${q}":`, fetchError.message);
+        // Cache empty result briefly to avoid repeated failed calls
+        geocodeCache.set(cacheKey, { 
+          data: [], 
+          timestamp: Date.now() - CACHE_DURATION + 30000 // Cache for only 30 seconds on error
+        });
+        
         res.json([]);
       }
     } catch (error: any) {
-      console.error('Geocoding API error:', error);
-      res.json([]); // Return empty array instead of error
+      res.json([]);
     }
   });
 

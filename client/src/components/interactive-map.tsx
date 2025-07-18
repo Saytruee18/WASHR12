@@ -118,71 +118,85 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
     }
   }, [suggestions]);
 
-  // Enhanced fuzzy search for local Mainz addresses with extensive database
+  // Enhanced local database with German-wide addresses for instant suggestions
   const useLocalMainzAddressesWithFuzzy = (input: string) => {
-    const mainzAddresses = [
-      // Popular main streets
+    const germanAddresses = [
+      // Mainz (priority)
       "Bahnhofstraße 1, 55116 Mainz",
       "Bahnhofstraße 15, 55116 Mainz",
-      "Bahnhofstraße 23, 55116 Mainz", 
       "Rheinstraße 12, 55116 Mainz",
-      "Rheinstraße 45, 55116 Mainz",
-      "Rheinstraße 67, 55116 Mainz",
       "Kaiserstraße 5, 55116 Mainz",
-      "Kaiserstraße 23, 55116 Mainz",
-      "Kaiserstraße 41, 55116 Mainz",
-      
-      // City center and squares
       "Gutenbergplatz 4, 55116 Mainz",
-      "Schillerplatz 1, 55116 Mainz",
-      "Domplatz 3, 55116 Mainz",
-      "Kirschgarten 8, 55116 Mainz",
-      "Markt 12, 55116 Mainz",
-      "Leichhof 10, 55116 Mainz",
-      
-      // Shopping areas
       "Große Bleiche 22, 55116 Mainz",
-      "Große Bleiche 60, 55116 Mainz",
-      "Ludwigsstraße 7, 55116 Mainz",
-      "Ludwigsstraße 19, 55116 Mainz",
+      "Schillerplatz 1, 55116 Mainz",
       "Münsterstraße 8, 55116 Mainz",
-      "Münsterstraße 16, 55116 Mainz",
-      
-      // Residential areas
-      "Neubrunnenstraße 7, 55118 Mainz",
-      "Neubrunnenstraße 25, 55118 Mainz",
-      "Breidenbacherstraße 3, 55122 Mainz",
-      "Breidenbacherstraße 18, 55122 Mainz",
-      "Binger Straße 15, 55122 Mainz",
-      "Binger Straße 34, 55122 Mainz",
-      "Augustusstraße 20, 55131 Mainz",
-      "Augustusstraße 45, 55131 Mainz",
-      
-      // Modern districts
-      "Parcusstraße 12, 55116 Mainz",
-      "Göttelmannstraße 42, 55130 Mainz",
       "Am Zollhafen 12, 55118 Mainz",
-      "Am Zollhafen 25, 55118 Mainz",
       "Frauenlobstraße 18, 55118 Mainz",
-      "Frauenlobstraße 33, 55118 Mainz",
       
-      // Additional streets
-      "Wallstraße 5, 55122 Mainz",
-      "Steingasse 10, 55116 Mainz",
-      "Holzstraße 25, 55116 Mainz",
-      "Quintinsstraße 14, 55116 Mainz",
-      "Römerwall 23, 55131 Mainz",
-      "Saarstraße 16, 55122 Mainz",
-      "Gaustraße 12, 55116 Mainz",
-      "Fischtorstraße 8, 55116 Mainz",
-      "Weintorstraße 15, 55116 Mainz",
-      "Ballplatz 2, 55116 Mainz",
-      "Brand 14, 55116 Mainz",
-      "Christofsstraße 1, 55116 Mainz",
-      "Emmeranstraße 28, 55116 Mainz",
-      "Kurfürstenstraße 6, 55118 Mainz",
-      "Mombacher Straße 67, 55122 Mainz",
-      "Breite Straße 41, 55124 Mainz"
+      // Frankfurt
+      "Zeil 1, 60313 Frankfurt am Main",
+      "Kaiserstraße 10, 60311 Frankfurt am Main",
+      "Hauptwache 5, 60313 Frankfurt am Main",
+      "Römerberg 2, 60311 Frankfurt am Main",
+      "Bockenheimer Landstraße 25, 60325 Frankfurt am Main",
+      
+      // Wiesbaden  
+      "Wilhelmstraße 15, 65183 Wiesbaden",
+      "Rheinstraße 3, 65185 Wiesbaden",
+      "Marktstraße 12, 65183 Wiesbaden",
+      "Bahnhofstraße 8, 65185 Wiesbaden",
+      
+      // Köln
+      "Hohe Straße 41, 50667 Köln",
+      "Schildergasse 15, 50667 Köln",
+      "Domplatz 1, 50667 Köln",
+      "Neumarkt 2, 50667 Köln",
+      
+      // München
+      "Marienplatz 8, 80331 München",
+      "Maximilianstraße 15, 80539 München",
+      "Leopoldstraße 25, 80802 München",
+      "Sendlinger Straße 12, 80331 München",
+      
+      // Berlin
+      "Unter den Linden 10, 10117 Berlin",
+      "Friedrichstraße 25, 10117 Berlin",
+      "Alexanderplatz 3, 10178 Berlin",
+      "Kurfürstendamm 15, 10719 Berlin",
+      
+      // Hamburg
+      "Mönckebergstraße 12, 20095 Hamburg",
+      "Jungfernstieg 8, 20354 Hamburg",
+      "Reeperbahn 25, 20359 Hamburg",
+      
+      // Stuttgart
+      "Königstraße 28, 70173 Stuttgart",
+      "Marktplatz 1, 70173 Stuttgart",
+      "Schlossplatz 4, 70173 Stuttgart",
+      
+      // Düsseldorf
+      "Königsallee 15, 40212 Düsseldorf",
+      "Schadowstraße 8, 40212 Düsseldorf",
+      
+      // Dortmund
+      "Westenhellweg 12, 44137 Dortmund",
+      "Kampstraße 5, 44137 Dortmund",
+      
+      // Essen
+      "Kettwiger Straße 15, 45127 Essen",
+      "Limbecker Platz 3, 45127 Essen",
+      
+      // Nürnberg
+      "Hauptmarkt 1, 90403 Nürnberg",
+      "Karolinenstraße 8, 90402 Nürnberg",
+      
+      // Leipzig
+      "Grimmaische Straße 15, 04109 Leipzig",
+      "Augustusplatz 2, 04109 Leipzig",
+      
+      // Dresden
+      "Prager Straße 12, 01069 Dresden",
+      "Altmarkt 5, 01067 Dresden"
     ];
 
     // Simple fuzzy matching algorithm for typo tolerance
@@ -208,14 +222,20 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
       return score;
     };
 
-    // Score and filter addresses
-    const scoredAddresses = mainzAddresses
+    // Score and filter addresses from entire German database
+    const scoredAddresses = germanAddresses
       .map(addr => ({
         address: addr,
-        score: fuzzyMatch(addr, input)
+        score: fuzzyMatch(addr, input),
+        isMainz: addr.includes('Mainz')
       }))
-      .filter(item => item.score > 10) // Minimum threshold for relevance
-      .sort((a, b) => b.score - a.score)
+      .filter(item => item.score > 8) // Lower threshold for broader coverage
+      .sort((a, b) => {
+        // Prioritize Mainz addresses, then by score
+        if (a.isMainz && !b.isMainz) return -1;
+        if (!a.isMainz && b.isMainz) return 1;
+        return b.score - a.score;
+      })
       .slice(0, 4);
     
     if (scoredAddresses.length > 0) {
@@ -226,11 +246,11 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
           main_text: item.address.split(',')[0],
           secondary_text: item.address.split(',').slice(1).join(',')
         },
-        isMainz: true,
+        isMainz: item.isMainz,
         hasHouseNumber: true,
         hasRoad: true,
-        isComplete: true,
-        relevanceScore: item.score + 50 // Boost local addresses
+        isComplete: item.isMainz,
+        relevanceScore: item.score + (item.isMainz ? 100 : 20) // Higher boost for Mainz
       }));
       setSuggestions(localSuggestions as any);
       setShowSuggestions(true);
