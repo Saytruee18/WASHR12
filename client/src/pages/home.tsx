@@ -159,7 +159,7 @@ export default function Home() {
                   >
                     <div className="flex items-center justify-center space-x-3">
                       <MapPin className="h-6 w-6" />
-                      <span>Create Booking</span>
+                      <span>Buchung erstellen</span>
                       <CheckCircle className="h-6 w-6" />
                     </div>
                   </Button>
