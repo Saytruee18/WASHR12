@@ -884,7 +884,7 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
                   value={addressInput}
                   onChange={handleAddressInputChange}
                   placeholder="Deine Adresse hier eingeben..."
-                  className="w-full bg-white/95 backdrop-blur-sm rounded-xl pl-10 pr-12 py-3 text-gray-900 placeholder-gray-500 border-0 focus:outline-none focus:ring-2 focus:ring-[#3cbf5c] text-sm font-medium shadow-lg"
+                  className="w-full bg-white/95 backdrop-blur-sm rounded-xl pl-10 pr-16 py-3 text-gray-900 placeholder-gray-500 border-0 focus:outline-none focus:ring-2 focus:ring-[#3cbf5c] text-sm font-medium shadow-lg"
                   onFocus={(e) => {
                     e.target.style.transform = 'scale(1.01)';
                     e.target.style.transition = 'transform 0.2s ease';
