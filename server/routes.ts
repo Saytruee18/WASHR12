@@ -89,29 +89,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json(cached.data);
       }
 
-      // Minimal rate limiting for maximum responsiveness
+      // Simple rate limiting
       const now = Date.now();
       const timeSinceLastCall = now - lastApiCall;
-      if (timeSinceLastCall < 200) { // Further reduced to 200ms for better UX
-        // Return empty array if too many requests
+      if (timeSinceLastCall < 500) {
         return res.json([]);
       }
       lastApiCall = now;
 
-      // Enhanced API call with complete input text processing
+      // Simple API call
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 4000); // Increased timeout for complex queries
+      const timeoutId = setTimeout(() => controller.abort(), 3000);
       
-      // Enhanced search URL optimized for complete input processing
-      let searchUrl = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&countrycodes=de&limit=10&q=${encodeURIComponent(searchQuery)}`;
-      
-      // Enhanced parameters for better address matching
-      searchUrl += '&extratags=1&namedetails=1';
-      
-      // If query contains numbers, add special handling for house numbers
-      if (/\d/.test(searchQuery)) {
-        searchUrl += '&bounded=0'; // Allow broader search for numbered addresses
-      }
+      // Basic search URL
+      const searchUrl = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&countrycodes=de&limit=5&q=${encodeURIComponent(searchQuery)}`;
       
       try {
         const response = await fetch(searchUrl, {
@@ -135,51 +126,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         const results = await response.json();
         
-        // Enhanced filtering to prioritize complete addresses with house numbers
+        // Simple filtering
         const filteredResults = results
-          .filter(place => {
-            if (!place.address) return false;
-            
-            // Accept places with roads, amenities, or cities
-            return place.address.road || place.address.amenity || place.address.city || 
-                   place.address.town || place.address.village || place.address.suburb;
-          })
-          .map(place => {
-            // Enhanced address formatting with house number detection
-            const addr = place.address;
-            const hasHouseNumber = !!(addr.house_number);
-            const street = addr.road || addr.pedestrian || addr.footway || '';
-            const houseNum = addr.house_number || '';
-            const city = addr.city || addr.town || addr.village || addr.municipality || '';
-            const postcode = addr.postcode || '';
-            
-            // Create display address with house number emphasis
-            let displayAddress = '';
-            if (street && houseNum) {
-              displayAddress = `${street} ${houseNum}, ${postcode} ${city}`.trim();
-            } else if (street) {
-              displayAddress = `${street}, ${city}`.trim();
-            } else {
-              displayAddress = `${city}`.trim();
-            }
-            
-            return {
-              ...place,
-              display_name: displayAddress,
-              hasHouseNumber,
-              isComplete: hasHouseNumber && street && city,
-              formatted_address: displayAddress
-            };
-          })
-          .sort((a, b) => {
-            // Prioritize complete addresses with house numbers
-            if (a.isComplete && !b.isComplete) return -1;
-            if (!a.isComplete && b.isComplete) return 1;
-            if (a.hasHouseNumber && !b.hasHouseNumber) return -1;
-            if (!a.hasHouseNumber && b.hasHouseNumber) return 1;
-            return 0;
-          })
-          .slice(0, 6); // Increased limit for better coverage
+          .filter(place => place.address && (place.address.road || place.address.city))
+          .slice(0, 5);
 
         // Cache the result for optimal performance
         geocodeCache.set(cacheKey, {

@@ -42,228 +42,59 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
     return '👋';
   };
 
-  // Dynamic German address autocomplete with complete input processing
+  // Simple, fast address autocomplete
   const getGermanAutocompleteSuggestions = useCallback(async (input: string) => {
-    // Process every character of input - no minimum length requirement
-    const processedInput = input.trim();
+    const searchInput = input.trim();
     
-    if (!processedInput) {
+    if (!searchInput || searchInput.length < 2) {
       setSuggestions([]);
       setShowSuggestions(false);
       return;
     }
 
     try {
-      // Use complete input text exactly as entered by user
-      const url = `/api/geocode?q=${encodeURIComponent(processedInput)}`;
+      const url = `/api/geocode?q=${encodeURIComponent(searchInput)}`;
+      const response = await fetch(url);
       
-      // Set appropriate timeout for complete text processing
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000); // Increased timeout for complex queries
-      
-      const response = await fetch(url, { signal: controller.signal });
-      clearTimeout(timeoutId);
-      
-      if (!response.ok) {
-        // Don't overwrite existing local suggestions on API error
-        return;
-      }
+      if (!response.ok) return;
       
       const results = await response.json();
 
       if (results.length > 0) {
-        // Process API results with enhanced house number prioritization
         const apiSuggestions = results.map((place: any, index: number) => {
           const address = place.address || {};
-          const city = address.city || address.town || address.village || address.municipality || '';
+          const city = address.city || address.town || address.village || '';
           const houseNumber = address.house_number || '';
-          const road = address.road || address.street || '';
-          const postcode = address.postcode || '';
-          
-          // Use server-formatted address if available
-          const displayAddress = place.formatted_address || place.display_name;
+          const road = address.road || '';
           
           let mainText = road || place.display_name.split(',')[0];
           if (houseNumber && road) {
             mainText = `${road} ${houseNumber}`;
           }
           
-          const addressParts = [postcode, city, address.state].filter(Boolean);
-          const secondaryText = addressParts.join(', ');
-          
-          // Enhanced relevance scoring for complete addresses
-          let relevanceScore = 100 - index * 5;
-          if (houseNumber && road && city) relevanceScore += 50; // Major bonus for complete addresses
-          if (houseNumber) relevanceScore += 25; // Bonus for house numbers
-          if (city.toLowerCase().includes('mainz')) relevanceScore += 20; // Mainz priority
-          
           return {
             place_id: place.place_id || `api_${index}`,
-            description: displayAddress,
+            description: place.display_name,
             structured_formatting: {
               main_text: mainText,
-              secondary_text: secondaryText
+              secondary_text: city
             },
             osmData: place,
-            isMainz: city.toLowerCase().includes('mainz'),
             hasHouseNumber: !!houseNumber,
             hasRoad: !!road,
-            isComplete: !!(houseNumber && road && city),
-            relevanceScore
+            isComplete: !!(houseNumber && road && city)
           };
         });
-        
-        // Sort by relevance score (complete addresses with house numbers first)
-        apiSuggestions.sort((a, b) => b.relevanceScore - a.relevanceScore);
         
         setSuggestions(apiSuggestions as any);
         setShowSuggestions(true);
       }
     } catch (error) {
-      // Don't clear existing suggestions on API error
-      console.log('API timeout or error, keeping local suggestions');
+      // Silent error handling
     }
-  }, [suggestions]);
+  }, []);
 
-  // Comprehensive German street database for instant autocomplete
-  const useGermanAddressDatabase = (input: string) => {
-    const germanStreets = [
-      // Major streets across Germany - instant suggestions
-      "Bahnhofstraße", "Hauptstraße", "Kaiserstraße", "Königstraße", "Marktstraße",
-      "Friedrichstraße", "Wilhelmstraße", "Goethestraße", "Schillerstraße", "Bismarckstraße",
-      "Lindenstraße", "Kirchstraße", "Gartenstraße", "Bergstraße", "Poststraße",
-      "Schulstraße", "Mühlenstraße", "Dorfstraße", "Waldstraße", "Feldstraße",
-      "Rosenstraße", "Parkstraße", "Mozartstraße", "Beethovenstraße", "Bachstraße",
-      "Am Markt", "Am Bahnhof", "Unter den Linden", "Zur Post", "An der Kirche",
-      "Neue Straße", "Alte Straße", "Lange Straße", "Kurze Straße", "Breite Straße",
-      "Rheinstraße", "Elbestraße", "Donaustraße", "Weserstraße", "Isar Straße",
-      "Zeil", "Kurfürstendamm", "Reeperbahn", "Leopoldstraße", "Maximilianstraße",
-      "Alexanderplatz", "Potsdamer Platz", "Marienplatz", "Römerberg", "Hauptwache",
-      "Schildergasse", "Hohe Straße", "Mönckebergstraße", "Jungfernstieg", "Neuer Wall",
-      "Königsallee", "Schadowstraße", "Flinger Straße", "Bolkerstraße", "Carlsplatz",
-      "Theodor-Heuss-Straße", "Konrad-Adenauer-Straße", "Willy-Brandt-Straße", "John-F.-Kennedy-Straße",
-      "Große Bleiche", "Gutenbergplatz", "Am Zollhafen", "Frauenlobstraße", "Münsterstraße",
-      "Parcusstraße", "Göttelmannstraße", "Neubrunnenstraße", "Breidenbacherstraße", "Augustusstraße"
-    ];
-
-    const germanCities = [
-      "Mainz", "Frankfurt am Main", "Wiesbaden", "Darmstadt", "Kassel", "Berlin", "München", "Hamburg",
-      "Köln", "Stuttgart", "Düsseldorf", "Dortmund", "Essen", "Leipzig", "Dresden", "Nürnberg",
-      "Hannover", "Bremen", "Duisburg", "Bochum", "Wuppertal", "Bielefeld", "Bonn", "Münster",
-      "Karlsruhe", "Mannheim", "Augsburg", "Chemnitz", "Braunschweig", "Krefeld", "Kiel", "Aachen",
-      "Halle", "Magdeburg", "Freiburg", "Lübeck", "Oberhausen", "Erfurt", "Rostock", "Mainz",
-      "Kaiserslautern", "Hamm", "Saarbrücken", "Mülheim", "Potsdam", "Ludwigshafen", "Oldenburg"
-    ];
-
-    // Enhanced fuzzy matching algorithm for complete input processing
-    const fuzzyMatch = (street: string, city: string, search: string): number => {
-      const fullAddress = `${street}, ${city}`.toLowerCase();
-      const searchLower = search.toLowerCase().trim();
-      
-      // Skip if search is empty
-      if (!searchLower) return 0;
-      
-      let score = 0;
-      
-      // Exact matches get highest priority
-      if (fullAddress === searchLower) score += 200;
-      if (street.toLowerCase() === searchLower) score += 180;
-      if (city.toLowerCase() === searchLower) score += 160;
-      
-      // Substring matches
-      if (fullAddress.includes(searchLower)) score += 120;
-      if (street.toLowerCase().includes(searchLower)) score += 100;
-      if (city.toLowerCase().includes(searchLower)) score += 80;
-      
-      // Starting matches
-      if (street.toLowerCase().startsWith(searchLower)) score += 90;
-      if (city.toLowerCase().startsWith(searchLower)) score += 70;
-      if (fullAddress.startsWith(searchLower)) score += 110;
-      
-      // Word boundary matches for better accuracy
-      const searchWords = searchLower.split(/\s+/);
-      const addressWords = fullAddress.split(/[\s,]+/);
-      
-      for (const searchWord of searchWords) {
-        if (searchWord.length > 0) {
-          for (const addressWord of addressWords) {
-            if (addressWord.startsWith(searchWord)) score += 40;
-            if (addressWord.includes(searchWord)) score += 25;
-          }
-        }
-      }
-      
-      // Character sequence matching for typo tolerance
-      let charMatches = 0;
-      for (const char of searchLower) {
-        if (fullAddress.includes(char)) charMatches++;
-      }
-      score += (charMatches / searchLower.length) * 20;
-      
-      return score;
-    };
-
-    // Generate comprehensive suggestions from street/city combinations with house numbers
-    const suggestions: any[] = [];
-    
-    // Check if input contains numbers (potential house number)
-    const hasNumbers = /\d/.test(input);
-    const numberMatch = input.match(/\d+/);
-    const potentialHouseNumber = numberMatch ? numberMatch[0] : null;
-    
-    for (const street of germanStreets) {
-      for (const city of germanCities) {
-        const score = fuzzyMatch(street, city, input);
-        if (score > 15) { // Lower threshold for maximum coverage
-          
-          // If input contains numbers, create suggestions with house numbers
-          if (hasNumbers && potentialHouseNumber) {
-            suggestions.push({
-              street: `${street} ${potentialHouseNumber}`,
-              city,
-              score: score + 40, // Higher score for complete addresses
-              isMainz: city === 'Mainz',
-              hasHouseNumber: true
-            });
-          }
-          
-          // Also add regular street suggestion
-          suggestions.push({
-            street,
-            city,
-            score,
-            isMainz: city === 'Mainz',
-            hasHouseNumber: hasNumbers && potentialHouseNumber
-          });
-        }
-      }
-    }
-    
-    // Sort by relevance with Mainz priority
-    suggestions.sort((a, b) => {
-      const scoreA = a.score + (a.isMainz ? 20 : 0);
-      const scoreB = b.score + (b.isMainz ? 20 : 0);
-      return scoreB - scoreA;
-    });
-    
-    // Take top 6 suggestions, prioritizing complete addresses
-    const topSuggestions = suggestions.slice(0, 6).map((item, index) => ({
-      place_id: `local_${index}`,
-      description: `${item.street}, ${item.city}`,
-      structured_formatting: {
-        main_text: item.street,
-        secondary_text: item.city
-      },
-      isMainz: item.isMainz,
-      hasHouseNumber: item.hasHouseNumber || false,
-      hasRoad: true,
-      isComplete: item.hasHouseNumber && item.isMainz, // Complete if has house number and in Mainz
-      relevanceScore: item.score
-    }));
-    
-    setSuggestions(topSuggestions);
-    setShowSuggestions(topSuggestions.length > 0);
-  };
+  // Removed complex local database - keeping it simple
 
   // Debounce timer for search optimization
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -278,20 +109,17 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
       clearTimeout(debounceTimerRef.current);
     }
     
-    // Process complete input text immediately - no character limitations
-    if (value.length >= 1) {
-      // Clear any previous timer to ensure fresh search
+    // Simple, fast autocomplete search
+    if (value.length >= 2) {
+      // Clear previous timer
       if (debounceTimerRef.current) {
         clearTimeout(debounceTimerRef.current);
       }
       
-      // Immediately process local suggestions with complete input
-      useGermanAddressDatabase(value);
-      
-      // Process API suggestions with minimal delay, using complete input text
+      // Simple debounced API call
       debounceTimerRef.current = setTimeout(() => {
         getGermanAutocompleteSuggestions(value);
-      }, 150); // Balanced for responsiveness and API efficiency
+      }, 300); // Standard debounce for good performance
     } else {
       setSuggestions([]);
       setShowSuggestions(false);
