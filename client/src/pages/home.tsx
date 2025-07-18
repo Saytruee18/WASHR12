@@ -167,27 +167,7 @@ export default function Home() {
               )}
             </AnimatePresence>
 
-            {/* Service Not Available Message */}
-            <AnimatePresence>
-              {selectedAddress && !isAddressInServiceArea && (
-                <motion.div
-                  initial={{ opacity: 0, y: 100 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 100 }}
-                  className="absolute bottom-28 left-4 right-4 z-30"
-                >
-                  <div className="bg-gray-900/95 backdrop-blur-md border-2 border-red-500/50 rounded-2xl p-6 shadow-xl">
-                    <div className="flex items-center space-x-3 text-red-400">
-                      <Circle className="h-6 w-6 text-red-500 flex-shrink-0" />
-                      <div>
-                        <p className="font-semibold text-lg text-white">Unfortunately, we do not serve this area yet.</p>
-                        <p className="text-sm text-red-400 mt-1">Please select an address within the green service zone in Mainz.</p>
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+
           </div>
         );
 
