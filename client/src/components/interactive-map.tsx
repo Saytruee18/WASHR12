@@ -897,13 +897,13 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
                   }}
                 />
               
-              {/* GPS Button */}
+              {/* GPS Button - Minimalistic red pin design */}
               <button
                 onClick={handleGetCurrentLocation}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 text-lg hover:text-[#3cbf5c] transition-colors duration-200 z-10"
-                title="Aktuellen Standort verwenden"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-[#1e1e1e] rounded-full flex items-center justify-center hover:shadow-[0_0_8px_#ff4d4d] transition-all duration-200 group z-20"
+                title="Standort erkennen"
               >
-                📍
+                <span className="text-[#ff4d4d] text-sm group-hover:scale-110 transition-transform duration-200">📍</span>
               </button>
               
               {/* Custom Autocomplete Suggestions */}

@@ -223,13 +223,16 @@ Preferred communication style: Simple, everyday language.
   - Added cleanup for debounce timers to prevent memory leaks
   - Smart fallback: Germany search only triggers when Mainz returns fewer than 4 results
   - Maintains optimal performance while ensuring comprehensive address coverage
-✓ Enhanced address autocomplete with GPS functionality (July 17, 2025):
+✓ Enhanced address autocomplete with GPS functionality and minimalistic design (July 18, 2025):
   - Added GPS location button (📍) with real-time location detection
   - Implemented reverse geocoding API endpoint for coordinates to address conversion
   - GPS button provides instant address completion with service area validation
   - Enhanced dark theme styling for autocomplete suggestions (#1e1e1e background)
   - Improved visual integration with existing app design without UI breaks
   - Complete address validation requiring house numbers for service continuation
+  - Minimalistic GPS button design: circular (#1e1e1e background), red pin icon (#ff4d4d)
+  - Hover effects: red glow shadow (box-shadow: 0 0 8px #ff4d4d) and scale animation
+  - Professional tooltip: "Standort erkennen" with smooth transitions
 ✓ Enhanced map experience with optimized zoom and location features (July 17, 2025):
   - Increased default zoom level to 16 for street-level detail on app start
   - Added automatic user location detection with navigator.geolocation
