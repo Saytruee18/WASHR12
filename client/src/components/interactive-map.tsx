@@ -24,6 +24,7 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
   const [suggestions, setSuggestions] = useState<google.maps.places.AutocompletePrediction[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showAreaWarning, setShowAreaWarning] = useState(false);
+  const [showHouseNumberPrompt, setShowHouseNumberPrompt] = useState(false);
   
   const mapRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -371,11 +372,9 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
 
       // Check if house number is present
       if (!houseNumber) {
-        toast({
-          title: "Vollständige Adresse erforderlich",
-          description: "Bitte gib eine vollständige Adresse mit Hausnummer ein.",
-          variant: "destructive"
-        });
+        // Show animated house number prompt instead of toast
+        setShowHouseNumberPrompt(true);
+        setTimeout(() => setShowHouseNumberPrompt(false), 4000); // Auto-hide after 4 seconds
         return;
       }
 
@@ -1126,6 +1125,105 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
                 >
                   Verstanden
                 </Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Animated House Number Prompt */}
+      <AnimatePresence>
+        {showHouseNumberPrompt && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: 20 }}
+            transition={{ type: "spring", duration: 0.6, bounce: 0.3 }}
+            className="fixed inset-x-4 top-1/2 transform -translate-y-1/2 z-50 flex items-center justify-center"
+          >
+            <motion.div
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.1, type: "spring", duration: 0.4 }}
+              className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl border-2 border-[#3cbf5c]/20"
+              style={{
+                boxShadow: '0 20px 40px rgba(0,0,0,0.15), 0 0 0 1px rgba(60,191,92,0.1)'
+              }}
+            >
+              <div className="text-center">
+                {/* Animated House Icon */}
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.2, type: "spring", duration: 0.5, bounce: 0.4 }}
+                  className="w-16 h-16 bg-gradient-to-br from-[#3cbf5c]/10 to-[#3cbf5c]/20 rounded-full flex items-center justify-center mx-auto mb-4 relative"
+                >
+                  <motion.span 
+                    className="text-3xl"
+                    initial={{ rotate: 0 }}
+                    animate={{ rotate: [0, -10, 10, -5, 5, 0] }}
+                    transition={{ delay: 0.4, duration: 0.6 }}
+                  >
+                    🏠
+                  </motion.span>
+                  
+                  {/* Pulsing ring around icon */}
+                  <motion.div
+                    className="absolute inset-0 rounded-full border-2 border-[#3cbf5c]/30"
+                    animate={{ scale: [1, 1.2, 1] }}
+                    transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                  />
+                </motion.div>
+
+                {/* Main Message */}
+                <motion.h3
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="text-lg font-semibold text-gray-900 mb-2"
+                >
+                  Hausnummer fehlt
+                </motion.h3>
+
+                {/* Friendly description */}
+                <motion.p
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 }}
+                  className="text-gray-600 text-sm mb-4 leading-relaxed"
+                >
+                  Bitte gib eine vollständige Adresse mit Hausnummer ein, um fortzufahren.
+                </motion.p>
+
+                {/* Friendly call-to-action */}
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5 }}
+                  className="bg-[#3cbf5c]/10 rounded-xl p-3 border border-[#3cbf5c]/20"
+                >
+                  <p className="text-[#3cbf5c] text-sm font-medium">
+                    💡 Beispiel: Bahnhofstraße 15, Mainz
+                  </p>
+                </motion.div>
+
+                {/* Auto-hide indicator */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 1 }}
+                  className="mt-4"
+                >
+                  <div className="w-full h-1 bg-gray-200 rounded-full overflow-hidden">
+                    <motion.div
+                      className="h-full bg-[#3cbf5c]"
+                      initial={{ width: "100%" }}
+                      animate={{ width: "0%" }}
+                      transition={{ duration: 4, ease: "linear" }}
+                    />
+                  </div>
+                  <p className="text-xs text-gray-400 mt-1">Schließt automatisch</p>
+                </motion.div>
               </div>
             </motion.div>
           </motion.div>
