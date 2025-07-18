@@ -489,67 +489,7 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
         setMap(googleMap);
         setIsMapLoaded(true);
 
-        // Try to get user's current location and center map on it
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(
-            (position) => {
-              const userLocation = {
-                lat: position.coords.latitude,
-                lng: position.coords.longitude
-              };
-              
-              // Check if user is within Germany bounds before centering
-              if (germanyBounds.contains(userLocation)) {
-                googleMap.setCenter(userLocation);
-                googleMap.setZoom(17); // Street-level zoom for precise location
-                
-                // Create custom car wash icon for user location
-                const carWashIcon = {
-                  url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
-                    <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
-                      <circle cx="20" cy="20" r="18" fill="#3cbf5c" stroke="#ffffff" stroke-width="3"/>
-                      <g transform="translate(20,20)">
-                        <!-- Car icon -->
-                        <path d="M-8,-4 L-6,-8 L6,-8 L8,-4 L8,4 L6,4 L6,2 L-6,2 L-6,4 L-8,4 Z" fill="white"/>
-                        <circle cx="-5" cy="1" r="1.5" fill="#3cbf5c"/>
-                        <circle cx="5" cy="1" r="1.5" fill="#3cbf5c"/>
-                        <!-- Water drops -->
-                        <circle cx="-2" cy="-12" r="1" fill="#4285f4" opacity="0.8"/>
-                        <circle cx="2" cy="-14" r="1" fill="#4285f4" opacity="0.6"/>
-                        <circle cx="0" cy="-16" r="1" fill="#4285f4" opacity="0.9"/>
-                      </g>
-                    </svg>
-                  `),
-                  scaledSize: new google.maps.Size(40, 40),
-                  anchor: new google.maps.Point(20, 40)
-                };
-
-                // Add user location marker with custom car wash icon
-                new google.maps.Marker({
-                  position: userLocation,
-                  map: googleMap,
-                  icon: carWashIcon,
-                  title: "Ihr Standort - Autowaschservice verfügbar",
-                  animation: google.maps.Animation.DROP,
-                });
-                
-                toast({
-                  title: "📍 Standort gefunden",
-                  description: "Karte wurde auf Ihren aktuellen Standort zentriert.",
-                });
-              }
-            },
-            (error) => {
-              console.log("Location access denied or unavailable:", error.message);
-              // Keep default Mainz center - no error message needed
-            },
-            {
-              enableHighAccuracy: true,
-              timeout: 5000,
-              maximumAge: 0
-            }
-          );
-        }
+        // Map is now initialized and ready for use without automatic location detection
 
         // Initialize modern Places services - avoiding legacy APIs
         try {
@@ -815,33 +755,7 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
                 </AnimatePresence>
               </div>
               
-              {/* GPS Button - Separate from input, properly spaced */}
-              <button
-                onClick={handleGetCurrentLocation}
-                className="w-12 h-12 bg-[#180c0c] rounded-full flex items-center justify-center hover:shadow-[0_0_12px_rgba(36,196,140,0.4)] transition-all duration-300 group border border-gray-700/30 backdrop-blur-sm flex-shrink-0"
-                title="Aktuellen Standort verwenden"
-              >
-                <div className="relative">
-                  {/* Outer glow effect */}
-                  <div className="absolute inset-0 bg-[#24c48c] rounded-full opacity-0 group-hover:opacity-20 transition-opacity duration-300 blur-sm scale-150"></div>
-                  {/* GPS Compass Icon */}
-                  <svg 
-                    width="20" 
-                    height="20" 
-                    viewBox="0 0 24 24" 
-                    className="relative z-10 text-[#24c48c] group-hover:scale-110 group-hover:rotate-45 transition-all duration-300"
-                    fill="none" 
-                    stroke="currentColor" 
-                    strokeWidth="2"
-                  >
-                    <circle cx="12" cy="12" r="10"/>
-                    <polygon points="16.24,7.76 14.12,14.12 7.76,16.24 9.88,9.88"/>
-                    <circle cx="12" cy="12" r="2" fill="currentColor"/>
-                  </svg>
-                  {/* Subtle pulse animation */}
-                  <div className="absolute inset-0 bg-[#24c48c] rounded-full opacity-30 animate-ping scale-75 group-hover:scale-100"></div>
-                </div>
-              </button>
+
             </div>
           </div>
         </div>
