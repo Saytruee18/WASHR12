@@ -42,81 +42,47 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
     return '👋';
   };
 
-  // Enhanced instant address suggestions with fuzzy search and comprehensive German coverage
+  // Ultra-fast API suggestions with optimized caching and performance
   const getAutocompleteSuggestions = useCallback(async (input: string) => {
-    if (input.length < 2) {  // Reduced to 2 characters for instant results
-      setSuggestions([]);
-      setShowSuggestions(false);
+    if (input.length < 2) {
       return;
     }
 
     try {
-      // Enhanced multi-tier search for better coverage and fuzzy matching
-      const searches = [
-        // Priority 1: Mainz area with exact matching
-        `/api/geocode?q=${encodeURIComponent(input + ", Mainz")}&limit=2`,
-        // Priority 2: Fuzzy search across Germany
-        `/api/geocode?q=${encodeURIComponent(input)}&limit=6`
-      ];
-
-      const allResults = [];
+      // Use only single, optimized API call for speed
+      const url = `/api/geocode?q=${encodeURIComponent(input)}&limit=4`;
       
-      // Execute searches in parallel for speed
-      const responses = await Promise.all(
-        searches.map(url => fetch(url).then(res => res.ok ? res.json() : []).catch(() => []))
-      );
-
-      // Combine and deduplicate results
-      const combined = responses.flat();
-      const seen = new Set();
+      // Set short timeout for faster response
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
       
-      for (const place of combined) {
-        const key = `${place.lat}-${place.lon}`;
-        if (!seen.has(key) && place.address) {
-          seen.add(key);
-          allResults.push(place);
-        }
+      const response = await fetch(url, { signal: controller.signal });
+      clearTimeout(timeoutId);
+      
+      if (!response.ok) {
+        // Don't overwrite existing local suggestions on API error
+        return;
       }
+      
+      const results = await response.json();
 
-      if (allResults.length > 0) {
-        // Enhanced fuzzy matching and relevance scoring
-        const scoredSuggestions = allResults.map((place: any, index: number) => {
+      if (results.length > 0) {
+        // Get current local suggestions to merge with API results
+        const currentSuggestions = suggestions.filter(s => s.place_id.startsWith('local_'));
+        
+        // Process API results quickly
+        const apiSuggestions = results.map((place: any, index: number) => {
           const address = place.address || {};
           const city = address.city || address.town || address.village || address.municipality || '';
           const houseNumber = address.house_number || '';
           const road = address.road || address.street || '';
-          const state = address.state || '';
-          const postcode = address.postcode || '';
           
-          // Calculate relevance score for better sorting
-          let relevanceScore = 0;
-          
-          // Boost Mainz addresses significantly
-          if (city.toLowerCase() === 'mainz') relevanceScore += 100;
-          
-          // Boost addresses with house numbers
-          if (houseNumber) relevanceScore += 50;
-          
-          // Boost addresses with roads
-          if (road) relevanceScore += 30;
-          
-          // Fuzzy matching bonus for similar text
-          const fullText = place.display_name.toLowerCase();
-          const inputLower = input.toLowerCase();
-          if (fullText.includes(inputLower)) relevanceScore += 20;
-          
-          // Distance penalty for non-Rhine area
-          if (state && state.toLowerCase() !== 'rheinland-pfalz' && state.toLowerCase() !== 'hessen') {
-            relevanceScore -= 20;
-          }
-          
-          // Better formatting for display
           let mainText = road || place.display_name.split(',')[0];
           if (houseNumber && road) {
             mainText = `${road} ${houseNumber}`;
           }
           
-          const addressParts = [city, postcode, state].filter(Boolean);
+          const addressParts = [city, address.postcode, address.state].filter(Boolean);
           const secondaryText = addressParts.join(', ');
           
           return {
@@ -131,55 +97,92 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
             hasHouseNumber: !!houseNumber,
             hasRoad: !!road,
             isComplete: city.toLowerCase() === 'mainz' && !!houseNumber && !!road,
-            relevanceScore: relevanceScore,
-            city: city
+            relevanceScore: (city.toLowerCase() === 'mainz' ? 100 : 50) + (houseNumber ? 50 : 0)
           };
         });
         
-        // Sort by relevance score (highest first) and limit to 4
-        scoredSuggestions.sort((a, b) => b.relevanceScore - a.relevanceScore);
-        const topSuggestions = scoredSuggestions.slice(0, 4);
+        // Merge local and API suggestions, prioritizing Mainz
+        const allSuggestions = [...currentSuggestions, ...apiSuggestions]
+          .sort((a, b) => b.relevanceScore - a.relevanceScore)
+          .slice(0, 4);
         
-        setSuggestions(topSuggestions as any);
-        setShowSuggestions(true);
-      } else {
-        // Enhanced fallback with fuzzy local search
-        useLocalMainzAddressesWithFuzzy(input);
+        // Only update if we have better suggestions
+        if (allSuggestions.length > 0) {
+          setSuggestions(allSuggestions as any);
+          setShowSuggestions(true);
+        }
       }
     } catch (error) {
-      console.error('OpenStreetMap API error:', error);
-      useLocalMainzAddressesWithFuzzy(input);
+      // Don't clear existing suggestions on API error
+      console.log('API timeout or error, keeping local suggestions');
     }
-  }, []);
+  }, [suggestions]);
 
-  // Enhanced fuzzy search for local Mainz addresses with typo tolerance
+  // Enhanced fuzzy search for local Mainz addresses with extensive database
   const useLocalMainzAddressesWithFuzzy = (input: string) => {
     const mainzAddresses = [
+      // Popular main streets
       "Bahnhofstraße 1, 55116 Mainz",
-      "Bahnhofstraße 15, 55116 Mainz", 
+      "Bahnhofstraße 15, 55116 Mainz",
+      "Bahnhofstraße 23, 55116 Mainz", 
       "Rheinstraße 12, 55116 Mainz",
       "Rheinstraße 45, 55116 Mainz",
-      "Gutenbergplatz 4, 55116 Mainz",
-      "Große Bleiche 22, 55116 Mainz",
-      "Große Bleiche 60, 55116 Mainz",
-      "Schillerplatz 1, 55116 Mainz",
-      "Neubrunnenstraße 7, 55118 Mainz",
-      "Breidenbacherstraße 3, 55122 Mainz",
-      "Binger Straße 15, 55122 Mainz",
-      "Binger Straße 34, 55122 Mainz",
+      "Rheinstraße 67, 55116 Mainz",
       "Kaiserstraße 5, 55116 Mainz",
       "Kaiserstraße 23, 55116 Mainz",
-      "Augustusstraße 20, 55131 Mainz",
+      "Kaiserstraße 41, 55116 Mainz",
+      
+      // City center and squares
+      "Gutenbergplatz 4, 55116 Mainz",
+      "Schillerplatz 1, 55116 Mainz",
+      "Domplatz 3, 55116 Mainz",
+      "Kirschgarten 8, 55116 Mainz",
+      "Markt 12, 55116 Mainz",
+      "Leichhof 10, 55116 Mainz",
+      
+      // Shopping areas
+      "Große Bleiche 22, 55116 Mainz",
+      "Große Bleiche 60, 55116 Mainz",
+      "Ludwigsstraße 7, 55116 Mainz",
+      "Ludwigsstraße 19, 55116 Mainz",
       "Münsterstraße 8, 55116 Mainz",
+      "Münsterstraße 16, 55116 Mainz",
+      
+      // Residential areas
+      "Neubrunnenstraße 7, 55118 Mainz",
+      "Neubrunnenstraße 25, 55118 Mainz",
+      "Breidenbacherstraße 3, 55122 Mainz",
+      "Breidenbacherstraße 18, 55122 Mainz",
+      "Binger Straße 15, 55122 Mainz",
+      "Binger Straße 34, 55122 Mainz",
+      "Augustusstraße 20, 55131 Mainz",
+      "Augustusstraße 45, 55131 Mainz",
+      
+      // Modern districts
       "Parcusstraße 12, 55116 Mainz",
       "Göttelmannstraße 42, 55130 Mainz",
       "Am Zollhafen 12, 55118 Mainz",
       "Am Zollhafen 25, 55118 Mainz",
       "Frauenlobstraße 18, 55118 Mainz",
+      "Frauenlobstraße 33, 55118 Mainz",
+      
+      // Additional streets
       "Wallstraße 5, 55122 Mainz",
       "Steingasse 10, 55116 Mainz",
       "Holzstraße 25, 55116 Mainz",
-      "Quintinsstraße 14, 55116 Mainz"
+      "Quintinsstraße 14, 55116 Mainz",
+      "Römerwall 23, 55131 Mainz",
+      "Saarstraße 16, 55122 Mainz",
+      "Gaustraße 12, 55116 Mainz",
+      "Fischtorstraße 8, 55116 Mainz",
+      "Weintorstraße 15, 55116 Mainz",
+      "Ballplatz 2, 55116 Mainz",
+      "Brand 14, 55116 Mainz",
+      "Christofsstraße 1, 55116 Mainz",
+      "Emmeranstraße 28, 55116 Mainz",
+      "Kurfürstenstraße 6, 55118 Mainz",
+      "Mombacher Straße 67, 55122 Mainz",
+      "Breite Straße 41, 55124 Mainz"
     ];
 
     // Simple fuzzy matching algorithm for typo tolerance
@@ -240,7 +243,7 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
   // Debounce timer for search optimization
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Handle address input change with instant suggestions
+  // Handle address input change with truly instant suggestions
   const handleAddressInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setAddressInput(value);
@@ -250,11 +253,15 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
       clearTimeout(debounceTimerRef.current);
     }
     
-    // Instant suggestions for 2+ characters with minimal debouncing
+    // Show instant local suggestions first for immediate response
     if (value.length >= 2) {
+      // Immediately show local suggestions for instant feedback
+      useLocalMainzAddressesWithFuzzy(value);
+      
+      // Then fetch API suggestions with minimal delay for enhancement
       debounceTimerRef.current = setTimeout(() => {
         getAutocompleteSuggestions(value);
-      }, 100); // Reduced to 100ms for more responsive typing
+      }, 50); // Reduced to 50ms for ultra-responsive typing
     } else {
       setSuggestions([]);
       setShowSuggestions(false);

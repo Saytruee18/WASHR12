@@ -64,7 +64,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Geocoding proxy route for OpenStreetMap
+  // Simple in-memory cache for geocoding results
+  const geocodeCache = new Map<string, any>();
+  const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+  // Ultra-fast geocoding with aggressive caching and timeouts
   app.get("/api/geocode", async (req, res) => {
     try {
       const { q } = req.query;
@@ -73,51 +77,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Query parameter 'q' is required" });
       }
 
-      // 1. First try: Mainz-focused search with bounding box (faster, prioritized)
-      const mainzUrl = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&countrycodes=de&limit=5&viewbox=8.215,50.000,8.300,49.960&bounded=1&q=${encodeURIComponent(q)}`;
-      
-      const mainzResponse = await fetch(mainzUrl, {
-        headers: {
-          'User-Agent': 'WASHK App/1.0 (https://washk.app)',
-        },
-      });
-      
-      if (!mainzResponse.ok) {
-        throw new Error(`HTTP ${mainzResponse.status}: ${mainzResponse.statusText}`);
+      // Check cache first for instant response
+      const cacheKey = q.toLowerCase().trim();
+      const cached = geocodeCache.get(cacheKey);
+      if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+        return res.json(cached.data);
       }
+
+      // Single optimized API call with short timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 2000); // 2 second timeout
       
-      const mainzResults = await mainzResponse.json();
-      const mainzStreets = mainzResults.filter(place => place.address && place.address.road);
+      const url = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&countrycodes=de&limit=4&q=${encodeURIComponent(q)}`;
       
-      let finalResults = mainzStreets.slice(0, 4);
-      
-      // 2. If fewer than 4 Mainz results, fallback to Germany-wide search
-      if (finalResults.length < 4) {
-        const germanyUrl = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&countrycodes=de&limit=5&q=${encodeURIComponent(q)}`;
-        
-        const germanyResponse = await fetch(germanyUrl, {
+      try {
+        const response = await fetch(url, {
+          signal: controller.signal,
           headers: {
             'User-Agent': 'WASHK App/1.0 (https://washk.app)',
           },
         });
         
-        if (germanyResponse.ok) {
-          const germanyResults = await germanyResponse.json();
-          const germanyStreets = germanyResults.filter(place => 
-            place.address && place.address.road &&
-            !mainzStreets.some(mainzPlace => mainzPlace.place_id === place.place_id)
-          );
-          
-          // Combine: Mainz first, then Germany results, max 4 total
-          const remainingSlots = 4 - finalResults.length;
-          finalResults = [...finalResults, ...germanyStreets.slice(0, remainingSlots)];
+        clearTimeout(timeoutId);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
         }
+        
+        const results = await response.json();
+        const filteredResults = results
+          .filter(place => place.address && (place.address.road || place.address.amenity))
+          .slice(0, 4);
+        
+        // Cache the result
+        geocodeCache.set(cacheKey, {
+          data: filteredResults,
+          timestamp: Date.now()
+        });
+        
+        res.json(filteredResults);
+      } catch (fetchError: any) {
+        clearTimeout(timeoutId);
+        
+        // Return empty array on timeout/error instead of 500
+        console.log(`Geocoding timeout/error for "${q}":`, fetchError.message);
+        res.json([]);
       }
-      
-      res.json(finalResults);
     } catch (error: any) {
       console.error('Geocoding API error:', error);
-      res.status(500).json({ message: "Error fetching geocoding data: " + error.message });
+      res.json([]); // Return empty array instead of error
     }
   });
 
