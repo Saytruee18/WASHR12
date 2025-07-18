@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, Car, Calendar, CreditCard, ChevronRight, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -104,6 +104,15 @@ export function EnhancedBookingFlow({ selectedPackage, onComplete, onCancel }: E
     isPrivateProperty: false,
   });
   const { toast } = useToast();
+  const houseNumberInputRef = useRef<HTMLInputElement>(null);
+
+  // Pre-fill location from session storage if available
+  useEffect(() => {
+    const selectedAddress = sessionStorage.getItem('selectedAddress');
+    if (selectedAddress && !formData.location) {
+      setFormData(prev => ({ ...prev, location: selectedAddress }));
+    }
+  }, [formData.location]);
 
   const totalSteps = 5;
   const progress = (currentStep / totalSteps) * 100;
@@ -158,6 +167,24 @@ export function EnhancedBookingFlow({ selectedPackage, onComplete, onCancel }: E
       setFormData(prev => ({ ...prev, date: dateString }));
     }
   }, [formData.date]);
+
+  // Auto-focus house number field when needed
+  useEffect(() => {
+    if (currentStep === 4 && sessionStorage.getItem('focusHouseNumber') === 'true') {
+      // Jump to step 4 (location details) and focus house number field
+      setTimeout(() => {
+        houseNumberInputRef.current?.focus();
+        sessionStorage.removeItem('focusHouseNumber'); // Clear flag
+      }, 500);
+    }
+  }, [currentStep]);
+
+  // Also jump to step 4 when booking modal opens if house number focus is needed
+  useEffect(() => {
+    if (sessionStorage.getItem('focusHouseNumber') === 'true') {
+      setCurrentStep(4); // Jump directly to location step
+    }
+  }, []);
 
   const toggleAddOn = (addOnId: string) => {
     setSelectedAddOns(prev => 
@@ -472,10 +499,12 @@ export function EnhancedBookingFlow({ selectedPackage, onComplete, onCancel }: E
                   />
                   {formData.location && (
                     <Input
+                      ref={houseNumberInputRef}
                       value={formData.locationDetails || ''}
                       onChange={(e) => setFormData({...formData, locationDetails: e.target.value})}
                       placeholder="Hausnummer, Stockwerk oder weitere Angaben (optional)"
                       className="text-base p-4 rounded-2xl border-2"
+                      autoFocus={sessionStorage.getItem('focusHouseNumber') === 'true'}
                     />
                   )}
                   <motion.button

@@ -251,6 +251,13 @@ Preferred communication style: Simple, everyday language.
   - Direct OpenStreetMap API integration without complicated processing
   - Simple rate limiting (500ms) for stable performance
   - Focus on speed and reliability over complex features
+✓ Auto-focus house number functionality implemented (July 18, 2025):
+  - When user selects a street address without house number, booking modal opens automatically
+  - System jumps directly to location step (step 4) in booking flow
+  - House number input field receives automatic focus for immediate typing
+  - Selected street address is pre-filled in the location field
+  - Seamless UX flow from address selection to house number input without clicking
+  - Uses session storage to maintain state across components
   - Instant suggestions for 50+ major German addresses with no API dependency
   - Enhanced rate limiting protection with 1-second delays and 10-minute caching
   - Smart fallback system: local suggestions appear instantly, API enhances when available

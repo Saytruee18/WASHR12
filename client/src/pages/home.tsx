@@ -98,11 +98,23 @@ export default function Home() {
     setIsServiceWarningOpen(true);
   };
 
-  const handleLocationSelect = (address: string, isInServiceArea: boolean) => {
+  const handleLocationSelect = (address: string, isInServiceArea: boolean, needsHouseNumber: boolean = false) => {
     setSelectedAddress(address);
     setIsAddressInServiceArea(isInServiceArea);
+    
     if (!isInServiceArea) {
       setIsServiceWarningOpen(true);
+    } else if (needsHouseNumber) {
+      // Address is in service area but needs house number
+      // Open booking modal and trigger house number focus
+      setIsBookingModalOpen(true);
+      // Store flag to focus house number field and pre-fill address
+      sessionStorage.setItem('focusHouseNumber', 'true');
+      sessionStorage.setItem('selectedAddress', address);
+    } else {
+      // Complete address - just open booking modal
+      setIsBookingModalOpen(true);
+      sessionStorage.setItem('selectedAddress', address);
     }
   };
 

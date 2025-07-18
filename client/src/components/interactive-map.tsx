@@ -142,23 +142,24 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
     
     // Check if address is complete (has house number)
     if (!suggestion.hasHouseNumber || !suggestion.isComplete) {
-      // Show animated house number prompt instead of harsh error
-      setShowHouseNumberPrompt(true);
-      
-      // Auto-hide after 5 seconds
-      setTimeout(() => {
-        setShowHouseNumberPrompt(false);
-      }, 5000);
-      
+      // For incomplete addresses, still proceed to booking but trigger house number focus
+      if (suggestion.osmData) {
+        const lat = parseFloat(suggestion.osmData.lat);
+        const lng = parseFloat(suggestion.osmData.lon);
+        if (lat && lng) {
+          // Pass incomplete address data to trigger house number focus
+          handleLocationSelect(lat, lng, suggestion.description, true); // true = needs house number
+        }
+      }
       return;
     }
     
-    // If complete, proceed with address search - simplified for instant response
+    // If complete, proceed with address search normally
     if (suggestion.osmData) {
       const lat = parseFloat(suggestion.osmData.lat);
       const lng = parseFloat(suggestion.osmData.lon);
       if (lat && lng) {
-        handleLocationSelect(lat, lng, suggestion.description);
+        handleLocationSelect(lat, lng, suggestion.description, false); // false = complete address
       }
     }
   };
@@ -708,11 +709,11 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
   }, [addressInput, map, isPointInServiceArea, onLocationSelect, toast]);
 
   // Handle location selection with enhanced validation
-  const handleLocationSelect = useCallback((lat: number, lng: number, address: string) => {
+  const handleLocationSelect = useCallback((lat: number, lng: number, address: string, needsHouseNumber: boolean = false) => {
     const inServiceArea = isPointInServiceArea(lat, lng);
     setSelectedAddress(address);
     setIsInServiceArea(inServiceArea);
-    onLocationSelect(address, inServiceArea);
+    onLocationSelect(address, inServiceArea, needsHouseNumber);
     
     // Update map with new marker if available
     if (map) {
