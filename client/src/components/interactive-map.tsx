@@ -70,38 +70,50 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
       const results = await response.json();
 
       if (results.length > 0) {
-        // Process API results with balanced scoring
+        // Process API results with enhanced house number prioritization
         const apiSuggestions = results.map((place: any, index: number) => {
           const address = place.address || {};
           const city = address.city || address.town || address.village || address.municipality || '';
           const houseNumber = address.house_number || '';
           const road = address.road || address.street || '';
+          const postcode = address.postcode || '';
+          
+          // Use server-formatted address if available
+          const displayAddress = place.formatted_address || place.display_name;
           
           let mainText = road || place.display_name.split(',')[0];
           if (houseNumber && road) {
             mainText = `${road} ${houseNumber}`;
           }
           
-          const addressParts = [city, address.postcode, address.state].filter(Boolean);
+          const addressParts = [postcode, city, address.state].filter(Boolean);
           const secondaryText = addressParts.join(', ');
+          
+          // Enhanced relevance scoring for complete addresses
+          let relevanceScore = 100 - index * 5;
+          if (houseNumber && road && city) relevanceScore += 50; // Major bonus for complete addresses
+          if (houseNumber) relevanceScore += 25; // Bonus for house numbers
+          if (city.toLowerCase().includes('mainz')) relevanceScore += 20; // Mainz priority
           
           return {
             place_id: place.place_id || `api_${index}`,
-            description: place.display_name,
+            description: displayAddress,
             structured_formatting: {
               main_text: mainText,
               secondary_text: secondaryText
             },
             osmData: place,
-            isMainz: city.toLowerCase() === 'mainz',
+            isMainz: city.toLowerCase().includes('mainz'),
             hasHouseNumber: !!houseNumber,
             hasRoad: !!road,
-            isComplete: city.toLowerCase() === 'mainz' && !!houseNumber && !!road,
-            relevanceScore: (city.toLowerCase() === 'mainz' ? 25 : 20) + (houseNumber ? 15 : 0) // Balanced scoring
+            isComplete: !!(houseNumber && road && city),
+            relevanceScore
           };
         });
         
-        // Replace suggestions with fresh API results for dynamic updates
+        // Sort by relevance score (complete addresses with house numbers first)
+        apiSuggestions.sort((a, b) => b.relevanceScore - a.relevanceScore);
+        
         setSuggestions(apiSuggestions as any);
         setShowSuggestions(true);
       }
@@ -167,18 +179,37 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
       return score;
     };
 
-    // Generate comprehensive suggestions from street/city combinations
+    // Generate comprehensive suggestions from street/city combinations with house numbers
     const suggestions: any[] = [];
+    
+    // Check if input contains numbers (potential house number)
+    const hasNumbers = /\d/.test(input);
+    const numberMatch = input.match(/\d+/);
+    const potentialHouseNumber = numberMatch ? numberMatch[0] : null;
     
     for (const street of germanStreets) {
       for (const city of germanCities) {
         const score = fuzzyMatch(street, city, input);
         if (score > 20) { // Lower threshold for broader coverage
+          
+          // If input contains numbers, create suggestions with house numbers
+          if (hasNumbers && potentialHouseNumber) {
+            suggestions.push({
+              street: `${street} ${potentialHouseNumber}`,
+              city,
+              score: score + 30, // Higher score for complete addresses
+              isMainz: city === 'Mainz',
+              hasHouseNumber: true
+            });
+          }
+          
+          // Also add regular street suggestion
           suggestions.push({
             street,
             city,
             score,
-            isMainz: city === 'Mainz'
+            isMainz: city === 'Mainz',
+            hasHouseNumber: hasNumbers && potentialHouseNumber
           });
         }
       }
@@ -191,7 +222,7 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
       return scoreB - scoreA;
     });
     
-    // Take top 4 suggestions
+    // Take top 4 suggestions, prioritizing complete addresses
     const topSuggestions = suggestions.slice(0, 4).map((item, index) => ({
       place_id: `local_${index}`,
       description: `${item.street}, ${item.city}`,
@@ -200,9 +231,9 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
         secondary_text: item.city
       },
       isMainz: item.isMainz,
-      hasHouseNumber: false, // These are street-only suggestions
+      hasHouseNumber: item.hasHouseNumber || false,
       hasRoad: true,
-      isComplete: false, // Need house number
+      isComplete: item.hasHouseNumber && item.isMainz, // Complete if has house number and in Mainz
       relevanceScore: item.score
     }));
     

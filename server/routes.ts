@@ -102,11 +102,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 4000); // Increased timeout for complex queries
       
-      // Use complete search query without modifications
-      const url = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&countrycodes=de&limit=8&q=${encodeURIComponent(searchQuery)}`;
+      // Enhanced search URL with house number prioritization
+      let searchUrl = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&countrycodes=de&limit=8&q=${encodeURIComponent(searchQuery)}`;
+      
+      // If query contains numbers, prioritize address searches
+      if (/\d/.test(searchQuery)) {
+        searchUrl += '&extratags=1&namedetails=1';
+      }
       
       try {
-        const response = await fetch(url, {
+        const response = await fetch(searchUrl, {
           signal: controller.signal,
           headers: {
             'User-Agent': 'WASHK App/1.0 (contact@washk.app)',
@@ -127,14 +132,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         const results = await response.json();
         
-        // Enhanced filtering for better results with complete text processing
+        // Enhanced filtering to prioritize complete addresses with house numbers
         const filteredResults = results
           .filter(place => {
             if (!place.address) return false;
             
-            // Accept any place with roads, amenities, or cities
+            // Accept places with roads, amenities, or cities
             return place.address.road || place.address.amenity || place.address.city || 
                    place.address.town || place.address.village || place.address.suburb;
+          })
+          .map(place => {
+            // Enhanced address formatting with house number detection
+            const addr = place.address;
+            const hasHouseNumber = !!(addr.house_number);
+            const street = addr.road || addr.pedestrian || addr.footway || '';
+            const houseNum = addr.house_number || '';
+            const city = addr.city || addr.town || addr.village || addr.municipality || '';
+            const postcode = addr.postcode || '';
+            
+            // Create display address with house number emphasis
+            let displayAddress = '';
+            if (street && houseNum) {
+              displayAddress = `${street} ${houseNum}, ${postcode} ${city}`.trim();
+            } else if (street) {
+              displayAddress = `${street}, ${city}`.trim();
+            } else {
+              displayAddress = `${city}`.trim();
+            }
+            
+            return {
+              ...place,
+              display_name: displayAddress,
+              hasHouseNumber,
+              isComplete: hasHouseNumber && street && city,
+              formatted_address: displayAddress
+            };
+          })
+          .sort((a, b) => {
+            // Prioritize complete addresses with house numbers
+            if (a.isComplete && !b.isComplete) return -1;
+            if (!a.isComplete && b.isComplete) return 1;
+            if (a.hasHouseNumber && !b.hasHouseNumber) return -1;
+            if (!a.hasHouseNumber && b.hasHouseNumber) return 1;
+            return 0;
           })
           .slice(0, 6); // Increased limit for better coverage
 
