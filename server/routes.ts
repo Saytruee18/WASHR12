@@ -121,6 +121,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Reverse geocoding endpoint for GPS coordinates to address
+  app.get('/api/reverse-geocode', async (req, res) => {
+    try {
+      const { lat, lng } = req.query;
+      
+      if (!lat || !lng) {
+        return res.status(400).json({ message: "Latitude and longitude parameters are required" });
+      }
+
+      const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1&accept-language=de`;
+      
+      const response = await fetch(url, {
+        headers: {
+          'User-Agent': 'WASHK App/1.0 (https://washk.app)',
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      const result = await response.json();
+      
+      if (result && result.address) {
+        const address = result.address;
+        const formattedAddress = `${address.road || ''} ${address.house_number || ''}, ${address.postcode || ''} ${address.city || address.town || address.village || ''}`.trim();
+        
+        res.json({
+          address: formattedAddress,
+          details: result
+        });
+      } else {
+        res.status(404).json({ message: "No address found for coordinates" });
+      }
+    } catch (error: any) {
+      console.error('Reverse geocoding API error:', error);
+      res.status(500).json({ message: "Error fetching reverse geocoding data: " + error.message });
+    }
+  });
+
   // Wallet routes
   app.get("/api/wallet/balance", async (req, res) => {
     try {
