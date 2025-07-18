@@ -874,39 +874,100 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
           
           {/* Address Search with Custom Autocomplete */}
           <div className="space-y-3">
-            <div className="relative">
-              <div className="absolute left-3 top-1/2 transform -translate-y-1/2 z-10">
-                <MapPin className="h-4 w-4 text-gray-400" />
+            <div className="flex items-center gap-3">
+              {/* Input Container */}
+              <div className="relative flex-1">
+                <div className="absolute left-3 top-1/2 transform -translate-y-1/2 z-10">
+                  <MapPin className="h-4 w-4 text-gray-400" />
+                </div>
+                <input
+                    ref={inputRef}
+                    type="text"
+                    value={addressInput}
+                    onChange={handleAddressInputChange}
+                    placeholder="Deine Adresse hier eingeben..."
+                    className="w-full bg-white/95 backdrop-blur-sm rounded-xl pl-10 pr-4 py-3 text-gray-900 placeholder-gray-500 border-0 focus:outline-none focus:ring-2 focus:ring-[#3cbf5c] text-sm font-medium shadow-lg"
+                    onFocus={(e) => {
+                      e.target.style.transform = 'scale(1.01)';
+                      e.target.style.transition = 'transform 0.2s ease';
+                      if (suggestions.length > 0) {
+                        setShowSuggestions(true);
+                      }
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.transform = 'scale(1)';
+                    }}
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter' && addressInput.trim()) {
+                        setShowSuggestions(false);
+                        handleAddressSearch();
+                      }
+                    }}
+                  />
+                
+                {/* Custom Autocomplete Suggestions - positioned relative to input container */}
+                <AnimatePresence>
+                  {showSuggestions && suggestions.length > 0 && (
+                    <motion.ul
+                      ref={suggestionsRef}
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.2 }}
+                      className="absolute top-full left-0 right-0 mt-1 bg-[#1a1a1a] border border-gray-700 rounded-lg shadow-2xl overflow-hidden z-50 max-h-64 overflow-y-auto"
+                      style={{
+                        backgroundColor: '#1a1a1a',
+                        backdropFilter: 'blur(10px)',
+                        border: '1px solid rgba(255,255,255,0.1)'
+                      }}
+                    >
+                      {suggestions.map((suggestion, index) => (
+                        <motion.li
+                          key={suggestion.place_id || index}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.05 }}
+                          className="px-4 py-3 hover:bg-[#2a2a2a] cursor-pointer border-b border-gray-700/50 last:border-b-0 transition-colors duration-200"
+                          onClick={() => handleSuggestionSelect(suggestion)}
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1 min-w-0">
+                              <div className="font-medium text-white text-sm truncate">
+                                {suggestion.structured_formatting?.main_text || suggestion.description}
+                              </div>
+                              <div className="text-xs text-gray-400 mt-1 truncate">
+                                {suggestion.structured_formatting?.secondary_text || 
+                                 suggestion.description?.split(',').slice(1).join(',').trim()}
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2 ml-3 flex-shrink-0">
+                              {/* Enhanced validation indicators with better logic */}
+                              {suggestion.isComplete ? (
+                                <span className="text-[#3cbf5c] text-xs font-medium">✓ Vollständig</span>
+                              ) : suggestion.isMainz ? (
+                                suggestion.hasHouseNumber ? (
+                                  <span className="text-[#3cbf5c] text-xs font-medium">✓ Mainz</span>
+                                ) : (
+                                  <span className="text-yellow-400 text-xs font-medium">🏠 Hausnummer?</span>
+                                )
+                              ) : suggestion.hasRoad ? (
+                                <span className="text-gray-400 text-xs font-medium">🛣️ Straße</span>
+                              ) : (
+                                <span className="text-red-400 text-xs font-medium">❌ Außerhalb</span>
+                              )}
+                            </div>
+                          </div>
+                        </motion.li>
+                      ))}
+                    </motion.ul>
+                  )}
+                </AnimatePresence>
               </div>
-              <input
-                  ref={inputRef}
-                  type="text"
-                  value={addressInput}
-                  onChange={handleAddressInputChange}
-                  placeholder="Deine Adresse hier eingeben..."
-                  className="w-full bg-white/95 backdrop-blur-sm rounded-xl pl-10 pr-16 py-3 text-gray-900 placeholder-gray-500 border-0 focus:outline-none focus:ring-2 focus:ring-[#3cbf5c] text-sm font-medium shadow-lg"
-                  onFocus={(e) => {
-                    e.target.style.transform = 'scale(1.01)';
-                    e.target.style.transition = 'transform 0.2s ease';
-                    if (suggestions.length > 0) {
-                      setShowSuggestions(true);
-                    }
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.transform = 'scale(1)';
-                  }}
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter' && addressInput.trim()) {
-                      setShowSuggestions(false);
-                      handleAddressSearch();
-                    }
-                  }}
-                />
               
-              {/* GPS Button - Modern dark design with subtle glow */}
+              {/* GPS Button - Separate from input, properly spaced */}
               <button
                 onClick={handleGetCurrentLocation}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 w-10 h-10 bg-[#100c0c] rounded-full flex items-center justify-center hover:shadow-[0_0_12px_rgba(60,191,92,0.4)] transition-all duration-300 group z-20 border border-gray-700/30 backdrop-blur-sm"
+                className="w-12 h-12 bg-[#100c0c] rounded-full flex items-center justify-center hover:shadow-[0_0_12px_rgba(60,191,92,0.4)] transition-all duration-300 group border border-gray-700/30 backdrop-blur-sm flex-shrink-0"
                 title="Aktuellen Standort verwenden"
               >
                 <div className="relative">
@@ -914,8 +975,8 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
                   <div className="absolute inset-0 bg-[#3cbf5c] rounded-full opacity-0 group-hover:opacity-20 transition-opacity duration-300 blur-sm scale-150"></div>
                   {/* GPS Compass Icon */}
                   <svg 
-                    width="18" 
-                    height="18" 
+                    width="20" 
+                    height="20" 
                     viewBox="0 0 24 24" 
                     className="relative z-10 text-[#3cbf5c] group-hover:scale-110 group-hover:rotate-45 transition-all duration-300"
                     fill="none" 
@@ -930,75 +991,6 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
                   <div className="absolute inset-0 bg-[#3cbf5c] rounded-full opacity-30 animate-ping scale-75 group-hover:scale-100"></div>
                 </div>
               </button>
-              
-              {/* Custom Autocomplete Suggestions */}
-              <AnimatePresence>
-                {showSuggestions && suggestions.length > 0 && (
-                  <motion.ul
-                    ref={suggestionsRef}
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.2 }}
-                    className="absolute top-full left-0 right-0 mt-1 bg-[#1a1a1a] border border-gray-700 rounded-lg shadow-2xl overflow-hidden z-50 max-h-64 overflow-y-auto"
-                    style={{
-                      backgroundColor: '#1a1a1a',
-                      boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
-                      backdropFilter: 'blur(10px)',
-                    }}
-                  >
-                    {suggestions.map((suggestion, index) => {
-                      const isComplete = suggestion.isComplete;
-                      const hasHouseNumber = suggestion.hasHouseNumber;
-                      const isMainz = suggestion.isMainz;
-                      
-                      return (
-                        <motion.li
-                          key={suggestion.place_id}
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: index * 0.05 }}
-                          className="px-4 py-3 text-white cursor-pointer border-b border-gray-800 last:border-b-0 hover:bg-[#2a2a2a] transition-all duration-150 flex items-center space-x-3"
-                          onClick={() => handleSuggestionSelect(suggestion)}
-                        >
-                          <MapPin className="h-4 w-4 text-gray-400 flex-shrink-0" />
-                          <div className="flex-1 min-w-0">
-                            <div className="text-sm font-medium text-white truncate">
-                              {suggestion.structured_formatting?.main_text || suggestion.description}
-                            </div>
-                            <div className="text-xs text-gray-400 truncate">
-                              {suggestion.structured_formatting?.secondary_text || ''}
-                            </div>
-                          </div>
-                          <div className="flex items-center space-x-1 ml-2">
-                            {isComplete ? (
-                              <span className="text-green-500 text-xs font-medium bg-green-500/20 px-2 py-1 rounded flex items-center gap-1">
-                                ✓ Vollständig
-                              </span>
-                            ) : !isMainz ? (
-                              <span className="text-red-500 text-xs font-medium bg-red-500/20 px-2 py-1 rounded flex items-center gap-1">
-                                ❌ Außerhalb
-                              </span>
-                            ) : !suggestion.hasHouseNumber ? (
-                              <span className="text-yellow-500 text-xs font-medium bg-yellow-500/20 px-2 py-1 rounded flex items-center gap-1">
-                                🏠 Hausnummer?
-                              </span>
-                            ) : !suggestion.hasRoad ? (
-                              <span className="text-orange-500 text-xs font-medium bg-orange-500/20 px-2 py-1 rounded flex items-center gap-1">
-                                🛣️ Straße?
-                              </span>
-                            ) : (
-                              <span className="text-gray-500 text-xs">
-                                📍
-                              </span>
-                            )}
-                          </div>
-                        </motion.li>
-                      );
-                    })}
-                  </motion.ul>
-                )}
-              </AnimatePresence>
             </div>
           </div>
         </div>
