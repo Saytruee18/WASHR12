@@ -192,69 +192,7 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
     return distance <= radius;
   }, []);
 
-  // GPS location handler
-  const handleGetCurrentLocation = useCallback(() => {
-    if (!navigator.geolocation) {
-      toast({
-        title: "GPS nicht verfügbar",
-        description: "Ihr Browser unterstützt keine Standortbestimmung.",
-        variant: "destructive"
-      });
-      return;
-    }
 
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const { latitude, longitude } = position.coords;
-        
-        try {
-          // Reverse geocoding to get address from coordinates
-          const response = await fetch(`/api/reverse-geocode?lat=${latitude}&lng=${longitude}`);
-          if (response.ok) {
-            const data = await response.json();
-            if (data.address) {
-              setAddressInput(data.address);
-              
-              // Check if location is in service area
-              const inServiceArea = isPointInServiceArea(latitude, longitude);
-              if (inServiceArea) {
-                toast({
-                  title: "Standort erkannt",
-                  description: "Ihre aktuelle Adresse wurde automatisch eingefügt.",
-                  variant: "default"
-                });
-                // Center map on user location
-                if (map) {
-                  map.setCenter({ lat: latitude, lng: longitude });
-                  map.setZoom(16);
-                }
-              } else {
-                toast({
-                  title: "Servicebereich nicht verfügbar",
-                  description: "Diesen Bereich machen wir derzeit leider nicht. Melde dich beim Support für weitere Hilfe.",
-                  variant: "destructive"
-                });
-              }
-            }
-          }
-        } catch (error) {
-          toast({
-            title: "Adressbestimmung fehlgeschlagen",
-            description: "Konnte keine Adresse für Ihren Standort finden.",
-            variant: "destructive"
-          });
-        }
-      },
-      () => {
-        toast({
-          title: "Standortzugriff verweigert",
-          description: "Bitte erlauben Sie den Zugriff auf Ihren Standort.",
-          variant: "destructive"
-        });
-      },
-      { enableHighAccuracy: true, timeout: 10000 }
-    );
-  }, [map, isPointInServiceArea, toast]);
 
 
 
