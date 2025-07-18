@@ -109,7 +109,8 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
           return 0;
         });
         
-        setSuggestions(osmSuggestions as any);
+        // Limit to maximum 4 suggestions for clean UI
+        setSuggestions(osmSuggestions.slice(0, 4) as any);
         setShowSuggestions(true);
       } else {
         setSuggestions([]);
@@ -172,7 +173,7 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
   // Debounce timer for search optimization
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Handle address input change with debouncing
+  // Handle address input change with instant suggestions
   const handleAddressInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setAddressInput(value);
@@ -182,10 +183,15 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
       clearTimeout(debounceTimerRef.current);
     }
     
-    // Set new debounce timer - wait 300ms before triggering search
-    debounceTimerRef.current = setTimeout(() => {
-      getAutocompleteSuggestions(value);
-    }, 300);
+    // Almost instant suggestions for 3+ characters (50ms debouncing for ultra-responsiveness)
+    if (value.length >= 3) {
+      debounceTimerRef.current = setTimeout(() => {
+        getAutocompleteSuggestions(value);
+      }, 50);
+    } else {
+      setSuggestions([]);
+      setShowSuggestions(false);
+    }
   };
 
   // Cleanup debounce timer on unmount
@@ -915,10 +921,11 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.2 }}
-                    className="absolute top-full left-0 right-0 mt-2 bg-[#1e1e1e] border border-gray-600 rounded-xl shadow-2xl overflow-hidden z-50 max-h-64 overflow-y-auto"
+                    className="absolute top-full left-0 right-0 mt-1 bg-[#1a1a1a] border border-gray-700 rounded-lg shadow-2xl overflow-hidden z-50 max-h-64 overflow-y-auto"
                     style={{
-                      backgroundColor: '#1e1e1e',
-                      boxShadow: '0 10px 25px rgba(0,0,0,0.3)',
+                      backgroundColor: '#1a1a1a',
+                      boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+                      backdropFilter: 'blur(10px)',
                     }}
                   >
                     {suggestions.map((suggestion, index) => {
@@ -932,7 +939,7 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
                           initial={{ opacity: 0, x: -10 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: index * 0.05 }}
-                          className="px-4 py-3 text-white cursor-pointer border-b border-gray-700 last:border-b-0 hover:bg-[#333] transition-colors duration-200 flex items-center space-x-3"
+                          className="px-4 py-3 text-white cursor-pointer border-b border-gray-800 last:border-b-0 hover:bg-[#2a2a2a] transition-all duration-150 flex items-center space-x-3"
                           onClick={() => handleSuggestionSelect(suggestion)}
                         >
                           <MapPin className="h-4 w-4 text-gray-400 flex-shrink-0" />
