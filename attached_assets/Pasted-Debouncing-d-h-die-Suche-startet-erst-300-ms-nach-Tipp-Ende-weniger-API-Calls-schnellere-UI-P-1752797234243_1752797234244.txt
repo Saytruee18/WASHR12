@@ -1,0 +1,133 @@
+Debouncing – d.h. die Suche startet erst 300 ms nach Tipp-Ende → weniger API-Calls, schnellere UI
+
+Priorität für Mainz – zuerst Mainz sorgen für Vorschläge
+
+Maximal 4 Vorschläge mit Straße
+
+Fallback: nur wenn Mainz keine Ergebnisse liefert, wird deutschlandweit gesucht
+
+Instant-Infeed: Du bekommst Vorschläge direkt beim Tippen, ohne Verzögerung
+
+🧩 Code: „Instant“ Auto-Complete für Deutschland mit Mainz-Priorität
+html
+Kopieren
+Bearbeiten
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Adresseingabe Deutschland mit Mainz-Priorität</title>
+  <style>
+    body { background: #121212; color: white; font-family: sans-serif; padding: 2rem; }
+    .wrapper { position: relative; max-width: 400px; margin: auto; }
+    input { width: 100%; padding: 0.8rem; border: none; border-radius: 0.5rem;
+            font-size: 1rem; background: #1e1e1e; color: white; }
+    .suggestions { position: absolute; width: 100%; background: #1e1e1e;
+                   border-radius: 0.5rem; margin-top: 0.3rem;
+                   box-shadow: 0 0 8px rgba(0,0,0,0.4); z-index: 10;
+                   max-height: 200px; overflow-y: auto; }
+    .suggestion-item { padding: 0.6rem 1rem; cursor: pointer; border-bottom: 1px solid #333; }
+    .suggestion-item:hover { background: #333; }
+    .popup { display: none; margin-top: 1rem; background: #ff4d4d; padding: 1rem;
+             border-radius: 0.5rem; text-align: center; }
+    .success { display: none; margin-top: 1rem; background: #4caf50; padding: 1rem;
+               border-radius: 0.5rem; text-align: center; }
+  </style>
+</head>
+<body>
+
+<div class="wrapper">
+  <input type="text" id="inputAddr" placeholder="Straße + Hausnummer eingeben...">
+  <div id="suggestions" class="suggestions"></div>
+  <div id="popup" class="popup">
+    ❗ Diesen Bereich machen wir derzeit leider nicht.<br>Melde dich beim Support für weitere Hilfe.
+  </div>
+  <div id="success" class="success">
+    ✅ Adresse in Mainz akzeptiert!
+  </div>
+</div>
+
+<script>
+  const input = document.getElementById("inputAddr");
+  const suggestions = document.getElementById("suggestions");
+  const popup = document.getElementById("popup");
+  const success = document.getElementById("success");
+
+  let timer;
+  let lastInput = "";
+
+  input.addEventListener("input", () => {
+    clearTimeout(timer);
+    suggestions.innerHTML = "";
+    popup.style.display = "none";
+    success.style.display = "none";
+    timer = setTimeout(() => {
+      if(input.value.trim().length >= 3 && input.value !== lastInput) {
+        lastInput = input.value;
+        searchAddresses(input.value);
+      }
+    }, 300);
+  });
+
+  async function searchAddresses(query) {
+    // 1. Versuch: Mainz-Region
+    let url = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&countrycodes=de` +
+      `&limit=5&viewbox=8.215,50.000,8.300,49.960&bounded=1&q=${encodeURIComponent(query)}`;
+    let res = await fetch(url);
+    let data = await res.json();
+    let mains = data.filter(p => p.address && p.address.road);
+
+    let list = mains;
+    // 2. Wenn weniger als 4, fallback deutschlandweit
+    if(list.length < 4) {
+      url = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&countrycodes=de&limit=5&q=${encodeURIComponent(query)}`;
+      res = await fetch(url);
+      data = await res.json();
+      const germany = data.filter(p => p.address && p.address.road);
+      // Mainz-Vorschläge voranstellen
+      list = mains.concat(germany).slice(0,4);
+    }
+
+    displaySuggestions(list);
+  }
+
+  function displaySuggestions(list) {
+    suggestions.innerHTML = "";
+    list.forEach(place => {
+      const div = document.createElement("div");
+      div.className = "suggestion-item";
+      div.textContent = place.display_name;
+      div.onclick = () => selectAddress(place);
+      suggestions.appendChild(div);
+    });
+  }
+
+  function selectAddress(place) {
+    input.value = place.display_name;
+    suggestions.innerHTML = "";
+    const city = place.address.city || place.address.town || place.address.village || "";
+    const hn = place.address.house_number || "";
+
+    if(city.toLowerCase() !== "mainz") {
+      popup.style.display = "block";
+      success.style.display = "none";
+      return;
+    }
+    if(!hn) {
+      popup.style.display = "block";
+      popup.innerHTML = "❗ Bitte gib Adresse mit Hausnummer ein.";
+      success.style.display = "none";
+      return;
+    }
+    popup.style.display = "none";
+    success.style.display = "block";
+    // hier kannst du weiterarbeiten: Formular aktivieren, speichern, etc.
+  }
+
+  input.addEventListener("blur", () => {
+    setTimeout(() => suggestions.innerHTML = "", 200);
+  });
+</script>
+
+</body>
+</html>

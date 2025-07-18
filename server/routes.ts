@@ -73,7 +73,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Query parameter 'q' is required" });
       }
 
-      // Optimized Mainz-focused search with bounding box only (faster performance)
+      // 1. First try: Mainz-focused search with bounding box (faster, prioritized)
       const mainzUrl = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&countrycodes=de&limit=5&viewbox=8.215,50.000,8.300,49.960&bounded=1&q=${encodeURIComponent(q)}`;
       
       const mainzResponse = await fetch(mainzUrl, {
@@ -87,13 +87,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const mainzResults = await mainzResponse.json();
+      const mainzStreets = mainzResults.filter(place => place.address && place.address.road);
       
-      // Filter and limit to max 4 street results for optimal performance
-      const filteredResults = mainzResults
-        .filter(place => place.address && place.address.road)
-        .slice(0, 4);
+      let finalResults = mainzStreets.slice(0, 4);
       
-      res.json(filteredResults);
+      // 2. If fewer than 4 Mainz results, fallback to Germany-wide search
+      if (finalResults.length < 4) {
+        const germanyUrl = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&countrycodes=de&limit=5&q=${encodeURIComponent(q)}`;
+        
+        const germanyResponse = await fetch(germanyUrl, {
+          headers: {
+            'User-Agent': 'WASHK App/1.0 (https://washk.app)',
+          },
+        });
+        
+        if (germanyResponse.ok) {
+          const germanyResults = await germanyResponse.json();
+          const germanyStreets = germanyResults.filter(place => 
+            place.address && place.address.road &&
+            !mainzStreets.some(mainzPlace => mainzPlace.place_id === place.place_id)
+          );
+          
+          // Combine: Mainz first, then Germany results, max 4 total
+          const remainingSlots = 4 - finalResults.length;
+          finalResults = [...finalResults, ...germanyStreets.slice(0, remainingSlots)];
+        }
+      }
+      
+      res.json(finalResults);
     } catch (error: any) {
       console.error('Geocoding API error:', error);
       res.status(500).json({ message: "Error fetching geocoding data: " + error.message });

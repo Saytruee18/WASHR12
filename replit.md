@@ -216,12 +216,13 @@ Preferred communication style: Simple, everyday language.
   - Intelligent sorting: Mainz complete addresses first, then Mainz streets, then Germany-wide
   - Increased minimum character requirement to 4 for better search accuracy
   - Maximum 4 suggestions displayed for optimal user experience
-✓ Performance optimization with debouncing and API limits (July 17, 2025):
+✓ Performance optimization with debouncing and smart fallback (July 17, 2025):
   - Implemented 300ms debouncing to reduce API calls and improve performance
-  - Optimized to single Mainz-focused search with limit=5 for faster responses
+  - Two-tier search strategy: Mainz-focused first, Germany-wide fallback only when needed
   - Reduced minimum search characters from 4 to 3 for better user experience
   - Added cleanup for debounce timers to prevent memory leaks
-  - Eliminated redundant Germany-wide fallback searches for better speed
+  - Smart fallback: Germany search only triggers when Mainz returns fewer than 4 results
+  - Maintains optimal performance while ensuring comprehensive address coverage
 ✓ Enhanced map experience with optimized zoom and location features (July 17, 2025):
   - Increased default zoom level to 16 for street-level detail on app start
   - Added automatic user location detection with navigator.geolocation
