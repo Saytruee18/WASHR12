@@ -42,9 +42,11 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
     return '👋';
   };
 
-  // Ultra-fast API suggestions with optimized caching and performance
-  const getAutocompleteSuggestions = useCallback(async (input: string) => {
+  // Instant German address autocomplete - completely rebuilt for perfection
+  const getGermanAutocompleteSuggestions = useCallback(async (input: string) => {
     if (input.length < 2) {
+      setSuggestions([]);
+      setShowSuggestions(false);
       return;
     }
 
@@ -108,146 +110,103 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
     }
   }, [suggestions]);
 
-  // Enhanced local database with German-wide addresses for instant suggestions
-  const useLocalMainzAddressesWithFuzzy = (input: string) => {
-    const germanAddresses = [
-      // Mainz (priority)
-      "Bahnhofstraße 1, 55116 Mainz",
-      "Bahnhofstraße 15, 55116 Mainz",
-      "Rheinstraße 12, 55116 Mainz",
-      "Kaiserstraße 5, 55116 Mainz",
-      "Gutenbergplatz 4, 55116 Mainz",
-      "Große Bleiche 22, 55116 Mainz",
-      "Schillerplatz 1, 55116 Mainz",
-      "Münsterstraße 8, 55116 Mainz",
-      "Am Zollhafen 12, 55118 Mainz",
-      "Frauenlobstraße 18, 55118 Mainz",
-      
-      // Frankfurt
-      "Zeil 1, 60313 Frankfurt am Main",
-      "Kaiserstraße 10, 60311 Frankfurt am Main",
-      "Hauptwache 5, 60313 Frankfurt am Main",
-      "Römerberg 2, 60311 Frankfurt am Main",
-      "Bockenheimer Landstraße 25, 60325 Frankfurt am Main",
-      
-      // Wiesbaden  
-      "Wilhelmstraße 15, 65183 Wiesbaden",
-      "Rheinstraße 3, 65185 Wiesbaden",
-      "Marktstraße 12, 65183 Wiesbaden",
-      "Bahnhofstraße 8, 65185 Wiesbaden",
-      
-      // Köln
-      "Hohe Straße 41, 50667 Köln",
-      "Schildergasse 15, 50667 Köln",
-      "Domplatz 1, 50667 Köln",
-      "Neumarkt 2, 50667 Köln",
-      
-      // München
-      "Marienplatz 8, 80331 München",
-      "Maximilianstraße 15, 80539 München",
-      "Leopoldstraße 25, 80802 München",
-      "Sendlinger Straße 12, 80331 München",
-      
-      // Berlin
-      "Unter den Linden 10, 10117 Berlin",
-      "Friedrichstraße 25, 10117 Berlin",
-      "Alexanderplatz 3, 10178 Berlin",
-      "Kurfürstendamm 15, 10719 Berlin",
-      
-      // Hamburg
-      "Mönckebergstraße 12, 20095 Hamburg",
-      "Jungfernstieg 8, 20354 Hamburg",
-      "Reeperbahn 25, 20359 Hamburg",
-      
-      // Stuttgart
-      "Königstraße 28, 70173 Stuttgart",
-      "Marktplatz 1, 70173 Stuttgart",
-      "Schlossplatz 4, 70173 Stuttgart",
-      
-      // Düsseldorf
-      "Königsallee 15, 40212 Düsseldorf",
-      "Schadowstraße 8, 40212 Düsseldorf",
-      
-      // Dortmund
-      "Westenhellweg 12, 44137 Dortmund",
-      "Kampstraße 5, 44137 Dortmund",
-      
-      // Essen
-      "Kettwiger Straße 15, 45127 Essen",
-      "Limbecker Platz 3, 45127 Essen",
-      
-      // Nürnberg
-      "Hauptmarkt 1, 90403 Nürnberg",
-      "Karolinenstraße 8, 90402 Nürnberg",
-      
-      // Leipzig
-      "Grimmaische Straße 15, 04109 Leipzig",
-      "Augustusplatz 2, 04109 Leipzig",
-      
-      // Dresden
-      "Prager Straße 12, 01069 Dresden",
-      "Altmarkt 5, 01067 Dresden"
+  // Comprehensive German street database for instant autocomplete
+  const useGermanAddressDatabase = (input: string) => {
+    const germanStreets = [
+      // Major streets across Germany - instant suggestions
+      "Bahnhofstraße", "Hauptstraße", "Kaiserstraße", "Königstraße", "Marktstraße",
+      "Friedrichstraße", "Wilhelmstraße", "Goethestraße", "Schillerstraße", "Bismarckstraße",
+      "Lindenstraße", "Kirchstraße", "Gartenstraße", "Bergstraße", "Poststraße",
+      "Schulstraße", "Mühlenstraße", "Dorfstraße", "Waldstraße", "Feldstraße",
+      "Rosenstraße", "Parkstraße", "Mozartstraße", "Beethovenstraße", "Bachstraße",
+      "Am Markt", "Am Bahnhof", "Unter den Linden", "Zur Post", "An der Kirche",
+      "Neue Straße", "Alte Straße", "Lange Straße", "Kurze Straße", "Breite Straße",
+      "Rheinstraße", "Elbestraße", "Donaustraße", "Weserstraße", "Isar Straße",
+      "Zeil", "Kurfürstendamm", "Reeperbahn", "Leopoldstraße", "Maximilianstraße",
+      "Alexanderplatz", "Potsdamer Platz", "Marienplatz", "Römerberg", "Hauptwache",
+      "Schildergasse", "Hohe Straße", "Mönckebergstraße", "Jungfernstieg", "Neuer Wall",
+      "Königsallee", "Schadowstraße", "Flinger Straße", "Bolkerstraße", "Carlsplatz",
+      "Theodor-Heuss-Straße", "Konrad-Adenauer-Straße", "Willy-Brandt-Straße", "John-F.-Kennedy-Straße",
+      "Große Bleiche", "Gutenbergplatz", "Am Zollhafen", "Frauenlobstraße", "Münsterstraße",
+      "Parcusstraße", "Göttelmannstraße", "Neubrunnenstraße", "Breidenbacherstraße", "Augustusstraße"
     ];
 
-    // Simple fuzzy matching algorithm for typo tolerance
-    const fuzzyMatch = (text: string, query: string): number => {
-      const textLower = text.toLowerCase();
-      const queryLower = query.toLowerCase();
+    const germanCities = [
+      "Mainz", "Frankfurt am Main", "Wiesbaden", "Darmstadt", "Kassel", "Berlin", "München", "Hamburg",
+      "Köln", "Stuttgart", "Düsseldorf", "Dortmund", "Essen", "Leipzig", "Dresden", "Nürnberg",
+      "Hannover", "Bremen", "Duisburg", "Bochum", "Wuppertal", "Bielefeld", "Bonn", "Münster",
+      "Karlsruhe", "Mannheim", "Augsburg", "Chemnitz", "Braunschweig", "Krefeld", "Kiel", "Aachen",
+      "Halle", "Magdeburg", "Freiburg", "Lübeck", "Oberhausen", "Erfurt", "Rostock", "Mainz",
+      "Kaiserslautern", "Hamm", "Saarbrücken", "Mülheim", "Potsdam", "Ludwigshafen", "Oldenburg"
+    ];
+
+    // Advanced fuzzy matching for typo tolerance
+    const fuzzyMatch = (street: string, city: string, search: string): number => {
+      const fullAddress = `${street}, ${city}`.toLowerCase();
+      const searchLower = search.toLowerCase();
       
-      // Exact substring match gets highest score
-      if (textLower.includes(queryLower)) return 100;
-      
-      // Check for similar character sequences
       let score = 0;
-      for (let i = 0; i < queryLower.length - 1; i++) {
-        const bigram = queryLower.substr(i, 2);
-        if (textLower.includes(bigram)) score += 10;
-      }
       
-      // Check individual character matches
-      for (const char of queryLower) {
-        if (textLower.includes(char)) score += 1;
+      // Exact substring match
+      if (fullAddress.includes(searchLower)) score += 100;
+      if (street.toLowerCase().includes(searchLower)) score += 80;
+      if (city.toLowerCase().includes(searchLower)) score += 60;
+      
+      // Starting match bonus
+      if (street.toLowerCase().startsWith(searchLower)) score += 50;
+      if (city.toLowerCase().startsWith(searchLower)) score += 40;
+      
+      // Character match percentage
+      let charMatches = 0;
+      for (const char of searchLower) {
+        if (fullAddress.includes(char)) charMatches++;
       }
+      score += (charMatches / searchLower.length) * 30;
       
       return score;
     };
 
-    // Score and filter addresses from entire German database
-    const scoredAddresses = germanAddresses
-      .map(addr => ({
-        address: addr,
-        score: fuzzyMatch(addr, input),
-        isMainz: addr.includes('Mainz')
-      }))
-      .filter(item => item.score > 5) // Even lower threshold for maximum coverage
-      .sort((a, b) => {
-        // Balanced sorting: slight Mainz boost but primarily by relevance score
-        const scoreA = a.score + (a.isMainz ? 10 : 0); // Small boost for Mainz
-        const scoreB = b.score + (b.isMainz ? 10 : 0);
-        return scoreB - scoreA;
-      })
-      .slice(0, 4);
+    // Generate comprehensive suggestions from street/city combinations
+    const suggestions: any[] = [];
     
-    if (scoredAddresses.length > 0) {
-      const localSuggestions = scoredAddresses.map((item, index) => ({
-        place_id: `local_${index}`,
-        description: item.address,
-        structured_formatting: {
-          main_text: item.address.split(',')[0],
-          secondary_text: item.address.split(',').slice(1).join(',')
-        },
-        isMainz: item.isMainz,
-        hasHouseNumber: true,
-        hasRoad: true,
-        isComplete: item.isMainz,
-        relevanceScore: item.score + (item.isMainz ? 15 : 10) // Balanced scoring for all German cities
-      }));
-      setSuggestions(localSuggestions as any);
-      setShowSuggestions(true);
-    } else {
-      setSuggestions([]);
-      setShowSuggestions(false);
+    for (const street of germanStreets) {
+      for (const city of germanCities) {
+        const score = fuzzyMatch(street, city, input);
+        if (score > 20) { // Lower threshold for broader coverage
+          suggestions.push({
+            street,
+            city,
+            score,
+            isMainz: city === 'Mainz'
+          });
+        }
+      }
     }
+    
+    // Sort by relevance with Mainz priority
+    suggestions.sort((a, b) => {
+      const scoreA = a.score + (a.isMainz ? 20 : 0);
+      const scoreB = b.score + (b.isMainz ? 20 : 0);
+      return scoreB - scoreA;
+    });
+    
+    // Take top 4 suggestions
+    const topSuggestions = suggestions.slice(0, 4).map((item, index) => ({
+      place_id: `local_${index}`,
+      description: `${item.street}, ${item.city}`,
+      structured_formatting: {
+        main_text: item.street,
+        secondary_text: item.city
+      },
+      isMainz: item.isMainz,
+      hasHouseNumber: false, // These are street-only suggestions
+      hasRoad: true,
+      isComplete: false, // Need house number
+      relevanceScore: item.score
+    }));
+    
+    setSuggestions(topSuggestions);
+    setShowSuggestions(topSuggestions.length > 0);
   };
 
   // Debounce timer for search optimization
@@ -266,12 +225,12 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
     // Show instant local suggestions for all German cities
     if (value.length >= 2) {
       // Always show comprehensive German suggestions immediately
-      useLocalMainzAddressesWithFuzzy(value);
+      useGermanAddressDatabase(value);
       
       // Enhance with API suggestions but don't override local ones
       debounceTimerRef.current = setTimeout(() => {
-        getAutocompleteSuggestions(value);
-      }, 100); // Slightly increased for better API stability
+        getGermanAutocompleteSuggestions(value);
+      }, 50); // Ultra-fast for instant updates
     } else {
       setSuggestions([]);
       setShowSuggestions(false);
@@ -286,6 +245,34 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
       }
     };
   }, []);
+
+  // Handle suggestion selection with house number validation
+  const handleSuggestionSelect = (suggestion: any) => {
+    setAddressInput(suggestion.description);
+    setShowSuggestions(false);
+    
+    // Check if address is complete (has house number)
+    if (!suggestion.hasHouseNumber || !suggestion.isComplete) {
+      // Show animated house number prompt instead of harsh error
+      setShowHouseNumberPrompt(true);
+      
+      // Auto-hide after 5 seconds
+      setTimeout(() => {
+        setShowHouseNumberPrompt(false);
+      }, 5000);
+      
+      return;
+    }
+    
+    // If complete, proceed with address search - simplified for instant response
+    if (suggestion.osmData) {
+      const lat = parseFloat(suggestion.osmData.lat);
+      const lng = parseFloat(suggestion.osmData.lon);
+      if (lat && lng) {
+        handleLocationSelect(lat, lng, suggestion.description);
+      }
+    }
+  };
 
   // Service area check function
   const isPointInServiceArea = useCallback((lat: number, lng: number): boolean => {
@@ -365,89 +352,7 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
     );
   }, [map, isPointInServiceArea, toast]);
 
-  // Enhanced suggestion selection with strict validation
-  const handleSuggestionSelect = (suggestion: any) => {
-    setAddressInput(suggestion.description);
-    setShowSuggestions(false);
-    
-    // For OpenStreetMap results with enhanced validation
-    if (suggestion.osmData) {
-      const address = suggestion.osmData.address || {};
-      const city = address.city || address.town || address.village || address.municipality || '';
-      const houseNumber = address.house_number || '';
-      
-      // Check if city is Mainz
-      if (city.toLowerCase() !== 'mainz') {
-        toast({
-          title: "Servicebereich nicht verfügbar",
-          description: "Diesen Bereich machen wir derzeit leider nicht. Melde dich beim Support für weitere Hilfe.",
-          variant: "destructive"
-        });
-        setShowAreaWarning(true);
-        return;
-      }
 
-      // Check if house number is present
-      if (!houseNumber) {
-        // Show animated house number prompt instead of toast
-        setShowHouseNumberPrompt(true);
-        setTimeout(() => setShowHouseNumberPrompt(false), 4000); // Auto-hide after 4 seconds
-        return;
-      }
-
-      // Use coordinates from OpenStreetMap
-      const lat = parseFloat(suggestion.osmData.lat);
-      const lng = parseFloat(suggestion.osmData.lon);
-      
-      if (lat && lng) {
-        handleLocationSelect(lat, lng, suggestion.description);
-        toast({
-          title: "Adresse in Mainz akzeptiert",
-          description: "Du kannst fortfahren!",
-          variant: "default"
-        });
-      } else {
-        // Fallback to Mainz center
-        handleLocationSelect(MAINZ_CENTER.lat, MAINZ_CENTER.lng, suggestion.description);
-        toast({
-          title: "Adresse in Mainz akzeptiert",
-          description: "Du kannst fortfahren!",
-          variant: "default"
-        });
-      }
-      return;
-    }
-
-    // For local addresses (place_id starts with 'local_'), these are all Mainz addresses
-    if (suggestion.place_id.startsWith('local_')) {
-      // Use Mainz center with slight offset for different addresses
-      const lat = MAINZ_CENTER.lat + (Math.random() - 0.5) * 0.01;
-      const lng = MAINZ_CENTER.lng + (Math.random() - 0.5) * 0.01;
-      handleLocationSelect(lat, lng, suggestion.description);
-      
-      toast({
-        title: "Adresse in Mainz akzeptiert",
-        description: "Du kannst fortfahren!",
-        variant: "default"
-      });
-      return;
-    }
-
-    // Fallback check if no OSM data
-    const isMainzAddress = suggestion.description.toLowerCase().includes('mainz');
-    if (!isMainzAddress) {
-      toast({
-        title: "Servicebereich nicht verfügbar",
-        description: "Diesen Bereich machen wir derzeit leider nicht. Melde dich beim Support für weitere Hilfe.",
-        variant: "destructive"
-      });
-      setShowAreaWarning(true);
-      return;
-    }
-
-    // Use Mainz center as fallback
-    handleLocationSelect(MAINZ_CENTER.lat, MAINZ_CENTER.lng, suggestion.description);
-  };
 
   // Handle click outside to close suggestions
   useEffect(() => {
@@ -913,13 +818,33 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
     }
   }, [addressInput, map, isPointInServiceArea, onLocationSelect, toast]);
 
-  // Handle location selection
+  // Handle location selection with enhanced validation
   const handleLocationSelect = useCallback((lat: number, lng: number, address: string) => {
     const inServiceArea = isPointInServiceArea(lat, lng);
     setSelectedAddress(address);
     setIsInServiceArea(inServiceArea);
     onLocationSelect(address, inServiceArea);
-  }, [isPointInServiceArea, onLocationSelect]);
+    
+    // Update map with new marker if available
+    if (map) {
+      map.setCenter({ lat, lng });
+      
+      // Add marker for selected location
+      new google.maps.Marker({
+        position: { lat, lng },
+        map: map,
+        title: address,
+        icon: {
+          path: google.maps.SymbolPath.CIRCLE,
+          scale: 12,
+          fillColor: inServiceArea ? "#3cbf5c" : "#ff4444",
+          fillOpacity: 1,
+          strokeColor: "#ffffff",
+          strokeWeight: 2,
+        }
+      });
+    }
+  }, [isPointInServiceArea, onLocationSelect, map]);
 
   return (
     <div className="relative h-full w-full">
