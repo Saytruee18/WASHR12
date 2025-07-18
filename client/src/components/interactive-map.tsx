@@ -760,7 +760,7 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
       />
 
       {/* Top Dark Gradient Mask - Compact overlay with custom color */}
-      <div className="absolute top-0 left-0 right-0 h-[30vh] bg-gradient-to-b from-[#100c0c]/95 via-[#100c0c]/60 to-transparent pointer-events-none z-10" />
+      <div className="absolute top-0 left-0 right-0 h-[30vh] bg-gradient-to-b from-[#180c0c]/95 via-[#180c0c]/60 to-transparent pointer-events-none z-10" />
 
       {/* Landing Page Content - More compact layout */}
       <motion.div
@@ -880,18 +880,18 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
               {/* GPS Button - Separate from input, properly spaced */}
               <button
                 onClick={handleGetCurrentLocation}
-                className="w-12 h-12 bg-[#100c0c] rounded-full flex items-center justify-center hover:shadow-[0_0_12px_rgba(60,191,92,0.4)] transition-all duration-300 group border border-gray-700/30 backdrop-blur-sm flex-shrink-0"
+                className="w-12 h-12 bg-[#180c0c] rounded-full flex items-center justify-center hover:shadow-[0_0_12px_rgba(36,196,140,0.4)] transition-all duration-300 group border border-gray-700/30 backdrop-blur-sm flex-shrink-0"
                 title="Aktuellen Standort verwenden"
               >
                 <div className="relative">
                   {/* Outer glow effect */}
-                  <div className="absolute inset-0 bg-[#3cbf5c] rounded-full opacity-0 group-hover:opacity-20 transition-opacity duration-300 blur-sm scale-150"></div>
+                  <div className="absolute inset-0 bg-[#24c48c] rounded-full opacity-0 group-hover:opacity-20 transition-opacity duration-300 blur-sm scale-150"></div>
                   {/* GPS Compass Icon */}
                   <svg 
                     width="20" 
                     height="20" 
                     viewBox="0 0 24 24" 
-                    className="relative z-10 text-[#3cbf5c] group-hover:scale-110 group-hover:rotate-45 transition-all duration-300"
+                    className="relative z-10 text-[#24c48c] group-hover:scale-110 group-hover:rotate-45 transition-all duration-300"
                     fill="none" 
                     stroke="currentColor" 
                     strokeWidth="2"
@@ -901,7 +901,7 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
                     <circle cx="12" cy="12" r="2" fill="currentColor"/>
                   </svg>
                   {/* Subtle pulse animation */}
-                  <div className="absolute inset-0 bg-[#3cbf5c] rounded-full opacity-30 animate-ping scale-75 group-hover:scale-100"></div>
+                  <div className="absolute inset-0 bg-[#24c48c] rounded-full opacity-30 animate-ping scale-75 group-hover:scale-100"></div>
                 </div>
               </button>
             </div>
@@ -910,11 +910,11 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
       </motion.div>
 
       {/* Bottom Dark Gradient Mask with new color */}
-      <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-[#100c0c]/60 via-[#100c0c]/30 to-transparent pointer-events-none z-10" />
+      <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-[#180c0c]/60 via-[#180c0c]/30 to-transparent pointer-events-none z-10" />
 
       {/* Side Gradient Masks with new color */}
-      <div className="absolute top-0 left-0 bottom-0 w-8 bg-gradient-to-r from-[#100c0c]/40 to-transparent pointer-events-none z-10" />
-      <div className="absolute top-0 right-0 bottom-0 w-8 bg-gradient-to-l from-[#100c0c]/40 to-transparent pointer-events-none z-10" />
+      <div className="absolute top-0 left-0 bottom-0 w-8 bg-gradient-to-r from-[#180c0c]/40 to-transparent pointer-events-none z-10" />
+      <div className="absolute top-0 right-0 bottom-0 w-8 bg-gradient-to-l from-[#180c0c]/40 to-transparent pointer-events-none z-10" />
       
       {/* Zone Legend - German translations with new color */}
       <motion.div
@@ -925,7 +925,7 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
       >
         <div 
           className="backdrop-blur-md rounded-lg p-3 border border-gray-700/50 shadow-xl text-sm"
-          style={{ backgroundColor: '#100c0c', color: '#fff' }}
+          style={{ backgroundColor: '#180c0c', color: '#fff' }}
         >
           <div className="space-y-2">
             <div className="flex items-center space-x-2">
@@ -954,7 +954,7 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-[#100c0c] border border-gray-600 rounded-2xl p-6 max-w-sm w-full shadow-2xl"
+              className="bg-[#180c0c] border border-gray-600 rounded-2xl p-6 max-w-sm w-full shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="text-center">
@@ -1080,7 +1080,7 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
 
       {/* Loading State */}
       {!isMapLoaded && (
-        <div className="absolute inset-0 flex items-center justify-center z-50" style={{ backgroundColor: '#100c0c' }}>
+        <div className="absolute inset-0 flex items-center justify-center z-50" style={{ backgroundColor: '#180c0c' }}>
           <div className="text-center text-white">
             <div className="w-8 h-8 border-2 border-[#3cbf5c] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
             <p className="text-lg font-semibold">Loading Map...</p>
@@ -1099,7 +1099,7 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
           >
             <div 
               className="backdrop-blur-md rounded-2xl p-4 border border-gray-700/50 shadow-2xl"
-              style={{ backgroundColor: '#100c0c' }}
+              style={{ backgroundColor: '#180c0c' }}
             >
               <div className="flex items-center space-x-3">
                 {isInServiceArea ? (

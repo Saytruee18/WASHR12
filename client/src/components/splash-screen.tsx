@@ -24,7 +24,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
-          className="fixed inset-0 z-50 bg-primary flex items-center justify-center"
+          className="fixed inset-0 z-50 animated-background flex items-center justify-center"
         >
           <motion.div
             initial={{ scale: 0.5, opacity: 0 }}

@@ -296,6 +296,14 @@ Preferred communication style: Simple, everyday language.
   - Added user location marker with blue styling when GPS location is found
   - Enhanced UX with location-found toast notifications
   - Maintained fallback to Mainz center when location access denied
+✓ Animated background with dark gradient and soft overlay (July 18, 2025):
+  - Implemented animated background using dark gradient with HEX #180c0c
+  - Added soft fading overlay with accent color #24c48c that pulses in and out
+  - Created smooth glow-pulse animation with 6-second cycle for professional appearance
+  - Updated all UI components to use new #180c0c background color for consistency
+  - Applied to splash screen, interactive map, and all modal components
+  - Enhanced GPS button styling with new color scheme and accent effects
+  - Seamless integration across entire application with unified dark theme
 ✓ Streamlined user interface with button removal (July 17, 2025):
   - Removed "Verfügbarkeit prüfen" button for cleaner interface
   - Address search now triggers automatically on Enter key press
