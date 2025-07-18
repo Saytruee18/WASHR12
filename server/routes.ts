@@ -89,10 +89,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json(cached.data);
       }
 
-      // Reduced rate limiting for better responsiveness
+      // Minimal rate limiting for maximum responsiveness
       const now = Date.now();
       const timeSinceLastCall = now - lastApiCall;
-      if (timeSinceLastCall < 500) { // Reduced from 1000ms to 500ms
+      if (timeSinceLastCall < 200) { // Further reduced to 200ms for better UX
         // Return empty array if too many requests
         return res.json([]);
       }
@@ -102,12 +102,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 4000); // Increased timeout for complex queries
       
-      // Enhanced search URL with house number prioritization
-      let searchUrl = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&countrycodes=de&limit=8&q=${encodeURIComponent(searchQuery)}`;
+      // Enhanced search URL optimized for complete input processing
+      let searchUrl = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&countrycodes=de&limit=10&q=${encodeURIComponent(searchQuery)}`;
       
-      // If query contains numbers, prioritize address searches
+      // Enhanced parameters for better address matching
+      searchUrl += '&extratags=1&namedetails=1';
+      
+      // If query contains numbers, add special handling for house numbers
       if (/\d/.test(searchQuery)) {
-        searchUrl += '&extratags=1&namedetails=1';
+        searchUrl += '&bounded=0'; // Allow broader search for numbered addresses
       }
       
       try {

@@ -44,20 +44,22 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
 
   // Dynamic German address autocomplete with complete input processing
   const getGermanAutocompleteSuggestions = useCallback(async (input: string) => {
-    if (input.length < 1) {
+    // Process every character of input - no minimum length requirement
+    const processedInput = input.trim();
+    
+    if (!processedInput) {
       setSuggestions([]);
       setShowSuggestions(false);
       return;
     }
 
     try {
-      // Process complete input text without modifications
-      const completeInput = input.trim();
-      const url = `/api/geocode?q=${encodeURIComponent(completeInput)}`;
+      // Use complete input text exactly as entered by user
+      const url = `/api/geocode?q=${encodeURIComponent(processedInput)}`;
       
       // Set appropriate timeout for complete text processing
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 4000); // Increased timeout for complex queries
+      const timeoutId = setTimeout(() => controller.abort(), 5000); // Increased timeout for complex queries
       
       const response = await fetch(url, { signal: controller.signal });
       clearTimeout(timeoutId);
@@ -153,28 +155,50 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
       "Kaiserslautern", "Hamm", "Saarbrücken", "Mülheim", "Potsdam", "Ludwigshafen", "Oldenburg"
     ];
 
-    // Advanced fuzzy matching for typo tolerance
+    // Enhanced fuzzy matching algorithm for complete input processing
     const fuzzyMatch = (street: string, city: string, search: string): number => {
       const fullAddress = `${street}, ${city}`.toLowerCase();
-      const searchLower = search.toLowerCase();
+      const searchLower = search.toLowerCase().trim();
+      
+      // Skip if search is empty
+      if (!searchLower) return 0;
       
       let score = 0;
       
-      // Exact substring match
-      if (fullAddress.includes(searchLower)) score += 100;
-      if (street.toLowerCase().includes(searchLower)) score += 80;
-      if (city.toLowerCase().includes(searchLower)) score += 60;
+      // Exact matches get highest priority
+      if (fullAddress === searchLower) score += 200;
+      if (street.toLowerCase() === searchLower) score += 180;
+      if (city.toLowerCase() === searchLower) score += 160;
       
-      // Starting match bonus
-      if (street.toLowerCase().startsWith(searchLower)) score += 50;
-      if (city.toLowerCase().startsWith(searchLower)) score += 40;
+      // Substring matches
+      if (fullAddress.includes(searchLower)) score += 120;
+      if (street.toLowerCase().includes(searchLower)) score += 100;
+      if (city.toLowerCase().includes(searchLower)) score += 80;
       
-      // Character match percentage
+      // Starting matches
+      if (street.toLowerCase().startsWith(searchLower)) score += 90;
+      if (city.toLowerCase().startsWith(searchLower)) score += 70;
+      if (fullAddress.startsWith(searchLower)) score += 110;
+      
+      // Word boundary matches for better accuracy
+      const searchWords = searchLower.split(/\s+/);
+      const addressWords = fullAddress.split(/[\s,]+/);
+      
+      for (const searchWord of searchWords) {
+        if (searchWord.length > 0) {
+          for (const addressWord of addressWords) {
+            if (addressWord.startsWith(searchWord)) score += 40;
+            if (addressWord.includes(searchWord)) score += 25;
+          }
+        }
+      }
+      
+      // Character sequence matching for typo tolerance
       let charMatches = 0;
       for (const char of searchLower) {
         if (fullAddress.includes(char)) charMatches++;
       }
-      score += (charMatches / searchLower.length) * 30;
+      score += (charMatches / searchLower.length) * 20;
       
       return score;
     };
@@ -190,14 +214,14 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
     for (const street of germanStreets) {
       for (const city of germanCities) {
         const score = fuzzyMatch(street, city, input);
-        if (score > 20) { // Lower threshold for broader coverage
+        if (score > 15) { // Lower threshold for maximum coverage
           
           // If input contains numbers, create suggestions with house numbers
           if (hasNumbers && potentialHouseNumber) {
             suggestions.push({
               street: `${street} ${potentialHouseNumber}`,
               city,
-              score: score + 30, // Higher score for complete addresses
+              score: score + 40, // Higher score for complete addresses
               isMainz: city === 'Mainz',
               hasHouseNumber: true
             });
@@ -222,8 +246,8 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
       return scoreB - scoreA;
     });
     
-    // Take top 4 suggestions, prioritizing complete addresses
-    const topSuggestions = suggestions.slice(0, 4).map((item, index) => ({
+    // Take top 6 suggestions, prioritizing complete addresses
+    const topSuggestions = suggestions.slice(0, 6).map((item, index) => ({
       place_id: `local_${index}`,
       description: `${item.street}, ${item.city}`,
       structured_formatting: {
@@ -254,15 +278,20 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
       clearTimeout(debounceTimerRef.current);
     }
     
-    // Use complete input text for dynamic search - start from first character
+    // Process complete input text immediately - no character limitations
     if (value.length >= 1) {
-      // Always show comprehensive German suggestions immediately using complete input
+      // Clear any previous timer to ensure fresh search
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+      
+      // Immediately process local suggestions with complete input
       useGermanAddressDatabase(value);
       
-      // Enhance with API suggestions using complete input text without debouncing
+      // Process API suggestions with minimal delay, using complete input text
       debounceTimerRef.current = setTimeout(() => {
         getGermanAutocompleteSuggestions(value);
-      }, 100); // Reduced debounce for faster response
+      }, 150); // Balanced for responsiveness and API efficiency
     } else {
       setSuggestions([]);
       setShowSuggestions(false);
