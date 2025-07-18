@@ -67,10 +67,7 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
       const results = await response.json();
 
       if (results.length > 0) {
-        // Get current local suggestions to merge with API results
-        const currentSuggestions = suggestions.filter(s => s.place_id.startsWith('local_'));
-        
-        // Process API results quickly
+        // Process API results with balanced scoring
         const apiSuggestions = results.map((place: any, index: number) => {
           const address = place.address || {};
           const city = address.city || address.town || address.village || address.municipality || '';
@@ -86,7 +83,7 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
           const secondaryText = addressParts.join(', ');
           
           return {
-            place_id: place.place_id || `osm_${index}`,
+            place_id: place.place_id || `api_${index}`,
             description: place.display_name,
             structured_formatting: {
               main_text: mainText,
@@ -97,20 +94,13 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
             hasHouseNumber: !!houseNumber,
             hasRoad: !!road,
             isComplete: city.toLowerCase() === 'mainz' && !!houseNumber && !!road,
-            relevanceScore: (city.toLowerCase() === 'mainz' ? 100 : 50) + (houseNumber ? 50 : 0)
+            relevanceScore: (city.toLowerCase() === 'mainz' ? 25 : 20) + (houseNumber ? 15 : 0) // Balanced scoring
           };
         });
         
-        // Merge local and API suggestions, prioritizing Mainz
-        const allSuggestions = [...currentSuggestions, ...apiSuggestions]
-          .sort((a, b) => b.relevanceScore - a.relevanceScore)
-          .slice(0, 4);
-        
-        // Only update if we have better suggestions
-        if (allSuggestions.length > 0) {
-          setSuggestions(allSuggestions as any);
-          setShowSuggestions(true);
-        }
+        // Replace suggestions with fresh API results for dynamic updates
+        setSuggestions(apiSuggestions as any);
+        setShowSuggestions(true);
       }
     } catch (error) {
       // Don't clear existing suggestions on API error
@@ -229,12 +219,12 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
         score: fuzzyMatch(addr, input),
         isMainz: addr.includes('Mainz')
       }))
-      .filter(item => item.score > 8) // Lower threshold for broader coverage
+      .filter(item => item.score > 5) // Even lower threshold for maximum coverage
       .sort((a, b) => {
-        // Prioritize Mainz addresses, then by score
-        if (a.isMainz && !b.isMainz) return -1;
-        if (!a.isMainz && b.isMainz) return 1;
-        return b.score - a.score;
+        // Balanced sorting: slight Mainz boost but primarily by relevance score
+        const scoreA = a.score + (a.isMainz ? 10 : 0); // Small boost for Mainz
+        const scoreB = b.score + (b.isMainz ? 10 : 0);
+        return scoreB - scoreA;
       })
       .slice(0, 4);
     
@@ -250,7 +240,7 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
         hasHouseNumber: true,
         hasRoad: true,
         isComplete: item.isMainz,
-        relevanceScore: item.score + (item.isMainz ? 100 : 20) // Higher boost for Mainz
+        relevanceScore: item.score + (item.isMainz ? 15 : 10) // Balanced scoring for all German cities
       }));
       setSuggestions(localSuggestions as any);
       setShowSuggestions(true);
@@ -263,7 +253,7 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
   // Debounce timer for search optimization
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Handle address input change with truly instant suggestions
+  // Handle address input change with dynamic German-wide suggestions
   const handleAddressInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setAddressInput(value);
@@ -273,15 +263,15 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
       clearTimeout(debounceTimerRef.current);
     }
     
-    // Show instant local suggestions first for immediate response
+    // Show instant local suggestions for all German cities
     if (value.length >= 2) {
-      // Immediately show local suggestions for instant feedback
+      // Always show comprehensive German suggestions immediately
       useLocalMainzAddressesWithFuzzy(value);
       
-      // Then fetch API suggestions with minimal delay for enhancement
+      // Enhance with API suggestions but don't override local ones
       debounceTimerRef.current = setTimeout(() => {
         getAutocompleteSuggestions(value);
-      }, 50); // Reduced to 50ms for ultra-responsive typing
+      }, 100); // Slightly increased for better API stability
     } else {
       setSuggestions([]);
       setShowSuggestions(false);
