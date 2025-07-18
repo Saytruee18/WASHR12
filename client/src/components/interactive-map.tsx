@@ -903,13 +903,32 @@ export function InteractiveMap({ onLocationSelect, userName }: InteractiveMapPro
                   }}
                 />
               
-              {/* GPS Button - Minimalistic red pin design */}
+              {/* GPS Button - Modern dark design with subtle glow */}
               <button
                 onClick={handleGetCurrentLocation}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-[#1e1e1e] rounded-full flex items-center justify-center hover:shadow-[0_0_8px_#ff4d4d] transition-all duration-200 group z-20"
-                title="Standort erkennen"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 w-10 h-10 bg-[#100c0c] rounded-full flex items-center justify-center hover:shadow-[0_0_12px_rgba(60,191,92,0.4)] transition-all duration-300 group z-20 border border-gray-700/30 backdrop-blur-sm"
+                title="Aktuellen Standort verwenden"
               >
-                <span className="text-[#ff4d4d] text-sm group-hover:scale-110 transition-transform duration-200">📍</span>
+                <div className="relative">
+                  {/* Outer glow effect */}
+                  <div className="absolute inset-0 bg-[#3cbf5c] rounded-full opacity-0 group-hover:opacity-20 transition-opacity duration-300 blur-sm scale-150"></div>
+                  {/* GPS Compass Icon */}
+                  <svg 
+                    width="18" 
+                    height="18" 
+                    viewBox="0 0 24 24" 
+                    className="relative z-10 text-[#3cbf5c] group-hover:scale-110 group-hover:rotate-45 transition-all duration-300"
+                    fill="none" 
+                    stroke="currentColor" 
+                    strokeWidth="2"
+                  >
+                    <circle cx="12" cy="12" r="10"/>
+                    <polygon points="16.24,7.76 14.12,14.12 7.76,16.24 9.88,9.88"/>
+                    <circle cx="12" cy="12" r="2" fill="currentColor"/>
+                  </svg>
+                  {/* Subtle pulse animation */}
+                  <div className="absolute inset-0 bg-[#3cbf5c] rounded-full opacity-30 animate-ping scale-75 group-hover:scale-100"></div>
+                </div>
               </button>
               
               {/* Custom Autocomplete Suggestions */}
