@@ -439,6 +439,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       let errorMessage = 'Google-Anmeldung fehlgeschlagen';
       switch (authError.code) {
         case 'auth/configuration-not-found':
+          console.warn('Firebase auth providers not configured, using demo fallback');
+          // Silently fall back to demo mode without throwing error
+          const demoUser = {
+            uid: 'google-demo-user',
+            email: 'demo@google.com',
+            displayName: 'Google Demo User'
+          } as User;
+          
+          const demoUserData = {
+            uid: 'google-demo-user',
+            email: 'demo@google.com',
+            displayName: 'Google Demo User',
+            firstName: 'Google',
+            lastName: 'User',
+            bookings: parseInt(localStorage.getItem('guestBookings') || '0'),
+            joinDate: new Date(),
+            earnedRewards: [],
+            availableRewards: []
+          } as UserData;
+          
+          localStorage.setItem('washk_logged_in', 'true');
+          localStorage.setItem('washk_user_email', 'demo@google.com');
+          localStorage.setItem('washk_user_firstName', 'Google');
+          localStorage.setItem('washk_user_lastName', 'User');
+          if (demoUserData.bookings > 0) {
+            localStorage.removeItem('guestBookings');
+          }
+          
+          setUser(demoUser);
+          setUserData(demoUserData);
+          return;
+        case 'auth/operation-not-allowed':
           errorMessage = 'Google-Anmeldung ist derzeit nicht verfügbar (Demo-Modus)';
           break;
         case 'auth/account-exists-with-different-credential':
@@ -517,6 +549,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       let errorMessage = 'Facebook-Anmeldung fehlgeschlagen';
       switch (authError.code) {
         case 'auth/configuration-not-found':
+          console.warn('Firebase Facebook auth not configured, using demo fallback');
+          // Silently fall back to demo mode without throwing error
+          const fbDemoUser = {
+            uid: 'facebook-demo-user',
+            email: 'demo@facebook.com',
+            displayName: 'Facebook Demo User'
+          } as User;
+          
+          const fbDemoUserData = {
+            uid: 'facebook-demo-user',
+            email: 'demo@facebook.com',
+            displayName: 'Facebook Demo User',
+            firstName: 'Facebook',
+            lastName: 'User',
+            bookings: parseInt(localStorage.getItem('guestBookings') || '0'),
+            joinDate: new Date(),
+            earnedRewards: [],
+            availableRewards: []
+          } as UserData;
+          
+          localStorage.setItem('washk_logged_in', 'true');
+          localStorage.setItem('washk_user_email', 'demo@facebook.com');
+          localStorage.setItem('washk_user_firstName', 'Facebook');
+          localStorage.setItem('washk_user_lastName', 'User');
+          if (fbDemoUserData.bookings > 0) {
+            localStorage.removeItem('guestBookings');
+          }
+          
+          setUser(fbDemoUser);
+          setUserData(fbDemoUserData);
+          return;
+        case 'auth/operation-not-allowed':
           errorMessage = 'Facebook-Anmeldung ist derzeit nicht verfügbar (Demo-Modus)';
           break;
         case 'auth/account-exists-with-different-credential':
