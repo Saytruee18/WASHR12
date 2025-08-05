@@ -29,9 +29,9 @@ The backend follows a simple Flask application pattern with clear separation of 
 - **Session Management**: Flask sessions with configurable secret key
 
 ### Data Storage
-The application uses SQLite for simplicity and portability:
+The application uses PostgreSQL for scalability and production readiness:
 
-- **Database**: SQLite with single table design for lead storage
+- **Database**: PostgreSQL with single table design for lead storage
 - **Schema**: Simple leads table with id, gmail, and timestamp fields
 - **Data Validation**: Server-side email validation requiring Gmail addresses
 - **Duplicate Prevention**: Database-level checks to prevent duplicate email entries
