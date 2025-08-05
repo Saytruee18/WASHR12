@@ -1,0 +1,559 @@
+/* ================================
+   MOOG COMIC BINDER - DARK THEME
+   ================================ */
+
+:root {
+    --bg-primary: #0d0d0d;
+    --bg-secondary: #1a1a1a;
+    --bg-accent: #2d2d2d;
+    --text-primary: #ffffff;
+    --text-secondary: #cccccc;
+    --text-muted: #888888;
+    --accent-red: #dc3545;
+    --accent-red-hover: #bb2d3b;
+    --accent-red-glow: rgba(220, 53, 69, 0.3);
+    --shadow-color: rgba(220, 53, 69, 0.2);
+    --glow-color: rgba(220, 53, 69, 0.4);
+}
+
+/* ================================
+   BASE STYLES
+   ================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+    color: var(--text-primary);
+    font-family: 'Comic Neue', cursive;
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+.main-container {
+    padding: 20px 15px;
+    min-height: 100vh;
+}
+
+/* ================================
+   TYPOGRAPHY
+   ================================ */
+
+.comic-title {
+    font-family: 'Bangers', cursive;
+    font-size: 3.5rem;
+    color: var(--accent-red);
+    text-shadow: 
+        3px 3px 0 #000,
+        -1px -1px 0 #000,
+        1px -1px 0 #000,
+        -1px 1px 0 #000,
+        1px 1px 0 #000,
+        0 0 20px var(--glow-color);
+    letter-spacing: 3px;
+    margin-bottom: 0.5rem;
+}
+
+.subtitle {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    font-weight: 400;
+    margin-bottom: 2rem;
+}
+
+/* ================================
+   COMIC SECTION
+   ================================ */
+
+.comic-section {
+    position: relative;
+    margin-bottom: 3rem;
+}
+
+.comic-container {
+    position: relative;
+    display: inline-block;
+    max-width: 100%;
+}
+
+.comic-cover {
+    max-width: 100%;
+    height: auto;
+    border-radius: 15px;
+    box-shadow: 
+        0 10px 30px rgba(0,0,0,0.5),
+        0 0 50px var(--shadow-color);
+    transition: all 0.3s ease;
+    border: 3px solid var(--accent-red);
+}
+
+.comic-cover:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 
+        0 20px 40px rgba(0,0,0,0.7),
+        0 0 80px var(--glow-color);
+}
+
+.comic-glow {
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    right: -10px;
+    bottom: -10px;
+    background: linear-gradient(45deg, var(--accent-red), transparent, var(--accent-red));
+    border-radius: 20px;
+    z-index: -1;
+    opacity: 0.3;
+    animation: glow-pulse 3s ease-in-out infinite alternate;
+}
+
+@keyframes glow-pulse {
+    0% { opacity: 0.2; }
+    100% { opacity: 0.5; }
+}
+
+/* ================================
+   COUNTDOWN SECTION
+   ================================ */
+
+.countdown-section {
+    background: var(--bg-accent);
+    border-radius: 20px;
+    padding: 2rem;
+    margin: 2rem 0;
+    border: 2px solid var(--accent-red);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.countdown-title {
+    font-family: 'Bangers', cursive;
+    font-size: 2rem;
+    color: var(--accent-red);
+    margin-bottom: 1.5rem;
+    text-shadow: 2px 2px 0 #000;
+}
+
+.countdown-display {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.countdown-item {
+    background: linear-gradient(135deg, var(--bg-primary), var(--bg-secondary));
+    border: 2px solid var(--accent-red);
+    border-radius: 15px;
+    padding: 1rem;
+    min-width: 80px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    transition: all 0.3s ease;
+}
+
+.countdown-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px var(--shadow-color);
+}
+
+.countdown-number {
+    display: block;
+    font-family: 'Bangers', cursive;
+    font-size: 2.5rem;
+    color: var(--accent-red);
+    text-shadow: 2px 2px 0 #000;
+    animation: number-pulse 1s ease-in-out infinite;
+}
+
+.countdown-label {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+@keyframes number-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+/* ================================
+   EMAIL SECTION
+   ================================ */
+
+.email-section {
+    background: var(--bg-accent);
+    border-radius: 20px;
+    padding: 2rem;
+    border: 2px solid var(--text-muted);
+    transition: all 0.3s ease;
+}
+
+.email-section:hover {
+    border-color: var(--accent-red);
+    box-shadow: 0 10px 30px var(--shadow-color);
+}
+
+.email-title {
+    font-family: 'Bangers', cursive;
+    font-size: 1.8rem;
+    color: var(--text-primary);
+    text-shadow: 2px 2px 0 #000;
+}
+
+.email-subtitle {
+    color: var(--text-secondary);
+    font-size: 1rem;
+}
+
+.email-input {
+    background: var(--bg-primary);
+    border: 2px solid var(--text-muted);
+    color: var(--text-primary);
+    border-radius: 10px;
+    padding: 0.75rem;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+}
+
+.email-input:focus {
+    background: var(--bg-primary);
+    border-color: var(--accent-red);
+    color: var(--text-primary);
+    box-shadow: 0 0 20px var(--shadow-color);
+}
+
+.email-input::placeholder {
+    color: var(--text-muted);
+}
+
+.email-btn {
+    border: 2px solid var(--accent-red);
+    background: var(--accent-red);
+    color: var(--text-primary);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.email-btn:hover {
+    background: var(--accent-red-hover);
+    border-color: var(--accent-red-hover);
+    color: var(--text-primary);
+    transform: scale(1.05);
+}
+
+/* ================================
+   PREORDER SECTION
+   ================================ */
+
+.preorder-section {
+    margin: 3rem 0;
+}
+
+.preorder-btn {
+    font-family: 'Bangers', cursive;
+    font-size: 1.8rem;
+    padding: 1rem 2.5rem;
+    border-radius: 15px;
+    background: linear-gradient(135deg, var(--accent-red), var(--accent-red-hover));
+    border: 3px solid var(--accent-red);
+    color: var(--text-primary);
+    text-decoration: none;
+    text-shadow: 2px 2px 0 #000;
+    box-shadow: 
+        0 10px 30px rgba(0,0,0,0.3),
+        0 0 40px var(--shadow-color);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.preorder-btn:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 
+        0 20px 40px rgba(0,0,0,0.5),
+        0 0 60px var(--glow-color);
+    color: var(--text-primary);
+}
+
+.preorder-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: all 0.5s ease;
+}
+
+.preorder-btn:hover::before {
+    left: 100%;
+}
+
+.btn-subtitle {
+    font-family: 'Comic Neue', cursive;
+    font-size: 0.8rem;
+    font-weight: normal;
+    opacity: 0.9;
+    text-shadow: none;
+}
+
+.preorder-info {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-top: 1rem;
+}
+
+.pulse {
+    animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 10px 30px rgba(0,0,0,0.3), 0 0 40px var(--shadow-color); }
+    50% { box-shadow: 0 15px 35px rgba(0,0,0,0.4), 0 0 60px var(--glow-color); }
+}
+
+/* ================================
+   FEATURES SECTION
+   ================================ */
+
+.features-section {
+    margin: 3rem 0;
+}
+
+.feature-item {
+    background: var(--bg-accent);
+    border-radius: 15px;
+    padding: 2rem 1.5rem;
+    text-align: center;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.feature-item:hover {
+    border-color: var(--accent-red);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px var(--shadow-color);
+}
+
+.feature-icon {
+    font-size: 3rem;
+    color: var(--accent-red);
+    margin-bottom: 1rem;
+    text-shadow: 0 0 20px var(--glow-color);
+}
+
+.feature-item h4 {
+    font-family: 'Bangers', cursive;
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    text-shadow: 1px 1px 0 #000;
+}
+
+.feature-item p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+/* ================================
+   FOOTER
+   ================================ */
+
+.footer-section {
+    border-top: 2px solid var(--bg-accent);
+    padding-top: 2rem;
+    margin-top: 3rem;
+}
+
+.footer-text {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.social-links {
+    margin-top: 1rem;
+}
+
+.social-link {
+    color: var(--text-muted);
+    font-size: 1.5rem;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.social-link:hover {
+    color: var(--accent-red);
+    transform: scale(1.2);
+    text-shadow: 0 0 10px var(--glow-color);
+}
+
+/* ================================
+   ANIMATIONS
+   ================================ */
+
+.fade-in {
+    animation: fadeIn 1s ease-out;
+}
+
+.fade-in-delay {
+    animation: fadeIn 1s ease-out 0.3s both;
+}
+
+.fade-in-delay-2 {
+    animation: fadeIn 1s ease-out 0.6s both;
+}
+
+.fade-in-delay-3 {
+    animation: fadeIn 1s ease-out 0.9s both;
+}
+
+.fade-in-delay-4 {
+    animation: fadeIn 1s ease-out 1.2s both;
+}
+
+.slide-in {
+    animation: slideInUp 1s ease-out 0.2s both;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInUp {
+    from { opacity: 0; transform: translateY(50px) scale(0.9); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ================================
+   RESPONSIVE DESIGN
+   ================================ */
+
+@media (max-width: 768px) {
+    .comic-title {
+        font-size: 2.5rem;
+        letter-spacing: 2px;
+    }
+    
+    .countdown-display {
+        gap: 0.5rem;
+    }
+    
+    .countdown-item {
+        min-width: 70px;
+        padding: 0.75rem;
+    }
+    
+    .countdown-number {
+        font-size: 2rem;
+    }
+    
+    .countdown-label {
+        font-size: 0.8rem;
+    }
+    
+    .preorder-btn {
+        font-size: 1.5rem;
+        padding: 0.75rem 2rem;
+    }
+    
+    .email-section,
+    .countdown-section {
+        padding: 1.5rem;
+    }
+    
+    .feature-item {
+        margin-bottom: 1rem;
+        padding: 1.5rem 1rem;
+    }
+    
+    .feature-icon {
+        font-size: 2.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .main-container {
+        padding: 15px 10px;
+    }
+    
+    .comic-title {
+        font-size: 2rem;
+        letter-spacing: 1px;
+    }
+    
+    .countdown-title {
+        font-size: 1.5rem;
+    }
+    
+    .countdown-number {
+        font-size: 1.5rem;
+    }
+    
+    .countdown-item {
+        min-width: 60px;
+        padding: 0.5rem;
+    }
+    
+    .preorder-btn {
+        font-size: 1.3rem;
+        padding: 0.75rem 1.5rem;
+    }
+    
+    .email-section,
+    .countdown-section {
+        padding: 1rem;
+        margin: 1.5rem 0;
+    }
+}
+
+/* ================================
+   TOAST STYLES
+   ================================ */
+
+.toast {
+    background: var(--bg-accent);
+    border: 2px solid var(--accent-red);
+    color: var(--text-primary);
+}
+
+.toast-header {
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--accent-red);
+    color: var(--text-primary);
+}
+
+.toast-body {
+    color: var(--text-primary);
+}
+
+/* ================================
+   FORM VALIDATION
+   ================================ */
+
+.form-control:invalid {
+    border-color: #dc3545;
+}
+
+.form-control:valid {
+    border-color: #28a745;
+}
+
+.is-invalid {
+    border-color: var(--accent-red) !important;
+}
+
+.is-valid {
+    border-color: #28a745 !important;
+}
