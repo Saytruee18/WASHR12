@@ -67,49 +67,53 @@
                     </div>
                 </section>
 
-                <!-- Combined Action Section -->
-                <section class="action-section mb-5 fade-in-delay-2">
-                    <div class="action-container">
-                        <div class="action-header text-center mb-4">
-                            <h3 class="action-title">
-                                <i class="fas fa-rocket"></i>
-                                Secure your copy – we'll notify you before the drop
-                            </h3>
+                <!-- Comic CTA Card -->
+                <section class="comic-cta-card mb-5 fade-in-delay-2">
+                    <div class="comic-panel">
+                        <div class="panel-header text-center mb-4">
+                            <h2 class="comic-headline">
+                                <span class="headline-text">Ready to secure your copy?</span>
+                                <div class="headline-burst">POW!</div>
+                            </h2>
+                            <p class="comic-subtext">
+                                Enter your Gmail (optional) – we'll remind you before the drop.
+                            </p>
                         </div>
                         
                         <!-- Email Input -->
-                        <form id="emailForm" class="email-form mb-4">
-                            <div class="comic-input-group">
+                        <form id="emailForm" class="comic-form mb-4">
+                            <div class="comic-input-wrapper">
                                 <input type="email" 
-                                       class="form-control comic-email-input" 
+                                       class="comic-input" 
                                        id="gmailInput" 
                                        name="gmail"
                                        placeholder="your.email@gmail.com"
                                        pattern=".*@gmail\.com$">
-                                <button class="btn comic-notify-btn" type="button" onclick="captureEmail()">
+                                <button class="comic-notify-btn" type="button" onclick="captureEmail()">
                                     <i class="fas fa-bell"></i>
-                                    Notify Me
+                                    <span>Remind Me</span>
                                 </button>
                             </div>
-                            <small class="form-text comic-form-text text-center d-block mt-2">
-                                Enter your Gmail for exclusive updates (optional)
-                            </small>
                         </form>
                         
-                        <!-- Preorder Button -->
-                        <div class="preorder-container text-center">
+                        <!-- Comic Preorder Button -->
+                        <div class="comic-button-container text-center">
                             <a href="https://gumroad.com/l/moogtest" 
-                               class="gumroad-button btn comic-preorder-btn pulse"
-                               data-gumroad-single-product="true">
-                                <div class="btn-content">
-                                    <i class="fas fa-shopping-cart btn-icon"></i>
-                                    <span class="btn-text">PREORDER NOW</span>
-                                    <small class="btn-subtitle">Limited Edition Release</small>
+                               class="comic-boom-btn"
+                               data-gumroad-single-product="true"
+                               onclick="triggerBoomEffect(this)">
+                                <span class="btn-bg-layer"></span>
+                                <span class="btn-border-layer"></span>
+                                <div class="btn-content-layer">
+                                    <i class="fas fa-bolt btn-lightning"></i>
+                                    <span class="btn-main-text">PREORDER NOW!</span>
+                                    <span class="btn-sub-text">Limited Edition</span>
                                 </div>
+                                <div class="btn-glow-effect"></div>
                             </a>
-                            <p class="preorder-info mt-3">
+                            <p class="comic-security-text mt-3">
                                 <i class="fas fa-shield-alt"></i>
-                                Secure checkout via Gumroad • 30-day money-back guarantee
+                                Secure Gumroad checkout • Money-back guarantee
                             </p>
                         </div>
                     </div>
@@ -172,27 +176,33 @@
         </div>
     </div>
 
-    <!-- Floating Reminder Popup -->
-    <div id="floatingReminder" class="floating-reminder">
-        <div class="reminder-content">
-            <button type="button" class="reminder-close" onclick="hideReminder()">
+    <!-- Comic Cliffhanger Banner -->
+    <div id="floatingReminder" class="comic-cliffhanger-banner">
+        <div class="cliffhanger-content">
+            <button type="button" class="cliffhanger-close" onclick="hideReminder()">
                 <i class="fas fa-times"></i>
             </button>
-            <div class="reminder-text">
-                <h4><i class="fas fa-clock"></i> Still thinking?</h4>
-                <p>Enter your Gmail to get notified – or Preorder now.</p>
+            <div class="cliffhanger-text">
+                <div class="cliffhanger-headline">
+                    <span class="headline-main">Still thinking?</span>
+                    <div class="headline-emphasis">DON'T MISS THE DROP!</div>
+                </div>
+                <p class="cliffhanger-message">Preorder now or enter your Gmail!</p>
             </div>
-            <div class="reminder-actions">
-                <button class="btn reminder-notify-btn" onclick="focusEmailInput()">
-                    <i class="fas fa-bell"></i> Notify Me
-                </button>
+            <div class="cliffhanger-actions">
                 <a href="https://gumroad.com/l/moogtest" 
-                   class="btn reminder-preorder-btn"
-                   data-gumroad-single-product="true">
-                    <i class="fas fa-shopping-cart"></i> Preorder Now
+                   class="cliffhanger-preorder-btn"
+                   data-gumroad-single-product="true"
+                   onclick="triggerBoomEffect(this)">
+                    <span class="btn-spark">⚡</span>
+                    PREORDER NOW!
                 </a>
+                <button class="cliffhanger-remind-btn" onclick="focusEmailInput()">
+                    <i class="fas fa-bell"></i> Remind Me
+                </button>
             </div>
         </div>
+        <div class="cliffhanger-bg-pattern"></div>
     </div>
 
     <!-- Bootstrap JS -->

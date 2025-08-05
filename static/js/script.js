@@ -118,7 +118,7 @@ function captureEmail() {
     const button = document.querySelector('.comic-notify-btn');
     if (!button) return;
     const originalContent = button.innerHTML;
-    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Saving...</span>';
     button.disabled = true;
     
     // Send email to backend
@@ -223,7 +223,7 @@ function initializeAnimations() {
     }
     
     // Add pulse effect to preorder button on scroll
-    const preorderBtn = document.querySelector('.comic-preorder-btn');
+    const preorderBtn = document.querySelector('.comic-boom-btn');
     let pulseInterval;
     
     const startPulse = () => {
@@ -289,7 +289,7 @@ function debugMode() {
     });
 }
 
-// Add CSS class for additional pulse effect
+// Add CSS class for additional pulse effect and boom animation
 const style = document.createElement('style');
 style.textContent = `
     .pulse-extra {
@@ -303,6 +303,91 @@ style.textContent = `
     
     .animate-in {
         animation: slideInUp 0.6s ease-out;
+    }
+    
+    .boom-effect {
+        position: fixed;
+        pointer-events: none;
+        z-index: 9999;
+        animation: boom-appear 0.8s ease-out forwards;
+    }
+    
+    .boom-text {
+        font-family: 'Bangers', cursive;
+        font-size: 3rem;
+        color: #ffff00;
+        text-shadow: 
+            4px 4px 0 #000,
+            -2px -2px 0 #000,
+            2px -2px 0 #000,
+            -2px 2px 0 #000,
+            0 0 20px rgba(255,255,0,0.8);
+        letter-spacing: 3px;
+        text-align: center;
+        animation: boom-text-pop 0.8s ease-out;
+    }
+    
+    .boom-circle {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 100px;
+        height: 100px;
+        border: 5px solid #ff0033;
+        border-radius: 50%;
+        animation: boom-circle-expand 0.8s ease-out;
+    }
+    
+    .boom-stars {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+    
+    .boom-stars span {
+        position: absolute;
+        font-size: 1.5rem;
+        color: #ffff00;
+        text-shadow: 2px 2px 0 #000;
+        animation: boom-stars-scatter 0.8s ease-out;
+    }
+    
+    .boom-stars span:nth-child(1) { top: -30px; left: -20px; animation-delay: 0.1s; }
+    .boom-stars span:nth-child(2) { top: -35px; right: -15px; animation-delay: 0.2s; }
+    .boom-stars span:nth-child(3) { bottom: -30px; left: -25px; animation-delay: 0.3s; }
+    .boom-stars span:nth-child(4) { bottom: -35px; right: -20px; animation-delay: 0.1s; }
+    .boom-stars span:nth-child(5) { top: -20px; left: 30px; animation-delay: 0.2s; }
+    .boom-stars span:nth-child(6) { bottom: -20px; right: 35px; animation-delay: 0.3s; }
+    
+    @keyframes boom-appear {
+        0% { opacity: 0; transform: translate(-50%, -50%) scale(0.3); }
+        20% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+        100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+    }
+    
+    @keyframes boom-text-pop {
+        0% { transform: scale(0.5) rotate(-10deg); opacity: 0; }
+        50% { transform: scale(1.3) rotate(5deg); opacity: 1; }
+        100% { transform: scale(1) rotate(0deg); opacity: 0; }
+    }
+    
+    @keyframes boom-circle-expand {
+        0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+        100% { transform: translate(-50%, -50%) scale(3); opacity: 0; }
+    }
+    
+    @keyframes boom-stars-scatter {
+        0% { transform: translate(0, 0) scale(0); opacity: 0; }
+        50% { opacity: 1; }
+        100% { transform: translate(var(--x, 0), var(--y, 0)) scale(1.5); opacity: 0; }
+    }
+    
+    @keyframes button-boom-shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px) rotate(-2deg); }
+        75% { transform: translateX(5px) rotate(2deg); }
     }
 `;
 document.head.appendChild(style);
@@ -374,6 +459,45 @@ function focusEmailInput() {
             emailInput.focus();
         }, 500);
     }
+}
+
+// Boom effect for comic buttons
+function triggerBoomEffect(button) {
+    // Create boom animation container
+    const boom = document.createElement('div');
+    boom.className = 'boom-effect';
+    boom.innerHTML = `
+        <div class="boom-text">POW!</div>
+        <div class="boom-circle"></div>
+        <div class="boom-stars">
+            <span>★</span><span>★</span><span>★</span>
+            <span>✦</span><span>✦</span><span>✦</span>
+        </div>
+    `;
+    
+    // Position boom effect
+    const rect = button.getBoundingClientRect();
+    boom.style.position = 'fixed';
+    boom.style.left = (rect.left + rect.width / 2) + 'px';
+    boom.style.top = (rect.top + rect.height / 2) + 'px';
+    boom.style.transform = 'translate(-50%, -50%)';
+    boom.style.pointerEvents = 'none';
+    boom.style.zIndex = '9999';
+    
+    document.body.appendChild(boom);
+    
+    // Remove boom effect after animation
+    setTimeout(() => {
+        if (boom.parentNode) {
+            boom.parentNode.removeChild(boom);
+        }
+    }, 800);
+    
+    // Add button shake effect
+    button.style.animation = 'button-boom-shake 0.3s ease-out';
+    setTimeout(() => {
+        button.style.animation = '';
+    }, 300);
 }
 
 // ================================
