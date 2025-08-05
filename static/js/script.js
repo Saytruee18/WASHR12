@@ -12,155 +12,219 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ================================
-// COMIC BOOK FLIP INTERACTION
+// COMIC BOOK 3D ROTATION
 // ================================
 
 function initializeComicFlip() {
     const comicBook = document.querySelector('.comic-book');
     const comicContainer = document.querySelector('.comic-book-container');
+    const comicInner = document.querySelector('.comic-book-inner');
     
-    if (!comicBook || !comicContainer) {
-        console.log('Comic book element not found');
+    if (!comicBook || !comicContainer || !comicInner) {
+        console.log('Comic book elements not found');
         return;
     }
     
-    let isFlipped = false;
-    let isDragging = false;
-    let startX = 0;
-    let startY = 0;
-    let dragThreshold = 50; // pixels to trigger flip
+    // Add interactive class for performance optimization
+    comicBook.classList.add('interactive');
     
-    // Toggle flip state
-    function toggleFlip() {
-        isFlipped = !isFlipped;
-        comicBook.classList.toggle('flipped', isFlipped);
+    // Rotation sensitivity settings (adjustable)
+    const rotationSettings = {
+        maxRotationX: 25,    // Maximum X-axis rotation in degrees
+        maxRotationY: 180,   // Maximum Y-axis rotation in degrees (full flip)
+        sensitivity: 0.8,    // Sensitivity multiplier (lower = less sensitive)
+        smoothing: 0.1,      // Smoothing factor for transitions
+        resetSpeed: 0.05     // Speed of return to center when not interacting
+    };
+    
+    let isInteracting = false;
+    let currentRotationX = 0;
+    let currentRotationY = 0;
+    let targetRotationX = 0;
+    let targetRotationY = 0;
+    let animationId = null;
+    
+    // Get container bounds for calculation
+    function getContainerBounds() {
+        return comicContainer.getBoundingClientRect();
+    }
+    
+    // Calculate rotation based on pointer position
+    function calculateRotation(clientX, clientY) {
+        const bounds = getContainerBounds();
+        const centerX = bounds.left + bounds.width / 2;
+        const centerY = bounds.top + bounds.height / 2;
         
-        // Update instruction text
-        const instruction = document.querySelector('.flip-instruction .flip-text');
-        if (instruction) {
-            instruction.textContent = isFlipped ? 'Click or drag to flip back' : 'Click or drag to flip';
+        // Calculate normalized coordinates (-1 to 1)
+        const normalizedX = ((clientX - centerX) / (bounds.width / 2)) * rotationSettings.sensitivity;
+        const normalizedY = ((clientY - centerY) / (bounds.height / 2)) * rotationSettings.sensitivity;
+        
+        // Calculate rotation angles
+        const rotationY = Math.max(-rotationSettings.maxRotationY, 
+                         Math.min(rotationSettings.maxRotationY, normalizedX * rotationSettings.maxRotationY));
+        const rotationX = Math.max(-rotationSettings.maxRotationX, 
+                         Math.min(rotationSettings.maxRotationX, -normalizedY * rotationSettings.maxRotationX));
+        
+        return { x: rotationX, y: rotationY };
+    }
+    
+    // Apply 3D transform with dynamic shadows
+    function applyTransform() {
+        // Smooth interpolation to target rotation
+        currentRotationX += (targetRotationX - currentRotationX) * rotationSettings.smoothing;
+        currentRotationY += (targetRotationY - currentRotationY) * rotationSettings.smoothing;
+        
+        // Apply transform to the inner container
+        comicInner.style.transform = `rotateX(${currentRotationX}deg) rotateY(${currentRotationY}deg)`;
+        
+        // Dynamic shadow and visual effects based on rotation
+        updateVisualEffects();
+        
+        // Continue animation if still needed
+        if (Math.abs(targetRotationX - currentRotationX) > 0.1 || 
+            Math.abs(targetRotationY - currentRotationY) > 0.1) {
+            animationId = requestAnimationFrame(applyTransform);
+        } else {
+            animationId = null;
         }
+    }
+    
+    // Update visual effects based on rotation
+    function updateVisualEffects() {
+        const absRotationY = Math.abs(currentRotationY);
+        const isShowingBack = absRotationY > 90;
         
-        console.log(`Comic book ${isFlipped ? 'flipped to back' : 'flipped to front'}`);
+        // Update classes for styling
+        comicBook.classList.toggle('showing-back', isShowingBack);
+        comicBook.classList.toggle('rotating-y-pos', currentRotationY > 15);
+        comicBook.classList.toggle('rotating-y-neg', currentRotationY < -15);
+        
+        // Dynamic shadow calculation
+        const shadowIntensity = Math.abs(currentRotationX) / rotationSettings.maxRotationX;
+        const shadowOffsetX = currentRotationY * 0.3;
+        const shadowOffsetY = Math.abs(currentRotationX) * 0.5 + 10;
+        const shadowBlur = Math.abs(currentRotationX) + Math.abs(currentRotationY * 0.3) + 15;
+        
+        // Apply dynamic shadows
+        const frontElement = document.querySelector('.comic-front');
+        const backElement = document.querySelector('.comic-back');
+        
+        if (frontElement && backElement) {
+            const baseShadow = `${shadowOffsetX}px ${shadowOffsetY}px ${shadowBlur}px rgba(0,0,0,${0.4 + shadowIntensity * 0.3})`;
+            
+            if (isShowingBack) {
+                backElement.style.boxShadow = `${baseShadow}, 0 2px 8px rgba(0,0,0,0.4)`;
+                frontElement.style.boxShadow = `0 5px 15px rgba(0,0,0,0.3)`;
+            } else {
+                frontElement.style.boxShadow = `${baseShadow}, 0 0 50px var(--shadow-color), 0 5px 15px rgba(220, 53, 69, 0.3)`;
+                backElement.style.boxShadow = `0 10px 30px rgba(0,0,0,0.4)`;
+            }
+        }
+    }
+    
+    // Start or continue smooth animation
+    function startAnimation() {
+        if (!animationId) {
+            animationId = requestAnimationFrame(applyTransform);
+        }
+    }
+    
+    // Reset to center position
+    function resetRotation() {
+        isInteracting = false;
+        targetRotationX = 0;
+        targetRotationY = 0;
+        startAnimation();
     }
     
     // Mouse Events
-    comicBook.addEventListener('click', (e) => {
-        if (!isDragging) {
-            e.preventDefault();
-            toggleFlip();
-        }
+    comicContainer.addEventListener('mouseenter', () => {
+        isInteracting = true;
     });
     
-    comicBook.addEventListener('mousedown', (e) => {
-        isDragging = false;
-        startX = e.clientX;
-        startY = e.clientY;
-        comicBook.style.cursor = 'grabbing';
-    });
-    
-    comicBook.addEventListener('mousemove', (e) => {
-        if (startX === 0) return;
+    comicContainer.addEventListener('mousemove', (e) => {
+        if (!isInteracting) return;
         
-        const deltaX = Math.abs(e.clientX - startX);
-        const deltaY = Math.abs(e.clientY - startY);
-        
-        // If moved more than threshold, consider it a drag
-        if (deltaX > 10 || deltaY > 10) {
-            isDragging = true;
-        }
-        
-        // Check for horizontal drag to flip
-        if (isDragging && deltaX > dragThreshold) {
-            toggleFlip();
-            startX = 0;
-            startY = 0;
-            isDragging = false;
-            comicBook.style.cursor = 'pointer';
-        }
+        const rotation = calculateRotation(e.clientX, e.clientY);
+        targetRotationX = rotation.x;
+        targetRotationY = rotation.y;
+        startAnimation();
     });
     
-    comicBook.addEventListener('mouseup', () => {
-        startX = 0;
-        startY = 0;
-        setTimeout(() => {
-            isDragging = false;
-        }, 100);
-        comicBook.style.cursor = 'pointer';
-    });
-    
-    comicBook.addEventListener('mouseleave', () => {
-        startX = 0;
-        startY = 0;
-        isDragging = false;
-        comicBook.style.cursor = 'pointer';
+    comicContainer.addEventListener('mouseleave', () => {
+        resetRotation();
     });
     
     // Touch Events for Mobile
-    comicBook.addEventListener('touchstart', (e) => {
+    comicContainer.addEventListener('touchstart', (e) => {
         if (e.touches.length === 1) {
-            isDragging = false;
+            isInteracting = true;
             const touch = e.touches[0];
-            startX = touch.clientX;
-            startY = touch.clientY;
+            const rotation = calculateRotation(touch.clientX, touch.clientY);
+            targetRotationX = rotation.x;
+            targetRotationY = rotation.y;
+            startAnimation();
         }
     });
     
-    comicBook.addEventListener('touchmove', (e) => {
-        if (e.touches.length === 1 && startX !== 0) {
+    comicContainer.addEventListener('touchmove', (e) => {
+        if (e.touches.length === 1 && isInteracting) {
             e.preventDefault();
             const touch = e.touches[0];
-            const deltaX = Math.abs(touch.clientX - startX);
-            const deltaY = Math.abs(touch.clientY - startY);
-            
-            // If moved more than threshold, consider it a drag
-            if (deltaX > 10 || deltaY > 10) {
-                isDragging = true;
-            }
-            
-            // Check for horizontal swipe to flip
-            if (isDragging && deltaX > dragThreshold) {
-                toggleFlip();
-                startX = 0;
-                startY = 0;
-                isDragging = false;
-            }
+            const rotation = calculateRotation(touch.clientX, touch.clientY);
+            targetRotationX = rotation.x;
+            targetRotationY = rotation.y;
+            startAnimation();
         }
     });
     
-    comicBook.addEventListener('touchend', (e) => {
-        // If it was a tap (not a drag), toggle flip
-        if (!isDragging && startX !== 0) {
-            e.preventDefault();
-            toggleFlip();
-        }
-        
-        startX = 0;
-        startY = 0;
-        setTimeout(() => {
-            isDragging = false;
-        }, 100);
+    comicContainer.addEventListener('touchend', () => {
+        resetRotation();
     });
     
-    // Prevent context menu on long press
-    comicBook.addEventListener('contextmenu', (e) => {
+    // Prevent context menu
+    comicContainer.addEventListener('contextmenu', (e) => {
         e.preventDefault();
     });
     
+    // Make focusable for accessibility
+    comicBook.setAttribute('tabindex', '0');
+    comicBook.setAttribute('role', 'img');
+    comicBook.setAttribute('aria-label', 'Interactive 3D comic book - move mouse or touch to rotate');
+    
     // Keyboard support for accessibility
     comicBook.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            toggleFlip();
+        const step = 15;
+        switch(e.key) {
+            case 'ArrowLeft':
+                e.preventDefault();
+                targetRotationY = Math.max(-rotationSettings.maxRotationY, targetRotationY - step);
+                startAnimation();
+                break;
+            case 'ArrowRight':
+                e.preventDefault();
+                targetRotationY = Math.min(rotationSettings.maxRotationY, targetRotationY + step);
+                startAnimation();
+                break;
+            case 'ArrowUp':
+                e.preventDefault();
+                targetRotationX = Math.max(-rotationSettings.maxRotationX, targetRotationX - step);
+                startAnimation();
+                break;
+            case 'ArrowDown':
+                e.preventDefault();
+                targetRotationX = Math.min(rotationSettings.maxRotationX, targetRotationX + step);
+                startAnimation();
+                break;
+            case 'Enter':
+            case ' ':
+                e.preventDefault();
+                resetRotation();
+                break;
         }
     });
     
-    // Make it focusable for keyboard users
-    comicBook.setAttribute('tabindex', '0');
-    comicBook.setAttribute('role', 'button');
-    comicBook.setAttribute('aria-label', 'Comic book - click or press Enter to flip');
-    
-    console.log('Comic book flip interaction initialized');
+    console.log('3D comic book rotation initialized with settings:', rotationSettings);
 }
 
 // ================================

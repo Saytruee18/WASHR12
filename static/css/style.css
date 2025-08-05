@@ -76,7 +76,7 @@ body {
 }
 
 /* ================================
-   COMIC BOOK FLIP CARD
+   COMIC BOOK 3D ROTATION
    ================================ */
 
 .comic-book-container {
@@ -85,31 +85,32 @@ body {
     max-width: 300px;
     width: 100%;
     margin: 0 auto;
+    perspective: 1200px;
+    perspective-origin: center center;
 }
 
 .comic-book {
     position: relative;
     width: 100%;
     height: 400px;
-    perspective: 1200px;
-    cursor: pointer;
+    transform-style: preserve-3d;
+    transition: transform 0.1s ease-out;
+    cursor: grab;
     user-select: none;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
 }
 
+.comic-book:active {
+    cursor: grabbing;
+}
+
 .comic-book-inner {
     position: relative;
     width: 100%;
     height: 100%;
-    transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     transform-style: preserve-3d;
-    transform-origin: center center;
-}
-
-.comic-book.flipped .comic-book-inner {
-    transform: rotateY(180deg);
 }
 
 .comic-front,
@@ -120,21 +121,25 @@ body {
     backface-visibility: hidden;
     border-radius: 12px;
     overflow: hidden;
-    box-shadow: 
-        0 8px 25px rgba(0, 0, 0, 0.6),
-        0 2px 8px rgba(0, 0, 0, 0.3),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
 .comic-front {
     background: var(--bg-secondary);
     border: 3px solid var(--accent-red);
+    box-shadow: 
+        0 10px 30px rgba(0, 0, 0, 0.6),
+        0 0 50px var(--shadow-color),
+        0 5px 15px rgba(220, 53, 69, 0.3);
 }
 
 .comic-back {
     background: var(--bg-accent);
     border: 3px solid #666666;
     transform: rotateY(180deg);
+    box-shadow: 
+        0 10px 30px rgba(0, 0, 0, 0.6),
+        0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
 .comic-cover-image {
@@ -142,41 +147,53 @@ body {
     height: 100%;
     object-fit: cover;
     display: block;
-    transition: transform 0.3s ease;
 }
 
 /* Book thickness simulation */
 .comic-book::before {
     content: '';
     position: absolute;
-    top: 3px;
-    right: -8px;
-    width: 8px;
-    height: calc(100% - 6px);
+    top: 2px;
+    right: -6px;
+    width: 6px;
+    height: calc(100% - 4px);
     background: linear-gradient(90deg, 
-        rgba(0, 0, 0, 0.8) 0%, 
-        rgba(0, 0, 0, 0.4) 50%, 
-        rgba(0, 0, 0, 0.8) 100%);
-    border-radius: 0 8px 8px 0;
+        rgba(0, 0, 0, 0.9) 0%, 
+        rgba(0, 0, 0, 0.5) 50%, 
+        rgba(0, 0, 0, 0.9) 100%);
+    border-radius: 0 6px 6px 0;
     z-index: -1;
-    transition: opacity 0.3s ease;
+    transform-origin: left center;
+    transition: all 0.1s ease-out;
 }
 
-.comic-book.flipped::before {
-    opacity: 0.5;
+/* Dynamic shadow effects */
+.comic-book.rotating-y-pos::before {
+    transform: scaleX(1.5) translateX(2px);
+    opacity: 0.8;
 }
 
-/* Hover effects */
-.comic-book:hover .comic-book-inner {
-    transform: scale(1.02);
+.comic-book.rotating-y-neg::before {
+    transform: scaleX(0.5) translateX(-2px);
+    opacity: 0.4;
 }
 
-.comic-book.flipped:hover .comic-book-inner {
-    transform: rotateY(180deg) scale(1.02);
+/* Back side styling when visible */
+.comic-book.showing-back .comic-front {
+    box-shadow: 
+        0 5px 15px rgba(0, 0, 0, 0.4),
+        0 2px 8px rgba(0, 0, 0, 0.3);
+    border-color: #666666;
 }
 
-/* Flip instruction */
-.flip-instruction {
+.comic-book.showing-back .comic-back {
+    box-shadow: 
+        0 15px 40px rgba(0, 0, 0, 0.7),
+        0 5px 20px rgba(0, 0, 0, 0.5);
+}
+
+/* Rotation instruction */
+.rotation-instruction {
     position: absolute;
     bottom: -40px;
     left: 50%;
@@ -190,24 +207,23 @@ body {
     transition: opacity 0.3s ease;
 }
 
-.comic-book:hover + .flip-instruction {
+.comic-book-container:hover .rotation-instruction {
     opacity: 1;
     color: var(--text-secondary);
 }
 
-.flip-icon {
-    animation: bounce 2s infinite;
+.rotation-icon {
+    animation: pulse 2s infinite;
 }
 
-@keyframes bounce {
-    0%, 20%, 50%, 80%, 100% {
-        transform: translateY(0);
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 0.8;
     }
-    40% {
-        transform: translateY(-5px);
-    }
-    60% {
-        transform: translateY(-3px);
+    50% {
+        transform: scale(1.1);
+        opacity: 1;
     }
 }
 
@@ -218,18 +234,28 @@ body {
         height: 333px;
     }
     
-    .flip-instruction {
+    .rotation-instruction {
         bottom: -35px;
         font-size: 0.8rem;
     }
     
-    .flip-text {
+    .rotation-text {
         display: none;
     }
     
-    .flip-instruction::after {
-        content: 'Tap to flip';
+    .rotation-instruction::after {
+        content: 'Touch to rotate';
     }
+}
+
+/* Performance optimizations */
+.comic-book.interactive {
+    will-change: transform;
+}
+
+.comic-book.interactive .comic-front,
+.comic-book.interactive .comic-back {
+    will-change: box-shadow, border-color;
 }
 
 /* Removed glow effect - replaced with flip-card */
