@@ -115,7 +115,8 @@ function captureEmail() {
     }
     
     // Show loading state
-    const button = document.querySelector('.email-btn');
+    const button = document.querySelector('.comic-notify-btn');
+    if (!button) return;
     const originalContent = button.innerHTML;
     button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
     button.disabled = true;
@@ -155,6 +156,7 @@ function captureEmail() {
 
 function showToast(message, type = 'success') {
     const toastElement = document.getElementById('emailToast');
+    if (!toastElement) return;
     const toastBody = toastElement.querySelector('.toast-body');
     const toastHeader = toastElement.querySelector('.toast-header');
     
@@ -221,7 +223,7 @@ function initializeAnimations() {
     }
     
     // Add pulse effect to preorder button on scroll
-    const preorderBtn = document.querySelector('.preorder-btn');
+    const preorderBtn = document.querySelector('.comic-preorder-btn');
     let pulseInterval;
     
     const startPulse = () => {
