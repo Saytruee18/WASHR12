@@ -7,224 +7,204 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeAnimations();
     initializeEmailForm();
     initializeFloatingReminder();
-    initializeComicFlip();
+    initializeComicReveal();
     console.log('MOOG Comic Binder loaded successfully!');
 });
 
 // ================================
-// COMIC BOOK 3D ROTATION
+// HIDDEN REVEAL COMIC FLIP
 // ================================
 
-function initializeComicFlip() {
-    const comicBook = document.querySelector('.comic-book');
-    const comicContainer = document.querySelector('.comic-book-container');
-    const comicInner = document.querySelector('.comic-book-inner');
+function initializeComicReveal() {
+    const flipCard = document.querySelector('.comic-flip-card');
+    const flipInner = document.querySelector('.comic-flip-inner');
     
-    if (!comicBook || !comicContainer || !comicInner) {
-        console.log('Comic book elements not found');
+    if (!flipCard || !flipInner) {
+        console.log('Comic flip card elements not found');
         return;
     }
     
-    // Add interactive class for performance optimization
-    comicBook.classList.add('interactive');
-    
-    // Rotation sensitivity settings (adjustable)
-    const rotationSettings = {
-        maxRotationX: 25,    // Maximum X-axis rotation in degrees
-        maxRotationY: 180,   // Maximum Y-axis rotation in degrees (full flip)
-        sensitivity: 0.8,    // Sensitivity multiplier (lower = less sensitive)
-        smoothing: 0.1,      // Smoothing factor for transitions
-        resetSpeed: 0.05     // Speed of return to center when not interacting
+    // Flip settings (adjustable)
+    const flipSettings = {
+        animationDuration: 800,    // Animation duration in milliseconds (0.8s)
+        touchThreshold: 50,        // Minimum swipe distance to trigger flip
+        doubleTapDelay: 300        // Maximum time between taps for double-tap
     };
     
-    let isInteracting = false;
-    let currentRotationX = 0;
-    let currentRotationY = 0;
-    let targetRotationX = 0;
-    let targetRotationY = 0;
-    let animationId = null;
+    let isFlipped = false;
+    let isDragging = false;
+    let startX = 0;
+    let startY = 0;
+    let lastTapTime = 0;
     
-    // Get container bounds for calculation
-    function getContainerBounds() {
-        return comicContainer.getBoundingClientRect();
-    }
+    // Update CSS animation duration
+    flipInner.style.transition = `transform ${flipSettings.animationDuration}ms cubic-bezier(0.25, 0.46, 0.45, 0.94)`;
     
-    // Calculate rotation based on pointer position
-    function calculateRotation(clientX, clientY) {
-        const bounds = getContainerBounds();
-        const centerX = bounds.left + bounds.width / 2;
-        const centerY = bounds.top + bounds.height / 2;
+    // Toggle flip state
+    function toggleFlip() {
+        isFlipped = !isFlipped;
+        flipCard.classList.toggle('flipped', isFlipped);
         
-        // Calculate normalized coordinates (-1 to 1)
-        const normalizedX = ((clientX - centerX) / (bounds.width / 2)) * rotationSettings.sensitivity;
-        const normalizedY = ((clientY - centerY) / (bounds.height / 2)) * rotationSettings.sensitivity;
-        
-        // Calculate rotation angles
-        const rotationY = Math.max(-rotationSettings.maxRotationY, 
-                         Math.min(rotationSettings.maxRotationY, normalizedX * rotationSettings.maxRotationY));
-        const rotationX = Math.max(-rotationSettings.maxRotationX, 
-                         Math.min(rotationSettings.maxRotationX, -normalizedY * rotationSettings.maxRotationX));
-        
-        return { x: rotationX, y: rotationY };
-    }
-    
-    // Apply 3D transform with dynamic shadows
-    function applyTransform() {
-        // Smooth interpolation to target rotation
-        currentRotationX += (targetRotationX - currentRotationX) * rotationSettings.smoothing;
-        currentRotationY += (targetRotationY - currentRotationY) * rotationSettings.smoothing;
-        
-        // Apply transform to the inner container
-        comicInner.style.transform = `rotateX(${currentRotationX}deg) rotateY(${currentRotationY}deg)`;
-        
-        // Dynamic shadow and visual effects based on rotation
-        updateVisualEffects();
-        
-        // Continue animation if still needed
-        if (Math.abs(targetRotationX - currentRotationX) > 0.1 || 
-            Math.abs(targetRotationY - currentRotationY) > 0.1) {
-            animationId = requestAnimationFrame(applyTransform);
-        } else {
-            animationId = null;
+        // Update instruction text
+        const instruction = document.querySelector('.flip-instruction .flip-text');
+        if (instruction) {
+            instruction.textContent = isFlipped ? 
+                'Tap to hide comic' : 
+                'Tap or swipe to reveal comic';
         }
-    }
-    
-    // Update visual effects based on rotation
-    function updateVisualEffects() {
-        const absRotationY = Math.abs(currentRotationY);
-        const isShowingBack = absRotationY > 90;
         
-        // Update classes for styling
-        comicBook.classList.toggle('showing-back', isShowingBack);
-        comicBook.classList.toggle('rotating-y-pos', currentRotationY > 15);
-        comicBook.classList.toggle('rotating-y-neg', currentRotationY < -15);
+        // Log the state change
+        console.log(`Comic ${isFlipped ? 'revealed' : 'hidden'}`);
         
-        // Dynamic shadow calculation
-        const shadowIntensity = Math.abs(currentRotationX) / rotationSettings.maxRotationX;
-        const shadowOffsetX = currentRotationY * 0.3;
-        const shadowOffsetY = Math.abs(currentRotationX) * 0.5 + 10;
-        const shadowBlur = Math.abs(currentRotationX) + Math.abs(currentRotationY * 0.3) + 15;
-        
-        // Apply dynamic shadows
-        const frontElement = document.querySelector('.comic-front');
-        const backElement = document.querySelector('.comic-back');
-        
-        if (frontElement && backElement) {
-            const baseShadow = `${shadowOffsetX}px ${shadowOffsetY}px ${shadowBlur}px rgba(0,0,0,${0.4 + shadowIntensity * 0.3})`;
-            
-            if (isShowingBack) {
-                backElement.style.boxShadow = `${baseShadow}, 0 2px 8px rgba(0,0,0,0.4)`;
-                frontElement.style.boxShadow = `0 5px 15px rgba(0,0,0,0.3)`;
-            } else {
-                frontElement.style.boxShadow = `${baseShadow}, 0 0 50px var(--shadow-color), 0 5px 15px rgba(220, 53, 69, 0.3)`;
-                backElement.style.boxShadow = `0 10px 30px rgba(0,0,0,0.4)`;
+        // Add reveal effect
+        if (isFlipped) {
+            // Add a subtle vibration on mobile if supported
+            if (navigator.vibrate) {
+                navigator.vibrate(50);
             }
+            
+            // Optional: Play a reveal sound effect here
+            console.log('Comic cover revealed with "Attack of the Mutant Hillbilly\'s" artwork!');
         }
     }
     
-    // Start or continue smooth animation
-    function startAnimation() {
-        if (!animationId) {
-            animationId = requestAnimationFrame(applyTransform);
+    // Handle mouse/touch start
+    function handleStart(clientX, clientY) {
+        isDragging = false;
+        startX = clientX;
+        startY = clientY;
+        flipInner.style.cursor = 'grabbing';
+    }
+    
+    // Handle mouse/touch move
+    function handleMove(clientX, clientY) {
+        if (startX === 0) return;
+        
+        const deltaX = clientX - startX;
+        const deltaY = Math.abs(clientY - startY);
+        
+        // Check if this is a horizontal swipe
+        if (Math.abs(deltaX) > 10 || deltaY > 10) {
+            isDragging = true;
+        }
+        
+        // Trigger flip on sufficient horizontal movement
+        if (isDragging && Math.abs(deltaX) > flipSettings.touchThreshold) {
+            toggleFlip();
+            handleEnd();
         }
     }
     
-    // Reset to center position
-    function resetRotation() {
-        isInteracting = false;
-        targetRotationX = 0;
-        targetRotationY = 0;
-        startAnimation();
+    // Handle mouse/touch end
+    function handleEnd() {
+        startX = 0;
+        startY = 0;
+        isDragging = false;
+        flipInner.style.cursor = 'pointer';
     }
     
     // Mouse Events
-    comicContainer.addEventListener('mouseenter', () => {
-        isInteracting = true;
+    flipInner.addEventListener('click', (e) => {
+        if (!isDragging) {
+            e.preventDefault();
+            toggleFlip();
+        }
     });
     
-    comicContainer.addEventListener('mousemove', (e) => {
-        if (!isInteracting) return;
-        
-        const rotation = calculateRotation(e.clientX, e.clientY);
-        targetRotationX = rotation.x;
-        targetRotationY = rotation.y;
-        startAnimation();
+    flipInner.addEventListener('mousedown', (e) => {
+        handleStart(e.clientX, e.clientY);
     });
     
-    comicContainer.addEventListener('mouseleave', () => {
-        resetRotation();
+    flipInner.addEventListener('mousemove', (e) => {
+        handleMove(e.clientX, e.clientY);
+    });
+    
+    flipInner.addEventListener('mouseup', () => {
+        if (!isDragging && startX !== 0) {
+            // This was a click, not a drag
+            setTimeout(() => handleEnd(), 100);
+        } else {
+            handleEnd();
+        }
+    });
+    
+    flipInner.addEventListener('mouseleave', () => {
+        handleEnd();
     });
     
     // Touch Events for Mobile
-    comicContainer.addEventListener('touchstart', (e) => {
+    flipInner.addEventListener('touchstart', (e) => {
         if (e.touches.length === 1) {
-            isInteracting = true;
             const touch = e.touches[0];
-            const rotation = calculateRotation(touch.clientX, touch.clientY);
-            targetRotationX = rotation.x;
-            targetRotationY = rotation.y;
-            startAnimation();
+            handleStart(touch.clientX, touch.clientY);
+            
+            // Handle double tap
+            const currentTime = new Date().getTime();
+            const timeDiff = currentTime - lastTapTime;
+            
+            if (timeDiff < flipSettings.doubleTapDelay && timeDiff > 0) {
+                // Double tap detected - always flip
+                e.preventDefault();
+                toggleFlip();
+                handleEnd();
+                lastTapTime = 0;
+            } else {
+                lastTapTime = currentTime;
+            }
         }
     });
     
-    comicContainer.addEventListener('touchmove', (e) => {
-        if (e.touches.length === 1 && isInteracting) {
+    flipInner.addEventListener('touchmove', (e) => {
+        if (e.touches.length === 1 && startX !== 0) {
             e.preventDefault();
             const touch = e.touches[0];
-            const rotation = calculateRotation(touch.clientX, touch.clientY);
-            targetRotationX = rotation.x;
-            targetRotationY = rotation.y;
-            startAnimation();
+            handleMove(touch.clientX, touch.clientY);
         }
     });
     
-    comicContainer.addEventListener('touchend', () => {
-        resetRotation();
+    flipInner.addEventListener('touchend', (e) => {
+        if (!isDragging && startX !== 0) {
+            // Single tap after delay
+            setTimeout(() => {
+                if (lastTapTime !== 0) {
+                    toggleFlip();
+                    lastTapTime = 0;
+                }
+                handleEnd();
+            }, flipSettings.doubleTapDelay);
+        } else {
+            handleEnd();
+        }
     });
     
-    // Prevent context menu
-    comicContainer.addEventListener('contextmenu', (e) => {
+    // Prevent context menu on long press
+    flipInner.addEventListener('contextmenu', (e) => {
         e.preventDefault();
     });
     
-    // Make focusable for accessibility
-    comicBook.setAttribute('tabindex', '0');
-    comicBook.setAttribute('role', 'img');
-    comicBook.setAttribute('aria-label', 'Interactive 3D comic book - move mouse or touch to rotate');
-    
     // Keyboard support for accessibility
-    comicBook.addEventListener('keydown', (e) => {
-        const step = 15;
-        switch(e.key) {
-            case 'ArrowLeft':
-                e.preventDefault();
-                targetRotationY = Math.max(-rotationSettings.maxRotationY, targetRotationY - step);
-                startAnimation();
-                break;
-            case 'ArrowRight':
-                e.preventDefault();
-                targetRotationY = Math.min(rotationSettings.maxRotationY, targetRotationY + step);
-                startAnimation();
-                break;
-            case 'ArrowUp':
-                e.preventDefault();
-                targetRotationX = Math.max(-rotationSettings.maxRotationX, targetRotationX - step);
-                startAnimation();
-                break;
-            case 'ArrowDown':
-                e.preventDefault();
-                targetRotationX = Math.min(rotationSettings.maxRotationX, targetRotationX + step);
-                startAnimation();
-                break;
-            case 'Enter':
-            case ' ':
-                e.preventDefault();
-                resetRotation();
-                break;
+    flipInner.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            toggleFlip();
         }
     });
     
-    console.log('3D comic book rotation initialized with settings:', rotationSettings);
+    // Make it focusable and accessible
+    flipInner.setAttribute('tabindex', '0');
+    flipInner.setAttribute('role', 'button');
+    flipInner.setAttribute('aria-label', 'Hidden comic book - tap or press Enter to reveal');
+    
+    // Update aria-label when flipped
+    flipCard.addEventListener('transitionend', () => {
+        flipInner.setAttribute('aria-label', 
+            isFlipped ? 
+            'Comic book revealed - tap to hide' : 
+            'Hidden comic book - tap to reveal'
+        );
+    });
+    
+    console.log('Hidden reveal comic flip initialized with settings:', flipSettings);
 }
 
 // ================================
@@ -256,7 +236,7 @@ function initializeCountdown() {
         const seconds = Math.floor((distance % (1000 * 60)) / 1000);
         
         // Update display with animation
-        updateCountdownElement('days', days.toString().padStart(3, '0'));
+        updateCountdownElement('days', days.toString().padStart(2, '0'));
         updateCountdownElement('hours', hours.toString().padStart(2, '0'));
         updateCountdownElement('minutes', minutes.toString().padStart(2, '0'));
         updateCountdownElement('seconds', seconds.toString().padStart(2, '0'));
