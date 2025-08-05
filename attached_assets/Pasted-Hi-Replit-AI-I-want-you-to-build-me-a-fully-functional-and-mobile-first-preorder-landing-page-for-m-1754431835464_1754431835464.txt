@@ -1,0 +1,93 @@
+Hi Replit AI, I want you to build me a fully functional and mobile-first preorder landing page for my comic project called “MOOG COMIC BINDER”. Please follow every instruction below and create the entire app structure from scratch – HTML, Flask backend, database, styling, and behavior. This will be a product page with built-in direct checkout, lead capture, countdown, animations, and full responsiveness. I want to do as little as possible after this – build the whole thing for me.
+
+---
+
+🔧 PAGE STRUCTURE & FUNCTIONALITY:
+
+1. 🔥 When the user opens the site, they should immediately see:
+   - An **animated comic teaser or cover** (placeholder image, I will replace it)
+   - A **countdown timer** that shows time left until **August 24, 2025 at 00:00**
+   - A callout headline like: “Secure your copy before it disappears…”
+
+2. 📱 Everything should be optimized for **MOBILE FIRST** (small screen layout):
+   - Responsive styling
+   - Large buttons
+   - Fast load times
+
+3. 📩 Below the teaser, there should be:
+   - A field for **Gmail entry (optional)**
+   - If filled in, the Gmail should be saved to a local **SQLite DB** under a `leads` table
+   - This Gmail input is **not mandatory** – user can buy without it
+   - If they don’t fill it, nothing breaks
+
+4. 💸 Below that should be a **Gumroad Buy Button**:
+   - Use a placeholder link like `https://gumroad.com/l/moogtest`
+   - Embed it with Gumroad’s overlay script so it opens inside the page
+   - The button should say: “Preorder Now”
+
+5. 🧾 If a Gmail was entered and they clicked the Buy Button:
+   - Save the Gmail + timestamp to the `leads` table
+   - If they don’t enter Gmail, just let them continue to Gumroad normally
+
+6. 📊 The system should store:
+   - A `leads.db` SQLite database with table `leads (id, gmail, timestamp)`
+   - I should be able to export this later (you can tell me how)
+
+---
+
+🎨 DESIGN / STYLING (VERY IMPORTANT):
+
+- Use a **dark theme**:
+  - Black or deep gray background
+  - White main text
+  - Red buttons and highlight elements (like countdown and CTA)
+  - Comic-style feel (bold fonts, shadow boxes, etc.)
+
+- Animate the page on load:
+  - Comic cover fades in or slides
+  - Countdown animates (pulsing numbers or flip-style effect if possible)
+  - Preorder button grows or pulses subtly
+
+- Use clean spacing, centered layout, and large touch areas
+
+---
+
+🧠 USER FLOW:
+
+- User lands on page → sees comic teaser + countdown
+- Optionally enters Gmail
+- Clicks “Preorder Now” → buys via Gumroad overlay
+- Gmail is stored if entered
+- You explain where I can upload my real:
+  - Comic cover (as teaser or animation)
+  - Logo
+  - Gumroad link
+
+---
+
+📁 FILES & STRUCTURE:
+
+- `main.py` – Flask backend with routing and database insert logic
+- `index.html` – full landing page with Gmail input, comic, countdown, buy button
+- `leads.db` – SQLite DB with table `leads`
+- `/static/` folder for:
+   - Placeholder comic image
+   - Countdown styling/JS
+   - Fonts (if needed)
+
+---
+
+✅ BONUS (IF POSSIBLE):
+
+- Please let me know:
+   - Where I can change the Gumroad link
+   - Where to replace the comic image
+   - How to export the Gmail leads
+- Make sure everything works live with Flask and I can preview it directly in Replit
+- Also explain how to add Mailchimp later if I want to sync Gmail leads
+
+---
+
+Now please generate everything, build the page, wire it all up, and launch the Flask server. Once it’s live, prompt me with instructions on what to replace, where to drop assets, and how to test.
+
+Make the site look beautiful on mobile, feel animated and immersive like a comic, and ready to start taking real preorders right away. Let’s go.
