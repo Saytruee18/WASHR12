@@ -79,6 +79,8 @@ body {
     position: relative;
     display: inline-block;
     max-width: 100%;
+    perspective: 1000px;
+    transform-style: preserve-3d;
 }
 
 .comic-cover {
@@ -87,16 +89,27 @@ body {
     border-radius: 15px;
     box-shadow: 
         0 10px 30px rgba(0,0,0,0.5),
-        0 0 50px var(--shadow-color);
-    transition: all 0.3s ease;
+        0 0 50px var(--shadow-color),
+        0 35px 80px rgba(0,0,0,0.3);
+    transition: all 0.1s ease-out;
     border: 3px solid var(--accent-red);
+    transform-origin: center center;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+.comic-cover.interactive {
+    will-change: transform;
 }
 
 .comic-cover:hover {
-    transform: translateY(-10px) scale(1.02);
     box-shadow: 
         0 20px 40px rgba(0,0,0,0.7),
-        0 0 80px var(--glow-color);
+        0 0 80px var(--glow-color),
+        0 45px 100px rgba(0,0,0,0.4);
 }
 
 .comic-glow {

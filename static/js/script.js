@@ -7,8 +7,170 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeAnimations();
     initializeEmailForm();
     initializeFloatingReminder();
+    initializeComicInteraction();
     console.log('MOOG Comic Binder loaded successfully!');
 });
+
+// ================================
+// 3D COMIC INTERACTION
+// ================================
+
+function initializeComicInteraction() {
+    const comicCover = document.querySelector('.comic-cover');
+    const comicContainer = document.querySelector('.comic-container');
+    
+    if (!comicCover || !comicContainer) {
+        console.log('Comic cover element not found');
+        return;
+    }
+    
+    // Add interactive class for will-change optimization
+    comicCover.classList.add('interactive');
+    
+    let isInteracting = false;
+    let animationId = null;
+    
+    // Maximum rotation in degrees
+    const maxRotation = 15;
+    
+    // Get element center and dimensions
+    function getElementCenter(element) {
+        const rect = element.getBoundingClientRect();
+        return {
+            x: rect.left + rect.width / 2,
+            y: rect.top + rect.height / 2,
+            width: rect.width,
+            height: rect.height
+        };
+    }
+    
+    // Calculate rotation based on mouse/touch position
+    function calculateRotation(clientX, clientY, center) {
+        const deltaX = (clientX - center.x) / (center.width / 2);
+        const deltaY = (clientY - center.y) / (center.height / 2);
+        
+        // Invert Y axis for natural tilt effect
+        const rotateY = deltaX * maxRotation;
+        const rotateX = -deltaY * maxRotation;
+        
+        // Clamp rotation values
+        return {
+            x: Math.max(-maxRotation, Math.min(maxRotation, rotateX)),
+            y: Math.max(-maxRotation, Math.min(maxRotation, rotateY))
+        };
+    }
+    
+    // Apply 3D transform with shadow effect
+    function applyTransform(rotateX, rotateY, scale = 1) {
+        const shadowX = rotateY * 0.5;
+        const shadowY = Math.abs(rotateX) * 1.5 + 10;
+        const shadowBlur = Math.abs(rotateX) + Math.abs(rotateY) + 20;
+        
+        comicCover.style.transform = `
+            perspective(1000px) 
+            rotateX(${rotateX}deg) 
+            rotateY(${rotateY}deg) 
+            scale(${scale})
+        `;
+        
+        // Enhanced shadow effect for depth
+        comicCover.style.boxShadow = `
+            ${shadowX}px ${shadowY}px ${shadowBlur}px rgba(0,0,0,0.6),
+            0 0 50px var(--shadow-color),
+            0 ${shadowY + 20}px ${shadowBlur + 60}px rgba(0,0,0,0.4)
+        `;
+    }
+    
+    // Reset to neutral position
+    function resetTransform() {
+        if (animationId) {
+            cancelAnimationFrame(animationId);
+        }
+        
+        const startRotateX = parseFloat(comicCover.style.transform.match(/rotateX\(([^)]+)\)/) || [0, 0])[1];
+        const startRotateY = parseFloat(comicCover.style.transform.match(/rotateY\(([^)]+)\)/) || [0, 0])[1];
+        
+        const duration = 300;
+        const startTime = performance.now();
+        
+        function animate(currentTime) {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            
+            // Easing function for smooth animation
+            const ease = 1 - Math.pow(1 - progress, 3);
+            
+            const rotateX = startRotateX * (1 - ease);
+            const rotateY = startRotateY * (1 - ease);
+            
+            applyTransform(rotateX, rotateY);
+            
+            if (progress < 1) {
+                animationId = requestAnimationFrame(animate);
+            } else {
+                comicCover.classList.remove('interactive');
+                setTimeout(() => comicCover.classList.add('interactive'), 100);
+            }
+        }
+        
+        animationId = requestAnimationFrame(animate);
+    }
+    
+    // Mouse Events
+    comicContainer.addEventListener('mouseenter', () => {
+        isInteracting = true;
+        if (animationId) {
+            cancelAnimationFrame(animationId);
+            animationId = null;
+        }
+    });
+    
+    comicContainer.addEventListener('mousemove', (e) => {
+        if (!isInteracting) return;
+        
+        const center = getElementCenter(comicContainer);
+        const rotation = calculateRotation(e.clientX, e.clientY, center);
+        applyTransform(rotation.x, rotation.y, 1.02);
+    });
+    
+    comicContainer.addEventListener('mouseleave', () => {
+        isInteracting = false;
+        resetTransform();
+    });
+    
+    // Touch Events for Mobile
+    comicContainer.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        isInteracting = true;
+        if (animationId) {
+            cancelAnimationFrame(animationId);
+            animationId = null;
+        }
+    });
+    
+    comicContainer.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        if (!isInteracting || e.touches.length !== 1) return;
+        
+        const touch = e.touches[0];
+        const center = getElementCenter(comicContainer);
+        const rotation = calculateRotation(touch.clientX, touch.clientY, center);
+        applyTransform(rotation.x, rotation.y, 1.02);
+    });
+    
+    comicContainer.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        isInteracting = false;
+        resetTransform();
+    });
+    
+    // Prevent context menu on long press
+    comicContainer.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+    });
+    
+    console.log('3D comic interaction initialized');
+}
 
 // ================================
 // COUNTDOWN TIMER
