@@ -33,11 +33,27 @@
 
                 <!-- Comic Teaser Section -->
                 <section class="comic-section text-center mb-5 slide-in">
-                    <div class="comic-container">
-                        <img src="{{ url_for('static', filename='images/comic-placeholder.svg') }}" 
-                             alt="MOOG Comic Binder Preview" 
-                             class="comic-cover img-fluid">
-                        <div class="comic-glow"></div>
+                    <div class="comic-book-container">
+                        <div class="comic-book">
+                            <div class="comic-book-inner">
+                                <!-- Front Cover -->
+                                <div class="comic-front">
+                                    <img src="{{ url_for('static', filename='images/front-cover.svg') }}" 
+                                         alt="MOOG Comic Binder Front Cover" 
+                                         class="comic-cover-image">
+                                </div>
+                                <!-- Back Cover -->
+                                <div class="comic-back">
+                                    <img src="{{ url_for('static', filename='images/back-cover.svg') }}" 
+                                         alt="MOOG Comic Binder Back Cover" 
+                                         class="comic-cover-image">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flip-instruction">
+                            <span class="flip-text">Click or drag to flip</span>
+                            <i class="fas fa-hand-pointer flip-icon"></i>
+                        </div>
                     </div>
                 </section>
 
