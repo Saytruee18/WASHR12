@@ -4,6 +4,11 @@
 
 MOOG Comic Binder is a mobile-first preorder landing page for a comic project. The application features a dark-themed, animated landing page with a countdown timer to August 24, 2025, email lead capture functionality, and integration with Gumroad for preorders. The system is designed to capture potential customer emails while providing a seamless path to purchase through Gumroad's embedded checkout system.
 
+### Recent Updates (August 2025)
+- **3D Interactive Comic Cover**: Added realistic 3D rotation effect that follows mouse/touch movement with enhanced shadows and smooth animations
+- **Migration to Replit Environment**: Successfully migrated from SQLite to PostgreSQL, configured proper Flask deployment with Gunicorn
+- **Mobile Optimization**: Enhanced touch support for 3D interactions on mobile devices
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
@@ -18,6 +23,7 @@ The frontend uses a traditional server-side rendered approach with Flask templat
 - **JavaScript**: Vanilla JavaScript for countdown timer, animations, and form handling
 - **Responsive Design**: Mobile-first approach with responsive breakpoints
 - **Animation System**: CSS animations and JavaScript-driven effects for comic cover, countdown timer, and page elements
+- **3D Interactive Effects**: Real-time 3D rotation of comic cover using CSS transforms and JavaScript pointer tracking
 
 ### Backend Architecture
 The backend follows a simple Flask application pattern with clear separation of concerns:
