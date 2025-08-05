@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeCountdown();
     initializeAnimations();
     initializeEmailForm();
+    initializeFloatingReminder();
     console.log('MOOG Comic Binder loaded successfully!');
 });
 
@@ -304,5 +305,94 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-// Expose debug function to global scope for testing
+// ================================
+// FLOATING REMINDER SYSTEM
+// ================================
+
+let reminderTimer;
+let scrollTriggered = false;
+let reminderShown = false;
+
+function initializeFloatingReminder() {
+    // Show reminder after 10 seconds of idle time
+    reminderTimer = setTimeout(showFloatingReminder, 10000);
+    
+    // Show reminder on scroll (only once)
+    window.addEventListener('scroll', function() {
+        if (!scrollTriggered && !reminderShown && window.scrollY > 200) {
+            scrollTriggered = true;
+            clearTimeout(reminderTimer);
+            setTimeout(showFloatingReminder, 2000);
+        }
+    });
+    
+    // Reset timer on user activity
+    ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(event => {
+        document.addEventListener(event, resetReminderTimer, { passive: true });
+    });
+}
+
+function resetReminderTimer() {
+    if (!reminderShown) {
+        clearTimeout(reminderTimer);
+        reminderTimer = setTimeout(showFloatingReminder, 10000);
+    }
+}
+
+function showFloatingReminder() {
+    if (reminderShown) return;
+    
+    const reminder = document.getElementById('floatingReminder');
+    if (reminder) {
+        reminderShown = true;
+        reminder.classList.add('show');
+        
+        // Auto-hide after 15 seconds
+        setTimeout(() => {
+            if (reminder.classList.contains('show')) {
+                hideReminder();
+            }
+        }, 15000);
+    }
+}
+
+function hideReminder() {
+    const reminder = document.getElementById('floatingReminder');
+    if (reminder) {
+        reminder.classList.remove('show');
+    }
+}
+
+function focusEmailInput() {
+    hideReminder();
+    const emailInput = document.getElementById('gmailInput');
+    if (emailInput) {
+        emailInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(() => {
+            emailInput.focus();
+        }, 500);
+    }
+}
+
+// ================================
+// ENHANCED EMAIL CAPTURE
+// ================================
+
+function captureEmailAndNotify() {
+    const emailInput = document.getElementById('gmailInput');
+    const email = emailInput.value.trim();
+    
+    if (!email) {
+        emailInput.focus();
+        showToast('Please enter your Gmail address first', 'error');
+        return;
+    }
+    
+    captureEmail();
+}
+
+// Expose functions to global scope
+window.hideReminder = hideReminder;
+window.focusEmailInput = focusEmailInput;
+window.captureEmailAndNotify = captureEmailAndNotify;
 window.debugMoog = debugMode;

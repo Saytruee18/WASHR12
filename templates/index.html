@@ -67,49 +67,51 @@
                     </div>
                 </section>
 
-                <!-- Email Capture Section -->
-                <section class="email-section mb-5 fade-in-delay-2">
-                    <div class="email-container">
-                        <h3 class="email-title text-center mb-3">
-                            <i class="fas fa-envelope"></i>
-                            Get Exclusive Updates
-                        </h3>
-                        <p class="email-subtitle text-center mb-4">
-                            Enter your Gmail to receive behind-the-scenes content and updates (optional)
-                        </p>
-                        <form id="emailForm" class="email-form">
-                            <div class="input-group mb-3">
+                <!-- Combined Action Section -->
+                <section class="action-section mb-5 fade-in-delay-2">
+                    <div class="action-container">
+                        <div class="action-header text-center mb-4">
+                            <h3 class="action-title">
+                                <i class="fas fa-rocket"></i>
+                                Secure your copy – we'll notify you before the drop
+                            </h3>
+                        </div>
+                        
+                        <!-- Email Input -->
+                        <form id="emailForm" class="email-form mb-4">
+                            <div class="comic-input-group">
                                 <input type="email" 
-                                       class="form-control email-input" 
+                                       class="form-control comic-email-input" 
                                        id="gmailInput" 
                                        name="gmail"
                                        placeholder="your.email@gmail.com"
                                        pattern=".*@gmail\.com$">
-                                <button class="btn btn-outline-secondary email-btn" type="button" onclick="captureEmail()">
-                                    <i class="fas fa-paper-plane"></i>
+                                <button class="btn comic-notify-btn" type="button" onclick="captureEmail()">
+                                    <i class="fas fa-bell"></i>
+                                    Notify Me
                                 </button>
                             </div>
-                            <small class="form-text text-muted">
-                                We only accept Gmail addresses. Your email is safe with us.
+                            <small class="form-text comic-form-text text-center d-block mt-2">
+                                Enter your Gmail for exclusive updates (optional)
                             </small>
                         </form>
-                    </div>
-                </section>
-
-                <!-- Preorder Button Section -->
-                <section class="preorder-section text-center mb-5 fade-in-delay-3">
-                    <div class="preorder-container">
-                        <a href="https://gumroad.com/l/moogtest" 
-                           class="gumroad-button btn btn-danger btn-lg preorder-btn pulse"
-                           data-gumroad-single-product="true">
-                            <i class="fas fa-shopping-cart"></i>
-                            Preorder Now
-                            <small class="btn-subtitle d-block">Limited Edition Release</small>
-                        </a>
-                        <p class="preorder-info mt-3">
-                            <i class="fas fa-shield-alt"></i>
-                            Secure checkout via Gumroad • 30-day money-back guarantee
-                        </p>
+                        
+                        <!-- Preorder Button -->
+                        <div class="preorder-container text-center">
+                            <a href="https://gumroad.com/l/moogtest" 
+                               class="gumroad-button btn comic-preorder-btn pulse"
+                               data-gumroad-single-product="true">
+                                <div class="btn-content">
+                                    <i class="fas fa-shopping-cart btn-icon"></i>
+                                    <span class="btn-text">PREORDER NOW</span>
+                                    <small class="btn-subtitle">Limited Edition Release</small>
+                                </div>
+                            </a>
+                            <p class="preorder-info mt-3">
+                                <i class="fas fa-shield-alt"></i>
+                                Secure checkout via Gumroad • 30-day money-back guarantee
+                            </p>
+                        </div>
                     </div>
                 </section>
 
@@ -166,6 +168,29 @@
             </div>
             <div class="toast-body">
                 Email captured successfully! Thanks for joining our community.
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Reminder Popup -->
+    <div id="floatingReminder" class="floating-reminder">
+        <div class="reminder-content">
+            <button type="button" class="reminder-close" onclick="hideReminder()">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="reminder-text">
+                <h4><i class="fas fa-clock"></i> Still thinking?</h4>
+                <p>Enter your Gmail to get notified – or Preorder now.</p>
+            </div>
+            <div class="reminder-actions">
+                <button class="btn reminder-notify-btn" onclick="focusEmailInput()">
+                    <i class="fas fa-bell"></i> Notify Me
+                </button>
+                <a href="https://gumroad.com/l/moogtest" 
+                   class="btn reminder-preorder-btn"
+                   data-gumroad-single-product="true">
+                    <i class="fas fa-shopping-cart"></i> Preorder Now
+                </a>
             </div>
         </div>
     </div>
