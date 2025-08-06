@@ -1,0 +1,56 @@
+Please revise the landing page layout and styling according to the following detailed adjustments:
+
+---
+
+🖼 PRODUCT DISPLAY:
+
+– I’ve uploaded the image `comic-front.jpg`  
+– This image must be embedded inside the interactive flip-card – not displayed separately  
+– On page load, only a subtle comic back texture should be visible  
+– Once the user taps the card, it flips and shows the actual comic cover (`comic-front.jpg`)  
+– Place the image directly inside the front side of the flip container and center it
+
+---
+
+⏱ COUNTDOWN FIX:
+
+– Move the countdown timer to the very top of the page  
+– Remove the solid red background – it’s too heavy  
+– Replace it with a transparent or dark translucent background  
+– Make the timer bold, large, and comic-style, but clean (no boxed digits)  
+– Use a label like: “Drop Begins In:” and place it above the numbers  
+– Make it full width, center-aligned on mobile  
+– The font should be readable – no Comic Sans look
+
+---
+
+🖋 FONTS:
+
+– Replace the current fonts with cleaner, modern alternatives that still fit the comic vibe:  
+   - Headlines: `Bebas Neue` or `Anton`  
+   - Body text: `Rubik` or `Teko`  
+– Keep the layout clean and minimal – focus on spacing and rhythm  
+– Use white or light gray text on dark background
+
+---
+
+🎨 STYLE REFERENCE: JUICE-THEMED VIBE (NO NAME, NO BRAND)
+
+– Add subtle Juice WRLD–inspired visual elements WITHOUT using his name or branding  
+– Examples:
+   - Slight purple-pink gradient overlays  
+   - Floating cloud textures or soft neon glow around the card  
+   - Add 999-style abstract visuals (e.g. glitch lines, dreamy haze, etc.)  
+– Make sure the vibe feels raw, emotional, floaty – but stays within original comic style
+
+---
+
+📱 MOBILE-FIRST:
+
+– Ensure the full experience feels immersive on mobile:  
+   - Large touch targets  
+   - Centered layout  
+   - Clean spacing and breathing room  
+   - No unnecessary borders or boxes
+
+Please apply these updates and tell me where to upload a matching back cover image next, if I want to include it in the flip-card.

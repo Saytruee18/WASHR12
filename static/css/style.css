@@ -27,9 +27,12 @@
 }
 
 body {
-    background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+    background: 
+        radial-gradient(circle at 20% 50%, rgba(147, 51, 234, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(236, 72, 153, 0.1) 0%, transparent 50%),
+        linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
     color: var(--text-primary);
-    font-family: 'Comic Neue', cursive;
+    font-family: 'Rubik', sans-serif;
     line-height: 1.6;
     min-height: 100vh;
     overflow-x: hidden;
@@ -45,25 +48,114 @@ body {
    ================================ */
 
 .comic-title {
-    font-family: 'Bangers', cursive;
+    font-family: 'Bebas Neue', cursive;
     font-size: 3.5rem;
-    color: var(--accent-red);
-    text-shadow: 
-        3px 3px 0 #000,
-        -1px -1px 0 #000,
-        1px -1px 0 #000,
-        -1px 1px 0 #000,
-        1px 1px 0 #000,
-        0 0 20px var(--glow-color);
-    letter-spacing: 3px;
+    color: #ffffff;
+    text-shadow: 0 0 20px rgba(220, 53, 69, 0.5), 0 0 40px rgba(147, 51, 234, 0.3);
+    letter-spacing: 4px;
     margin-bottom: 0.5rem;
+    animation: titleGlow 4s ease-in-out infinite alternate;
 }
 
 .subtitle {
-    font-size: 1.2rem;
-    color: var(--text-secondary);
+    font-family: 'Rubik', sans-serif;
+    font-size: 1.1rem;
+    color: #a0a0a0;
     font-weight: 400;
     margin-bottom: 2rem;
+    text-shadow: 0 0 10px rgba(255,255,255,0.1);
+}
+
+/* ================================
+   FLOATING ELEMENTS (JUICE-INSPIRED)
+   ================================ */
+
+.floating-elements {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.cloud {
+    position: absolute;
+    background: radial-gradient(ellipse, rgba(255,255,255,0.1) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: float 6s ease-in-out infinite;
+}
+
+.cloud-1 {
+    width: 80px;
+    height: 40px;
+    top: 10%;
+    left: 20%;
+    animation-delay: 0s;
+}
+
+.cloud-2 {
+    width: 60px;
+    height: 30px;
+    top: 60%;
+    right: 25%;
+    animation-delay: 2s;
+}
+
+.glitch-line {
+    position: absolute;
+    height: 1px;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(147, 51, 234, 0.6) 50%, 
+        transparent 100%);
+    animation: glitch 3s linear infinite;
+}
+
+.glitch-1 {
+    width: 100px;
+    top: 30%;
+    left: 10%;
+    animation-delay: 1s;
+}
+
+.glitch-2 {
+    width: 80px;
+    top: 70%;
+    right: 15%;
+    animation-delay: 3s;
+}
+
+@keyframes titleGlow {
+    from {
+        text-shadow: 0 0 20px rgba(220, 53, 69, 0.5), 0 0 40px rgba(147, 51, 234, 0.3);
+    }
+    to {
+        text-shadow: 0 0 30px rgba(220, 53, 69, 0.8), 0 0 60px rgba(147, 51, 234, 0.5);
+    }
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px);
+        opacity: 0.3;
+    }
+    50% {
+        transform: translateY(-20px);
+        opacity: 0.6;
+    }
+}
+
+@keyframes glitch {
+    0%, 90%, 100% {
+        opacity: 0;
+        transform: scaleX(0);
+    }
+    5%, 85% {
+        opacity: 1;
+        transform: scaleX(1);
+    }
 }
 
 /* ================================
@@ -76,84 +168,89 @@ body {
 }
 
 /* ================================
-   COUNTDOWN STRIP
+   CLEAN COUNTDOWN SECTION
    ================================ */
 
-.countdown-strip {
+.countdown-section {
     width: 100%;
-    background: linear-gradient(135deg, #dc3545, #8b0000);
-    border: 3px solid #000;
-    margin-bottom: 2rem;
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    margin-bottom: 3rem;
+    padding: 1.5rem 1rem;
     position: relative;
     overflow: hidden;
 }
 
-.countdown-strip::before {
+.countdown-section::before {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: 
-        repeating-linear-gradient(
-            45deg,
-            transparent,
-            transparent 10px,
-            rgba(0,0,0,0.1) 10px,
-            rgba(0,0,0,0.1) 20px
-        );
+    background: linear-gradient(45deg, 
+        rgba(147, 51, 234, 0.05) 0%, 
+        transparent 50%, 
+        rgba(236, 72, 153, 0.05) 100%);
     pointer-events: none;
 }
 
-.strip-content {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-    padding: 0.8rem 1rem;
+.countdown-content {
+    text-align: center;
     position: relative;
     z-index: 1;
 }
 
-.strip-label {
-    font-family: 'Bangers', cursive;
-    color: #fff;
-    font-size: 1.2rem;
-    text-shadow: 2px 2px 0 #000;
-    letter-spacing: 1px;
+.countdown-label {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 1.5rem;
+    color: #ffffff;
+    letter-spacing: 2px;
+    margin-bottom: 1rem;
+    text-shadow: 0 0 15px rgba(255,255,255,0.3);
 }
 
-.countdown-timer {
+.countdown-display {
     display: flex;
-    gap: 0.5rem;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
 }
 
-.time-unit {
+.countdown-item {
     display: flex;
     flex-direction: column;
     align-items: center;
-    background: #000;
-    border-radius: 6px;
-    padding: 0.3rem 0.5rem;
-    min-width: 40px;
-    border: 2px solid #fff;
+    min-width: 60px;
 }
 
-.time-value {
-    font-family: 'Bangers', cursive;
-    color: #dc3545;
-    font-size: 1.4rem;
+.countdown-number {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 2.5rem;
+    color: #ffffff;
     line-height: 1;
-    text-shadow: 1px 1px 0 #fff;
+    text-shadow: 0 0 20px rgba(220, 53, 69, 0.6);
+    transition: transform 0.2s ease;
 }
 
-.time-label {
-    font-family: 'Comic Neue', cursive;
-    color: #fff;
-    font-size: 0.7rem;
-    font-weight: 700;
+.countdown-text {
+    font-family: 'Rubik', sans-serif;
+    font-size: 0.8rem;
+    color: #a0a0a0;
+    font-weight: 500;
     text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 0.2rem;
+}
+
+.countdown-separator {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 2rem;
+    color: #666;
+    line-height: 1;
 }
 
 /* ================================
@@ -166,6 +263,22 @@ body {
     width: 100%;
     margin: 0 auto;
     perspective: 1000px;
+}
+
+.comic-flip-card::before {
+    content: '';
+    position: absolute;
+    top: -20px;
+    left: -20px;
+    right: -20px;
+    bottom: -20px;
+    background: radial-gradient(circle, 
+        rgba(147, 51, 234, 0.15) 0%, 
+        rgba(236, 72, 153, 0.1) 50%, 
+        transparent 70%);
+    border-radius: 50%;
+    z-index: -1;
+    animation: pulseGlow 4s ease-in-out infinite;
 }
 
 .comic-flip-inner {
@@ -249,11 +362,11 @@ body {
 }
 
 .tap-hint {
-    font-family: 'Bangers', cursive;
+    font-family: 'Bebas Neue', cursive;
     font-size: 1.5rem;
     display: block;
     margin-bottom: 0.5rem;
-    text-shadow: 1px 1px 0 #000;
+    text-shadow: 0 0 15px rgba(147, 51, 234, 0.5);
     animation: glow 2s ease-in-out infinite alternate;
 }
 
@@ -264,10 +377,12 @@ body {
 
 @keyframes glow {
     from {
-        text-shadow: 1px 1px 0 #000, 0 0 10px #888;
+        text-shadow: 0 0 15px rgba(147, 51, 234, 0.5);
+        color: #888;
     }
     to {
-        text-shadow: 1px 1px 0 #000, 0 0 20px #ccc, 0 0 30px #ccc;
+        text-shadow: 0 0 25px rgba(147, 51, 234, 0.8), 0 0 35px rgba(236, 72, 153, 0.4);
+        color: #ccc;
     }
 }
 
@@ -316,6 +431,43 @@ body {
     pointer-events: none;
 }
 
+.dreamy-haze {
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    right: -10px;
+    bottom: -10px;
+    background: radial-gradient(circle at center, 
+        rgba(147, 51, 234, 0.1) 0%, 
+        rgba(236, 72, 153, 0.05) 40%, 
+        transparent 70%);
+    border-radius: 20px;
+    animation: dreamFloat 6s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes dreamFloat {
+    0%, 100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 0.3;
+    }
+    50% {
+        transform: scale(1.05) rotate(1deg);
+        opacity: 0.6;
+    }
+}
+
+@keyframes pulseGlow {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 0.3;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 0.6;
+    }
+}
+
 @keyframes shimmer {
     0%, 100% {
         opacity: 0;
@@ -362,22 +514,39 @@ body {
 
 /* Mobile optimizations */
 @media (max-width: 768px) {
-    .countdown-strip {
-        margin-bottom: 1.5rem;
+    .comic-title {
+        font-size: 2.8rem;
+        letter-spacing: 2px;
     }
     
-    .strip-content {
-        flex-direction: column;
-        gap: 0.5rem;
-        padding: 0.6rem 1rem;
-    }
-    
-    .strip-label {
+    .subtitle {
         font-size: 1rem;
     }
     
-    .time-value {
+    .countdown-section {
+        margin-bottom: 2rem;
+        padding: 1rem 0.5rem;
+    }
+    
+    .countdown-label {
         font-size: 1.2rem;
+        margin-bottom: 0.8rem;
+    }
+    
+    .countdown-display {
+        gap: 0.5rem;
+    }
+    
+    .countdown-number {
+        font-size: 2rem;
+    }
+    
+    .countdown-text {
+        font-size: 0.7rem;
+    }
+    
+    .countdown-separator {
+        font-size: 1.5rem;
     }
     
     .comic-flip-card {
@@ -403,6 +572,14 @@ body {
     
     .flip-instruction::after {
         content: 'Tap to reveal';
+    }
+    
+    .main-container {
+        padding: 15px 10px;
+    }
+    
+    .floating-elements {
+        display: none; /* Hide floating elements on mobile for cleaner look */
     }
 }
 
