@@ -167,6 +167,24 @@ body {
     margin-bottom: 3rem;
 }
 
+.comic-section::before {
+    content: '';
+    position: absolute;
+    top: -50px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 500px;
+    height: 400px;
+    background-image: url('/static/images/background.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 0.15;
+    z-index: -1;
+    filter: blur(1px);
+}
+
 /* ================================
    CLEAN COUNTDOWN SECTION
    ================================ */
